@@ -116,12 +116,7 @@ export default function AdminPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<ProductItem | null>(null);
-  const [origin, setOrigin] = useState('http://localhost:3000');
-  const [copiedBookmarklet, setCopiedBookmarklet] = useState(false);
   const [importNotification, setImportNotification] = useState<string | null>(null);
-  const [showSmartPaste, setShowSmartPaste] = useState(false);
-  const [smartPasteText, setSmartPasteText] = useState('');
-  const bookmarkletRef = React.useRef<HTMLAnchorElement>(null);
 
   const [newJob, setNewJob] = useState({
     title: '',
@@ -149,15 +144,6 @@ export default function AdminPage() {
     order: 0,
   });
 
-  const bookmarkletCode = `javascript:(function(){try{var doc=document,win=window,tabName=(doc.title||'').replace(/\\s*\\|\\s*LYNK.*$/i,'').trim(),pathUser=(win.location.pathname.split('/')[1]||'').toLowerCase(),t='';try{var ndEl=doc.getElementById('__NEXT_DATA__');if(ndEl){var nd=JSON.parse(ndEl.textContent||'{}'),pp=nd.props&&nd.props.pageProps;if(pp){var cand=pp.product||pp.item||pp.data||pp.productDetail||{};if(cand.title&&typeof cand.title==='string')t=cand.title.trim();else if(cand.name&&typeof cand.name==='string')t=cand.name.trim();}}}catch(e){}if(!t){var sel=(win.getSelection?win.getSelection().toString():'').trim();if(sel&&sel.length>4&&sel.length<120&&!sel.includes('\\n'))t=sel;}var bodyText=doc.body?doc.body.innerText:'',lines=bodyText.split('\\n').map(function(l){return l.trim();}).filter(Boolean);if(!t){for(var i=0;i<lines.length;i++){var l=lines[i];if(/^(?:rp\\.?|idr)\\s*[\\d\\.,]+/i.test(l)||/\\b(?:rp\\.?|idr)\\s*\\d+/i.test(l)){for(var k=i-1;k>=Math.max(0,i-3);k--){var prev=lines[k],pLow=prev.toLowerCase();if(prev.length>4&&prev.length<120&&pLow!==tabName.toLowerCase()&&pLow!==pathUser&&!pLow.includes('lynk')&&!/^(?:rp\\.?|idr|http)/i.test(prev)){t=prev;break;}}if(t)break;}}}if(!t){var headings=Array.from(doc.querySelectorAll('h1, h2, [role=\"heading\"], [class*=\"title\" i]'));for(var h=0;h<headings.length;h++){var ht=(headings[h].innerText||headings[h].textContent||'').trim(),hLow=ht.toLowerCase();if(ht.length>4&&ht.length<120&&hLow!==tabName.toLowerCase()&&hLow!==pathUser&&!hLow.includes('lynk')&&!/^(?:rp\\.?|idr|http)/i.test(ht)&&!['beli sekarang','checkout','bagikan','deskripsi'].includes(hLow)){t=ht;break;}}}if(!t){t=lines.find(function(l){var lLow=l.toLowerCase();return !l.startsWith('http')&&!lLow.startsWith('rp')&&!lLow.startsWith('idr')&&l.length>4&&l.length<90&&lLow!==tabName.toLowerCase()&&lLow!==pathUser&&!lLow.includes('lynk')&&!['beli sekarang','checkout','bagikan','deskripsi'].includes(lLow);})||'';}if(!t)t=tabName;var price='',priceMatch=bodyText.match(/(?:Rp\\.?|IDR)\\s*[\\d\\.,]+/i);if(priceMatch)price=priceMatch[0].trim();var imgEl=doc.querySelector('img[src*=\"cdn.lynkid.my.id\"]')||doc.querySelector('img[src*=\"lynk\"]')||doc.querySelector('meta[property=\"og:image\"]'),img=imgEl?(imgEl.src||imgEl.content||''):'';var u=win.location.href.split('?')[0].replace(/\\/+$/,'').replace(/\\/checkout$/,'');var target='${origin}/admin?tab=produk&import=lynk&title='+encodeURIComponent(t)+'&image='+encodeURIComponent(img)+'&price='+encodeURIComponent(price)+'&url='+encodeURIComponent(u);var w=win.open(target,'_blank');if(!w||w.closed||typeof w.closed==='undefined'){win.location.href=target;}}catch(e){alert('Gagal impor Lynk.id: '+e.message);}})();`;
-
-  // Attach real javascript: code via native DOM ref to bypass React's security block
-  useEffect(() => {
-    if (bookmarkletRef.current) {
-      bookmarkletRef.current.setAttribute('href', bookmarkletCode);
-    }
-  }, [bookmarkletCode, origin, activeTab]);
-
   const cleanLynkUrl = (rawUrl: string): string => {
     let url = (rawUrl || '').trim();
     if (!url) return '';
@@ -166,39 +152,12 @@ export default function AdminPage() {
     return url;
   };
 
-  const handleSmartPaste = (raw: string) => {
-    setSmartPasteText(raw);
-    if (!raw.trim()) return;
-
-    // Detect image URL from cdn.lynkid.my.id
-    const imgMatch = raw.match(/https:\/\/cdn\.lynkid\.my\.id\/[^\s\"\'<>\)]+/i);
-    // Detect lynk.id URL
-    const urlMatch = raw.match(/https:\/\/lynk\.id\/[^\s\"\'<>\)]+/i);
-    let cleanUrl = urlMatch ? cleanLynkUrl(urlMatch[0]) : '';
-    // Detect price if present in paste
-    const priceMatch = raw.match(/(?:Rp\.?|IDR)\s*[\d\.,]+/i);
-
-    const lines = raw.split('\n').map(l => l.trim()).filter(Boolean);
-    const candidateTitle = lines.find(l => !l.startsWith('http') && !l.toLowerCase().startsWith('rp') && !l.toLowerCase().startsWith('idr') && l.length > 4 && l.length < 90);
-
-    setProductForm(prev => ({
-      ...prev,
-      title: candidateTitle || prev.title,
-      price: priceMatch ? priceMatch[0].trim() : prev.price,
-      imageUrl: imgMatch ? imgMatch[0].trim() : prev.imageUrl,
-      url: cleanUrl || prev.url,
-    }));
-  };
-
   useEffect(() => {
     fetchLeads();
     fetchJobs();
     fetchProducts();
 
     if (typeof window !== 'undefined') {
-      setOrigin(window.location.origin);
-
-      // Auto-detect import query parameters from Bookmarklet
       const params = new URLSearchParams(window.location.search);
       if (params.get('tab') === 'produk' || params.get('import') === 'lynk') {
         setActiveTab('produk');
@@ -237,7 +196,7 @@ export default function AdminPage() {
         });
         setEditingProduct(null);
         setIsProductModalOpen(true);
-        setImportNotification('🎉 Data produk Lynk.id berhasil dideteksi! Form siap disimpan.');
+        setImportNotification('Data produk berhasil dimuat ke formulir.');
         window.history.replaceState({}, '', '/admin');
       }
     }
@@ -293,7 +252,7 @@ export default function AdminPage() {
 
   const saveProduct = async () => {
     if (!productForm.title.trim() || !productForm.url.trim()) {
-      alert('Judul dan URL produk Lynk.id wajib diisi.');
+      alert('Judul dan link produk wajib diisi.');
       return;
     }
     setIsSaving(true);
@@ -306,7 +265,7 @@ export default function AdminPage() {
         ...(isEdit ? { id: editingProduct!.id } : {}),
         ...productForm,
         url: cleanUrl,
-        price: '',
+        price: productForm.price || 'Rp 0',
       };
 
       const res = await fetch(url, {
@@ -319,7 +278,7 @@ export default function AdminPage() {
         setIsProductModalOpen(false);
         setEditingProduct(null);
         fetchProducts();
-        alert(isEdit ? 'Produk berhasil diperbarui!' : 'Produk berhasil disimpan ke database!');
+        alert(isEdit ? 'Produk berhasil diperbarui.' : 'Produk berhasil ditambahkan.');
       } else {
         alert('Gagal menyimpan: ' + (data.error || 'Terjadi kesalahan'));
       }
@@ -331,7 +290,7 @@ export default function AdminPage() {
   };
 
   const deleteProduct = async (id: string, title: string) => {
-    if (!confirm(`Hapus produk "${title}" dari database?`)) return;
+    if (!confirm(`Hapus produk "${title}"?`)) return;
     try {
       const res = await fetch(`/api/products?id=${encodeURIComponent(id)}`, { method: 'DELETE' });
       const data = await res.json();
@@ -497,14 +456,13 @@ export default function AdminPage() {
           <div style={S.logoIcon}>💼</div>
           <div>
             <h1 style={S.h1}>
-              CARI <span style={S.badge}>SIDE JOB</span>
-              <span style={{ color: '#64748B', fontWeight: 500, fontSize: 14 }}>• Admin Dashboard</span>
+              Cari Side Job <span style={S.badge}>Admin</span>
             </h1>
-            <p style={S.sub}>Dashboard Admin · Cari Side Job</p>
+            <p style={S.sub}>Kelola data leads, lowongan, dan produk rekomendasi</p>
           </div>
         </Link>
         <div style={S.hBtns}>
-          <Link href="/" style={S.btnOutline}>← Kembali</Link>
+          <Link href="/" style={S.btnOutline}>← Lihat Website</Link>
           <button style={S.btnPrimary} onClick={exportCsv}>Export CSV ({leads.length})</button>
           <button style={S.btnRed} onClick={resetAll}>Reset Data</button>
         </div>
@@ -513,9 +471,9 @@ export default function AdminPage() {
       <div style={S.body}>
         {/* TABS */}
         <div style={S.tabRow}>
-          <TabBtn label={`Data Leads (${leads.length})`} active={activeTab === 'leads'} onClick={() => setActiveTab('leads')} />
-          <TabBtn label={`Lowongan (${jobs.length})`} active={activeTab === 'loker'} onClick={() => setActiveTab('loker')} />
-          <TabBtn label={`Produk Lynk.id (${products.length})`} active={activeTab === 'produk'} onClick={() => setActiveTab('produk')} />
+          <TabBtn label={`Leads (${leads.length})`} active={activeTab === 'leads'} onClick={() => setActiveTab('leads')} />
+          <TabBtn label={`Lowongan Kerja (${jobs.length})`} active={activeTab === 'loker'} onClick={() => setActiveTab('loker')} />
+          <TabBtn label={`Produk (${products.length})`} active={activeTab === 'produk'} onClick={() => setActiveTab('produk')} />
         </div>
 
         {/* TAB: LEADS */}
@@ -523,25 +481,25 @@ export default function AdminPage() {
           <div>
             {/* Metric Cards */}
             <div style={S.metGrid}>
-              <MetricCard title="Total Mulai Asesmen" value={stats.totalStarts} sub="Klik tombol kuis" />
-              <MetricCard title="Leads" value={stats.totalLeads} sub="Total lead masuk" accent="blue" />
-              <MetricCard title="Conversion Rate" value={stats.conversionRate} sub="Rasio pengisian lead" accent="gold" />
-              <MetricCard title="Rata-rata Kesiapan" value={stats.avgReadiness} sub="Skor kesiapan user" accent="emerald" />
-              <MetricCard title="Side Job Terpopuler" value={stats.popularJob} sub="Paling banyak cocok" />
+              <MetricCard title="Mulai Asesmen" value={stats.totalStarts} sub="Pengunjung mulai kuis" />
+              <MetricCard title="Leads Masuk" value={stats.totalLeads} sub="Kontak tersimpan" accent="blue" />
+              <MetricCard title="Tingkat Konversi" value={stats.conversionRate} sub="Penyelesaian asesmen" accent="gold" />
+              <MetricCard title="Rata-rata Kesiapan" value={stats.avgReadiness} sub="Skor kesiapan peserta" accent="emerald" />
+              <MetricCard title="Rekomendasi Teratas" value={stats.popularJob} sub="Paling sering cocok" />
             </div>
 
             {/* Table */}
             <div style={S.panel}>
               <div style={S.panelHdr}>
                 <div>
-                  <h2 style={{ fontSize: 18, fontWeight: 800, margin: 0, marginBottom: 2 }}>Daftar Leads</h2>
-                  <p style={{ fontSize: 12.5, color: '#64748B', margin: 0 }}>Data hasil asesmen user</p>
+                  <h2 style={{ fontSize: 18, fontWeight: 800, margin: 0, marginBottom: 2 }}>Daftar Peserta</h2>
+                  <p style={{ fontSize: 12.5, color: '#64748B', margin: 0 }}>Data kontak dan hasil asesmen</p>
                 </div>
                 <div style={{ position: 'relative' }}>
                   <input
                     type="text"
                     style={{ ...S.input, width: 280, paddingLeft: 36 }}
-                    placeholder="🔍 Cari nama, WA, email, job..."
+                    placeholder="Cari nama, WA, email, job..."
                     value={searchQuery}
                     onChange={e => { setSearchQuery(e.target.value); fetchLeads(e.target.value); }}
                   />
@@ -594,9 +552,9 @@ export default function AdminPage() {
           <div>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
               <div>
-                <h2 style={{ fontSize: 22, fontWeight: 800, margin: 0, marginBottom: 6, letterSpacing: '-0.02em' }}>Kelola Lowongan Remote</h2>
+                <h2 style={{ fontSize: 22, fontWeight: 800, margin: 0, marginBottom: 6, letterSpacing: '-0.02em' }}>Kelola Lowongan Kerja</h2>
                 <p style={{ fontSize: 13.5, color: '#64748B', margin: 0, lineHeight: 1.5 }}>
-                  Tambah lowongan baru, sesuaikan kategori, perbarui link pendaftaran, atau hapus lowongan.
+                  Daftar lowongan kerja remote yang ditampilkan kepada pengguna.
                 </p>
               </div>
               <button style={S.btnPrimary} onClick={() => setIsAddModalOpen(true)}>
@@ -675,21 +633,18 @@ export default function AdminPage() {
           </div>
         )}
 
-        {/* TAB: PRODUK LYNK.ID */}
+        {/* TAB: PRODUK */}
         {activeTab === 'produk' && (
           <div>
             {/* Import Notification Banner */}
             {importNotification && (
-              <div style={{ background: '#EFF6FF', border: '1.5px solid #60A5FA', borderRadius: 16, padding: '16px 20px', marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <span style={{ fontSize: 24 }}>⚡</span>
-                  <div>
-                    <div style={{ fontSize: 14, fontWeight: 800, color: '#1D4ED8' }}>Lynk.id Auto-Detect Aktif</div>
-                    <div style={{ fontSize: 12.5, color: '#1E40AF', marginTop: 2 }}>{importNotification}</div>
-                  </div>
+              <div style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: 14, padding: '12px 18px', marginBottom: 20, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <span style={{ color: '#1D64EC', fontSize: 16 }}>✓</span>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: '#1E40AF' }}>{importNotification}</div>
                 </div>
                 <button
-                  style={{ background: '#DBEAFE', color: '#1D4ED8', border: 'none', borderRadius: 9999, padding: '6px 14px', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}
+                  style={{ background: '#DBEAFE', color: '#1D4ED8', border: 'none', borderRadius: 9999, padding: '4px 12px', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}
                   onClick={() => setImportNotification(null)}
                 >
                   Tutup
@@ -697,116 +652,31 @@ export default function AdminPage() {
               </div>
             )}
 
-            {/* METRICS & QUICK ACTIONS */}
+            {/* METRICS */}
             <div style={S.metGrid}>
-              <MetricCard title="Total Produk" value={products.length} sub="Terdaftar di database" accent="blue" />
-              <MetricCard title="Produk Aktif" value={products.filter(p => p.isPublished).length} sub="Tampil di rekomendasi user" accent="emerald" />
-              <MetricCard title="Kategori" value={new Set(products.map(p => p.category)).size} sub="Variasi jenis produk" accent="gold" />
-            </div>
-
-            {/* 1-CLICK BOOKMARKLET IMPORTER CARD */}
-            <div style={{ background: 'linear-gradient(135deg, #0F172A, #1E293B)', borderRadius: 20, padding: '24px 28px', color: 'white', marginBottom: 28, boxShadow: '0 10px 30px rgba(15,23,42,0.15)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 16 }}>
-                <div style={{ maxWidth: 650 }}>
-                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(59,130,246,0.2)', border: '1px solid rgba(59,130,246,0.4)', padding: '4px 12px', borderRadius: 9999, fontSize: 11.5, fontWeight: 800, color: '#93C5FD', marginBottom: 12 }}>
-                    <span>🚀</span> FITUR ANDALAN: 1-KLIK IMPOR PRODUK DARI LYNK.ID
-                  </div>
-                  <h3 style={{ fontSize: 20, fontWeight: 800, margin: '0 0 8px', letterSpacing: '-0.02em', color: 'white' }}>
-                    Tarik Data Produk Otomatis Tanpa Upload Ulang Cover
-                  </h3>
-                  <p style={{ fontSize: 13, color: '#94A3B8', margin: 0, lineHeight: 1.6 }}>
-                    Karena Lynk.id dilindungi Cloudflare, gunakan tombol bookmark ini langsung di browser Anda saat sedang membuka halaman produk di Lynk.id. Script akan otomatis menyedot Judul, Harga, Cover Image CDN, dan Link Produk ke form Admin ini!
-                  </p>
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10, alignItems: 'flex-start' }}>
-                  {/* Draggable bookmarklet link attached via native ref */}
-                  <a
-                    ref={bookmarkletRef}
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      alert('💡 CARA PAKAI DI MICROSOFT EDGE:\n1. Tekan tombol Ctrl + Shift + B di keyboard agar Baris Favorit Edge muncul.\n2. Tarik (drag) tombol biru ini ke Baris Favorit di atas.\n3. Buka produk Lynk.id Anda, lalu klik favorit tersebut!');
-                    }}
-                    draggable
-                    style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: 8,
-                      background: 'linear-gradient(135deg, #1D64EC, #0F3BA0)',
-                      color: 'white',
-                      padding: '12px 22px',
-                      borderRadius: 9999,
-                      fontSize: 13,
-                      fontWeight: 800,
-                      textDecoration: 'none',
-                      cursor: 'grab',
-                      boxShadow: '0 4px 16px rgba(29,100,236,0.5)',
-                      border: '1.5px solid rgba(255,255,255,0.2)',
-                    }}
-                  >
-                    <span>⚡</span> Seret Ini ke Baris Favorit (Edge / Chrome)
-                  </a>
-
-                  <button
-                    style={{ background: 'rgba(255,255,255,0.1)', color: '#CBD5E1', border: '1px solid rgba(255,255,255,0.2)', padding: '8px 16px', borderRadius: 9999, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}
-                    onClick={() => {
-                      navigator.clipboard.writeText(bookmarkletCode);
-                      setCopiedBookmarklet(true);
-                      setTimeout(() => setCopiedBookmarklet(false), 2500);
-                    }}
-                  >
-                    {copiedBookmarklet ? '✓ Script Tersalin ke Clipboard!' : '📋 Salin Kode Bookmarklet'}
-                  </button>
-                </div>
-              </div>
-
-              {/* 3 Step Tutorial */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16, marginTop: 20, paddingTop: 20, borderTop: '1px solid rgba(255,255,255,0.1)' }}>
-                <div style={{ display: 'flex', gap: 12 }}>
-                  <div style={{ width: 28, height: 28, borderRadius: 9999, background: 'rgba(59,130,246,0.3)', color: '#93C5FD', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800, flexShrink: 0 }}>1</div>
-                  <div style={{ fontSize: 12, color: '#CBD5E1', lineHeight: 1.5 }}>
-                    <strong style={{ color: 'white' }}>Munculkan Baris Favorit:</strong> Di Edge / Chrome, tekan tombol <span style={{ background: 'rgba(255,255,255,0.2)', padding: '2px 6px', borderRadius: 4, color: '#93C5FD', fontWeight: 700 }}>Ctrl + Shift + B</span> di keyboard. Lalu seret tombol biru ke baris tersebut.
-                  </div>
-                </div>
-                <div style={{ display: 'flex', gap: 12 }}>
-                  <div style={{ width: 28, height: 28, borderRadius: 9999, background: 'rgba(59,130,246,0.3)', color: '#93C5FD', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800, flexShrink: 0 }}>2</div>
-                  <div style={{ fontSize: 12, color: '#CBD5E1', lineHeight: 1.5 }}>
-                    <strong style={{ color: 'white' }}>Buka Lynk.id:</strong> Buka halaman produk digital Anda di browser Edge/Chrome seperti biasa.
-                  </div>
-                </div>
-                <div style={{ display: 'flex', gap: 12 }}>
-                  <div style={{ width: 28, height: 28, borderRadius: 9999, background: 'rgba(59,130,246,0.3)', color: '#93C5FD', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800, flexShrink: 0 }}>3</div>
-                  <div style={{ fontSize: 12, color: '#CBD5E1', lineHeight: 1.5 }}>
-                    <strong style={{ color: 'white' }}>Klik Bookmark/Favorit:</strong> Tab Admin terbuka otomatis dengan Cover, Judul, Harga & Link terisi 100%!
-                  </div>
-                </div>
-              </div>
+              <MetricCard title="Total Produk" value={products.length} sub="Semua produk" accent="blue" />
+              <MetricCard title="Produk Aktif" value={products.filter(p => p.isPublished).length} sub="Tampil di website" accent="emerald" />
+              <MetricCard title="Kategori" value={new Set(products.map(p => p.category)).size} sub="Variasi kategori" accent="gold" />
             </div>
 
             {/* PRODUCT PANEL */}
             <div style={S.panel}>
               <div style={S.panelHdr}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
-                  <span style={{ fontSize: 16, fontWeight: 800, color: '#0F172A' }}>Katalog Produk Rekomendasi</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
+                  <div>
+                    <h2 style={{ fontSize: 18, fontWeight: 800, margin: 0, marginBottom: 2 }}>Katalog Produk</h2>
+                    <p style={{ fontSize: 12.5, color: '#64748B', margin: 0 }}>Kelola produk panduan dan template rekomendasi</p>
+                  </div>
                   <input
-                    style={{ ...S.input, width: 260, padding: '7px 12px', fontSize: 12 }}
+                    style={{ ...S.input, width: 240, padding: '7px 12px', fontSize: 12 }}
                     placeholder="Cari produk atau kategori..."
                     value={productSearch}
                     onChange={e => setProductSearch(e.target.value)}
                   />
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <a
-                    href="https://lynk.id/adithdigital"
-                    target="_blank"
-                    rel="noreferrer"
-                    style={{ ...S.btnOutline, textDecoration: 'none' }}
-                  >
-                    🌐 Buka Toko Lynk.id ↗
-                  </a>
                   <button style={S.btnPrimary} onClick={openAddProductModal}>
-                    + Tambah Produk Manual
+                    + Tambah Produk
                   </button>
                 </div>
               </div>
@@ -814,13 +684,13 @@ export default function AdminPage() {
               {/* PRODUCTS LIST */}
               {products.length === 0 ? (
                 <div style={{ padding: '60px 20px', textAlign: 'center' }}>
-                  <div style={{ fontSize: 42, marginBottom: 12 }}>📦</div>
-                  <div style={{ fontSize: 16, fontWeight: 800, color: '#0F172A', marginBottom: 6 }}>Belum Ada Produk di Database</div>
-                  <p style={{ fontSize: 13, color: '#64748B', maxWidth: 420, margin: '0 auto 20px', lineHeight: 1.5 }}>
-                    Produk lama yang hardcode sudah dihapus. Sekarang Anda bisa memasukkan produk real dari Lynk.id menggunakan tombol bookmark atau tambah manual.
+                  <div style={{ fontSize: 40, marginBottom: 12 }}>📦</div>
+                  <div style={{ fontSize: 16, fontWeight: 800, color: '#0F172A', marginBottom: 6 }}>Belum Ada Produk</div>
+                  <p style={{ fontSize: 13, color: '#64748B', maxWidth: 360, margin: '0 auto 18px', lineHeight: 1.5 }}>
+                    Tambahkan produk panduan atau materi digital untuk direkomendasikan kepada pengguna.
                   </p>
                   <button style={S.btnPrimary} onClick={openAddProductModal}>
-                    + Tambah Produk Pertama
+                    + Tambah Produk
                   </button>
                 </div>
               ) : (
@@ -916,15 +786,15 @@ export default function AdminPage() {
           <div style={S.modal} onClick={e => e.stopPropagation()}>
             <button style={S.closeBtn} onClick={() => setIsAddModalOpen(false)}>✕</button>
             <div style={S.modalPad}>
-              <h2 style={{ fontSize: 20, fontWeight: 800, margin: '0 0 6px', letterSpacing: '-0.02em' }}>Tambah Lowongan Remote</h2>
-              <p style={{ fontSize: 12.5, color: '#64748B', margin: '0 0 20px' }}>Lowongan baru akan langsung tampil di halaman user sesuai kategorinya.</p>
+              <h2 style={{ fontSize: 20, fontWeight: 800, margin: '0 0 4px', letterSpacing: '-0.02em' }}>Tambah Lowongan Kerja</h2>
+              <p style={{ fontSize: 12.5, color: '#64748B', margin: '0 0 20px' }}>Masukkan rincian lowongan kerja remote baru.</p>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                 <div>
                   <label style={S.label}>Judul Lowongan *</label>
                   <input
                     style={S.input}
-                    placeholder="Cth: Junior Graphic Designer & Canva Specialist"
+                    placeholder="Contoh: Graphic Designer & Canva Specialist"
                     value={newJob.title}
                     onChange={e => setNewJob({ ...newJob, title: e.target.value })}
                   />
@@ -935,13 +805,13 @@ export default function AdminPage() {
                     <label style={S.label}>Perusahaan *</label>
                     <input
                       style={S.input}
-                      placeholder="Cth: PT Digital Media Kreasi"
+                      placeholder="Nama perusahaan atau brand"
                       value={newJob.company}
                       onChange={e => setNewJob({ ...newJob, company: e.target.value })}
                     />
                   </div>
                   <div>
-                    <label style={S.label}>Kategori Lowongan *</label>
+                    <label style={S.label}>Kategori *</label>
                     <select
                       style={S.input}
                       value={newJob.category}
@@ -959,7 +829,7 @@ export default function AdminPage() {
                     <label style={S.label}>Gaji</label>
                     <input
                       style={S.input}
-                      placeholder="Cth: Rp 4.500.000 - Rp 6.000.000 / bln"
+                      placeholder="Contoh: Rp 4.500.000 - Rp 6.000.000 / bln"
                       value={newJob.salary}
                       onChange={e => setNewJob({ ...newJob, salary: e.target.value })}
                     />
@@ -983,27 +853,27 @@ export default function AdminPage() {
                   <label style={S.label}>Lokasi</label>
                   <input
                     style={S.input}
-                    placeholder="Cth: WFH / Remote Indonesia"
+                    placeholder="Contoh: Remote Indonesia / WFH"
                     value={newJob.location}
                     onChange={e => setNewJob({ ...newJob, location: e.target.value })}
                   />
                 </div>
 
                 <div>
-                  <label style={S.label}>Link Pendaftaran (URL / WhatsApp)</label>
+                  <label style={S.label}>Link Pendaftaran</label>
                   <input
                     style={{ ...S.input, color: '#1D64EC', fontWeight: 600 }}
-                    placeholder="Cth: https://wa.me/628123456789 atau https://example.com/apply"
+                    placeholder="https://wa.me/... atau link form"
                     value={newJob.applyUrl}
                     onChange={e => setNewJob({ ...newJob, applyUrl: e.target.value })}
                   />
                 </div>
 
                 <div>
-                  <label style={S.label}>Tags (Pisahkan dengan koma)</label>
+                  <label style={S.label}>Tags / Keahlian</label>
                   <input
                     style={S.input}
-                    placeholder="Cth: Canva, Design, Photoshop, Remote"
+                    placeholder="Canva, Photoshop, Remote"
                     value={newJob.tags}
                     onChange={e => setNewJob({ ...newJob, tags: e.target.value })}
                   />
@@ -1014,7 +884,7 @@ export default function AdminPage() {
                   <textarea
                     style={S.textarea}
                     rows={3}
-                    placeholder="Tuliskan gambaran pekerjaan singkat, kriteria, dan benefit..."
+                    placeholder="Kriteria dan gambaran singkat pekerjaan..."
                     value={newJob.description}
                     onChange={e => setNewJob({ ...newJob, description: e.target.value })}
                   />
@@ -1040,92 +910,56 @@ export default function AdminPage() {
           <div style={S.modal} onClick={e => e.stopPropagation()}>
             <button style={S.closeBtn} onClick={() => setIsProductModalOpen(false)}>✕</button>
             <div style={S.modalPad}>
-              <h2 style={{ fontSize: 20, fontWeight: 800, margin: '0 0 6px', letterSpacing: '-0.02em' }}>
-                {editingProduct ? 'Edit Data Produk' : 'Tambah Produk Baru (Lynk.id)'}
+              <h2 style={{ fontSize: 20, fontWeight: 800, margin: '0 0 4px', letterSpacing: '-0.02em' }}>
+                {editingProduct ? 'Edit Produk' : 'Tambah Produk'}
               </h2>
               <p style={{ fontSize: 12.5, color: '#64748B', margin: '0 0 20px' }}>
-                Produk ini akan direkomendasikan pada hasil asesmen sesuai kategori dan target persona.
+                Lengkapi rincian produk panduan atau materi digital rekomendasi.
               </p>
 
-              {/* REAL-TIME PREVIEW CARD */}
-              <div style={{ background: '#F8FAFC', border: '1.5px dashed #CBD5E1', borderRadius: 16, padding: 14, marginBottom: 16, display: 'flex', gap: 14, alignItems: 'center' }}>
-                <div style={{ width: 64, height: 64, borderRadius: 12, overflow: 'hidden', background: 'white', border: '1px solid #E2E8F0', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  {productForm.imageUrl ? (
-                    <img src={productForm.imageUrl} alt="Cover Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  ) : (
-                    <span style={{ fontSize: 24 }}>📘</span>
-                  )}
+              {/* PREVIEW */}
+              {(productForm.title || productForm.imageUrl) && (
+                <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 14, padding: 12, marginBottom: 16, display: 'flex', gap: 12, alignItems: 'center' }}>
+                  <div style={{ width: 52, height: 52, borderRadius: 10, overflow: 'hidden', background: 'white', border: '1px solid #E2E8F0', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    {productForm.imageUrl ? (
+                      <img src={productForm.imageUrl} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    ) : (
+                      <span style={{ fontSize: 20 }}>📘</span>
+                    )}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: 'flex', gap: 6, marginBottom: 2 }}>
+                      <span style={S.pill('#EFF6FF', '#1D64EC', '#BFDBFE')}>{productForm.category}</span>
+                      {productForm.badge && <span style={S.pill('#FEF3C7', '#D97706', '#FDE68A')}>{productForm.badge}</span>}
+                    </div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: '#0F172A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {productForm.title || 'Judul Produk'}
+                    </div>
+                  </div>
                 </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ display: 'flex', gap: 6, marginBottom: 4 }}>
-                    <span style={S.pill('#EFF6FF', '#1D64EC', '#BFDBFE')}>{productForm.category}</span>
-                    {productForm.badge && <span style={S.pill('#FEF3C7', '#D97706', '#FDE68A')}>{productForm.badge}</span>}
-                  </div>
-                  <div style={{ fontSize: 13.5, fontWeight: 800, color: '#0F172A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    {productForm.title || 'Judul Produk Anda'}
-                  </div>
-                  <div style={{ fontSize: 11.5, color: '#1D64EC', fontWeight: 600, marginTop: 2, wordBreak: 'break-all' }}>
-                    {productForm.url || 'https://lynk.id/username/produk'}
-                  </div>
-                </div>
-              </div>
-
-              {/* SMART PASTE OPTION */}
-              <div style={{ marginBottom: 16 }}>
-                <button
-                  type="button"
-                  onClick={() => setShowSmartPaste(!showSmartPaste)}
-                  style={{ background: showSmartPaste ? '#EFF6FF' : '#F8FAFC', color: '#1D64EC', border: '1px solid #BFDBFE', padding: '6px 14px', borderRadius: 9999, fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6 }}
-                >
-                  <span>✨</span> {showSmartPaste ? 'Sembunyikan Smart Paste' : 'Alternatif Cepat: Smart Paste dari Lynk.id'}
-                </button>
-
-                {showSmartPaste && (
-                  <div style={{ marginTop: 10, background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: 14, padding: 12 }}>
-                    <label style={{ ...S.label, color: '#166534', marginBottom: 4 }}>
-                      Tempel Teks dari Halaman Produk Lynk.id (Ctrl+A lalu Ctrl+C di Lynk.id):
-                    </label>
-                    <textarea
-                      style={{ ...S.textarea, border: '1.5px solid #86EFAC', fontSize: 11.5 }}
-                      rows={3}
-                      placeholder="Tempel apa saja dari halaman Lynk.id (misal: judul, harga Rp 49.000, link cover CDN, dll)..."
-                      value={smartPasteText}
-                      onChange={e => handleSmartPaste(e.target.value)}
-                    />
-                    <span style={{ fontSize: 11, color: '#15803D', marginTop: 4, display: 'block' }}>
-                      ✓ Sistem otomatis mengekstrak Judul, Harga, URL Gambar CDN, dan Link ke form di bawah!
-                    </span>
-                  </div>
-                )}
-              </div>
+              )}
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                 {/* Lynk URL */}
                 <div>
-                  <label style={S.label}>URL Produk Lynk.id *</label>
+                  <label style={S.label}>Link Produk (Lynk.id) *</label>
                   <input
                     style={{ ...S.input, color: '#1D64EC', fontWeight: 600 }}
-                    placeholder="https://lynk.id/adithdigital/180ypg6147e2"
+                    placeholder="https://lynk.id/..."
                     value={productForm.url}
                     onChange={e => setProductForm({ ...productForm, url: e.target.value })}
                   />
-                  <span style={{ fontSize: 11, color: '#64748B', marginTop: 3, display: 'block' }}>
-                    *Link halaman produk di Lynk.id yang akan dibuka oleh calon pembeli.
-                  </span>
                 </div>
 
-                {/* Image Cover URL (CDN) */}
+                {/* Image Cover URL */}
                 <div>
-                  <label style={S.label}>URL Cover Gambar (CDN Lynk.id)</label>
+                  <label style={S.label}>Link Gambar Cover</label>
                   <input
                     style={S.input}
-                    placeholder="https://cdn.lynkid.my.id/products/..."
+                    placeholder="https://..."
                     value={productForm.imageUrl}
                     onChange={e => setProductForm({ ...productForm, imageUrl: e.target.value })}
                   />
-                  <span style={{ fontSize: 11, color: '#94A3B8', marginTop: 3, display: 'block' }}>
-                    *Gambar langsung dari CDN Lynk.id, tidak perlu upload ulang ke server.
-                  </span>
                 </div>
 
                 {/* Judul Produk */}
@@ -1133,16 +967,16 @@ export default function AdminPage() {
                   <label style={S.label}>Judul Produk *</label>
                   <input
                     style={S.input}
-                    placeholder="Cth: Template Administrasi Siap Pakai"
+                    placeholder="Contoh: Template Administrasi & Spreadsheet"
                     value={productForm.title}
                     onChange={e => setProductForm({ ...productForm, title: e.target.value })}
                   />
                 </div>
 
-                {/* Kategori & Badge */}
+                {/* Kategori & Harga */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                   <div>
-                    <label style={S.label}>Kategori Produk *</label>
+                    <label style={S.label}>Kategori *</label>
                     <select
                       style={S.input}
                       value={productForm.category}
@@ -1157,7 +991,20 @@ export default function AdminPage() {
                     </select>
                   </div>
                   <div>
-                    <label style={S.label}>Badge Label</label>
+                    <label style={S.label}>Harga</label>
+                    <input
+                      style={S.input}
+                      placeholder="Contoh: Rp 49.000"
+                      value={productForm.price}
+                      onChange={e => setProductForm({ ...productForm, price: e.target.value })}
+                    />
+                  </div>
+                </div>
+
+                {/* Badge & Target */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                  <div>
+                    <label style={S.label}>Badge (Opsional)</label>
                     <select
                       style={S.input}
                       value={productForm.badge}
@@ -1169,44 +1016,41 @@ export default function AdminPage() {
                         </option>
                       ))}
                       {productForm.badge && !BADGE_OPTIONS.some(o => o.value === productForm.badge) && (
-                        <option value={productForm.badge}>{productForm.badge} (Tersimpan)</option>
+                        <option value={productForm.badge}>{productForm.badge}</option>
                       )}
+                    </select>
+                  </div>
+                  <div>
+                    <label style={S.label}>Target Rekomendasi</label>
+                    <select
+                      style={S.input}
+                      value={productForm.sideJob}
+                      onChange={e => setProductForm({ ...productForm, sideJob: e.target.value })}
+                    >
+                      <option value="Umum / Semua Profil">🌐 Semua Profil (Umum)</option>
+                      <optgroup label="── Profil Spesifik ──">
+                        {Object.values(SIDE_JOBS_DB).map(job => (
+                          <option key={job.id} value={job.name}>{job.icon} {job.name}</option>
+                        ))}
+                      </optgroup>
                     </select>
                   </div>
                 </div>
 
-                {/* Target Persona */}
-                <div>
-                  <label style={S.label}>Target Side Job / Persona</label>
-                  <p style={{ fontSize: 11, color: '#64748B', marginTop: -2, marginBottom: 6 }}>Pilih profil yang cocok agar produk ini hanya muncul untuk user dengan hasil tes yang relevan.</p>
-                  <select
-                    style={S.input}
-                    value={productForm.sideJob}
-                    onChange={e => setProductForm({ ...productForm, sideJob: e.target.value })}
-                  >
-                    <option value="Umum / Semua Profil">🌐 Umum / Semua Profil (tampil untuk semua)</option>
-                    <optgroup label="── Side Job Spesifik ──">
-                      {Object.values(SIDE_JOBS_DB).map(job => (
-                        <option key={job.id} value={job.name}>{job.icon} {job.name}</option>
-                      ))}
-                    </optgroup>
-                  </select>
-                </div>
-
                 {/* Deskripsi */}
                 <div>
-                  <label style={S.label}>Deskripsi Singkat (Opsional - Diisi Manual jika Perlu)</label>
+                  <label style={S.label}>Deskripsi Singkat (Opsional)</label>
                   <textarea
                     style={S.textarea}
                     rows={3}
-                    placeholder="Boleh dikosongkan atau tulis ringkasan manfaat produk..."
+                    placeholder="Ringkasan singkat isi atau manfaat produk..."
                     value={productForm.desc}
                     onChange={e => setProductForm({ ...productForm, desc: e.target.value })}
                   />
                 </div>
 
                 {/* Publish Toggle */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 0' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '4px 0' }}>
                   <input
                     type="checkbox"
                     id="isPublishedCheck"
@@ -1215,7 +1059,7 @@ export default function AdminPage() {
                     style={{ width: 18, height: 18, cursor: 'pointer' }}
                   />
                   <label htmlFor="isPublishedCheck" style={{ fontSize: 13, fontWeight: 600, color: '#0F172A', cursor: 'pointer' }}>
-                    Publikasikan ke Hasil Rekomendasi Pengguna
+                    Tampilkan di website
                   </label>
                 </div>
 
@@ -1225,7 +1069,7 @@ export default function AdminPage() {
                     Batal
                   </button>
                   <button style={S.btnPrimary} disabled={isSaving} onClick={saveProduct}>
-                    {isSaving ? 'Menyimpan...' : (editingProduct ? 'Perbarui Produk' : 'Simpan ke Database')}
+                    {isSaving ? 'Menyimpan...' : (editingProduct ? 'Simpan Perubahan' : 'Simpan Produk')}
                   </button>
                 </div>
               </div>
@@ -1240,8 +1084,8 @@ export default function AdminPage() {
           <div style={S.modal} onClick={e => e.stopPropagation()}>
             <button style={S.closeBtn} onClick={() => setSelectedLead(null)}>✕</button>
             <div style={S.modalPad}>
-              <h2 style={{ fontSize: 20, fontWeight: 800, margin: '0 0 4px', letterSpacing: '-0.02em' }}>Detail Lead</h2>
-              <p style={{ fontSize: 12.5, color: '#64748B', margin: '0 0 20px' }}>Informasi profil dan hasil asesmen</p>
+              <h2 style={{ fontSize: 20, fontWeight: 800, margin: '0 0 4px', letterSpacing: '-0.02em' }}>Detail Peserta</h2>
+              <p style={{ fontSize: 12.5, color: '#64748B', margin: '0 0 20px' }}>Informasi kontak dan ringkasan hasil asesmen</p>
 
               {/* Info grid */}
               <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', padding: 16, borderRadius: 16, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 20 }}>
@@ -1275,7 +1119,7 @@ export default function AdminPage() {
               {/* Gaps */}
               {selectedLead.gaps?.length > 0 && (
                 <div style={{ background: '#FFFBEB', border: '1px solid #FDE68A', padding: 14, borderRadius: 14, marginBottom: 16 }}>
-                  <div style={{ fontSize: 12, fontWeight: 800, color: '#92400E', marginBottom: 8 }}>⚠️ Catatan Gap Kesiapan:</div>
+                  <div style={{ fontSize: 12, fontWeight: 800, color: '#92400E', marginBottom: 8 }}>Area Pengembangan:</div>
                   <ul style={{ margin: 0, paddingLeft: 18 }}>
                     {selectedLead.gaps.map((g, i) => (
                       <li key={i} style={{ fontSize: 12.5, color: '#78350F', marginBottom: 4, lineHeight: 1.4 }}>{g}</li>
@@ -1286,7 +1130,7 @@ export default function AdminPage() {
 
               {/* Skills */}
               <div style={{ marginBottom: 14 }}>
-                <div style={{ fontSize: 11.5, fontWeight: 700, color: '#64748B', marginBottom: 8 }}>Skill Terpilih:</div>
+                <div style={{ fontSize: 11.5, fontWeight: 700, color: '#64748B', marginBottom: 8 }}>Keahlian:</div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                   {selectedLead.skills?.map((s, i) => (
                     <span key={i} style={S.pill('#F1F5F9', '#334155')}>{s}</span>
@@ -1296,7 +1140,7 @@ export default function AdminPage() {
 
               {/* Tools */}
               <div style={{ marginBottom: 24 }}>
-                <div style={{ fontSize: 11.5, fontWeight: 700, color: '#64748B', marginBottom: 8 }}>Tools Terpilih:</div>
+                <div style={{ fontSize: 11.5, fontWeight: 700, color: '#64748B', marginBottom: 8 }}>Tools:</div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                   {selectedLead.tools?.map((t, i) => (
                     <span key={i} style={S.pill('#EFF6FF', '#1D64EC', '#BFDBFE')}>{t}</span>
@@ -1307,7 +1151,7 @@ export default function AdminPage() {
               {/* Actions */}
               <div style={{ display: 'flex', gap: 10 }}>
                 <button style={{ ...S.btnOutline, flex: 1, justifyContent: 'center' }} onClick={() => setSelectedLead(null)}>Tutup</button>
-                <button style={{ ...S.btnRed }} onClick={() => deleteLead(selectedLead.id)}>🗑️ Hapus Lead</button>
+                <button style={{ ...S.btnRed }} onClick={() => deleteLead(selectedLead.id)}>Hapus Data</button>
               </div>
             </div>
           </div>

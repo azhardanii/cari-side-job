@@ -1299,9 +1299,9 @@ export default function HomePage() {
                 <div className="w-12 h-12 rounded-2xl bg-blue-50 text-[#0074FC] flex items-center justify-center mb-3">
                   <ShoppingBag size={24} />
                 </div>
-                <h4 className="text-[15px] font-bold text-[#0A0E2E]">Belum Ada Produk di Katalog</h4>
+                <h4 className="text-[15px] font-bold text-[#0A0E2E]">Belum Ada Produk</h4>
                 <p className="text-[12.5px] text-[#98A2B3] mt-1 max-w-[280px]">
-                  Admin dapat menambahkan produk langsung dari Lynk.id lewat Dashboard Admin.
+                  Produk rekomendasi untuk kategori ini akan segera hadir.
                 </p>
               </div>
             ) : (
@@ -1700,7 +1700,7 @@ export default function HomePage() {
               rel="noreferrer"
               className="bg-[var(--color-primary)] text-white rounded-[999px] h-[52px] inline-flex items-center justify-center font-[700] text-[15px] w-full shadow-[0_6px_16px_rgba(0,116,252,0.28)] transition-all duration-200 ease-[cubic-bezier(0.2,0.8,0.2,1)] hover:bg-[var(--color-primary-hover)] hover:-translate-y-[1px] hover:shadow-[0_8px_20px_rgba(0,116,252,0.36)] disabled:opacity-55 disabled:cursor-not-allowed disabled:shadow-none text-[14.5px]"
             >
-              <span>Buka Panduan di Lynk.id</span>
+              <span>Lihat Panduan Lengkap</span>
               <ExternalLink size={16} />
             </a>
           </div>

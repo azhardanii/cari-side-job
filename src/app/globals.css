@@ -1,0 +1,85 @@
+@import "tailwindcss";
+
+:root {
+  /* Core Brand Colors (Exact color-picked tokens from design.md) */
+  --color-primary: #0074FC;
+  --color-primary-hover: #0068E0;
+  --color-ink: #0A0E2E;
+  --color-ink-soft: #3A4160;
+  --color-muted: #98A2B3;
+  --color-placeholder: #C5CAD9;
+  --color-border: #E4E7EE;
+  --color-border-soft: #EDEFF3;
+  --color-surface: #FFFFFF;
+  --color-surface-sunken: #F1F3F7;
+  --color-bg-app: #FAFBFC;
+
+  /* Semantic Pastel Pairs */
+  --amber-bg: #FDF3E5;
+  --amber-icon: #FB9F05;
+  --mint-bg: #DDF8EF;
+  --mint-icon: #00AE66;
+  --lav-bg: #EDEDFD;
+  --lav-icon: #3E37F9;
+  --lav-tag: #E4E8FC;
+  --green-bg: #DEF6F2;
+  --green-icon: #00A55E;
+  --blue-bg: #E1EDFD;
+  --blue-icon: #0074FC;
+  --orange-bg: #FDEFDD;
+  --orange-icon: #FEAA00;
+  --success-text: #31B374;
+
+  /* Nav & State */
+  --nav-inactive: #9CA3B4;
+  --icon-unselected: #203554;
+  --track: #E7EBF4;
+
+  /* Fonts */
+  --font-body: var(--font-jakarta), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: #FAFBFC;
+  color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── ANIMATIONS ── */
+@keyframes floatSlow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+@keyframes floatDelayed {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes floatReverse {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(5px); }
+}
+
+@keyframes bounceSubtle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+.animate-float-slow {
+  animation: floatSlow 3.8s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+  animation: floatDelayed 4.2s ease-in-out infinite 0.7s;
+}
+
+.animate-float-reverse {
+  animation: floatReverse 3.5s ease-in-out infinite 0.3s;
+}
+
+.animate-bounce-subtle {
+  animation: bounceSubtle 2.6s ease-in-out infinite;
+}

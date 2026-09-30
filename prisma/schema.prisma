@@ -1,0 +1,81 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Lead {
+  id             String   @id @default(cuid())
+  name           String
+  wa             String
+  email          String
+  profesi        String
+  topMatch       String
+  topMatchScore  Int      @default(0)
+  readinessScore Int      @default(0)
+  personaName    String   @default("")
+  skills         String[] @default([])
+  tools          String[] @default([])
+  gaps           String[] @default([])
+  topMatches     Json?    // Detailed array of top matches
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([email])
+  @@index([wa])
+}
+
+model RemoteJob {
+  id             String   @id @default(cuid())
+  title          String
+  company        String
+  location       String
+  salary         String
+  type           String
+  posted         String   @default("Hari ini")
+  primarySideJob String
+  tags           String[] @default([])
+  description    String
+  applyUrl       String
+  isPublished    Boolean  @default(true)
+  order          Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([primarySideJob])
+}
+
+model AnalyticMetric {
+  id         String   @id @default(cuid())
+  eventType  String   // e.g. "QUIZ_START", "QUIZ_COMPLETE", "LEAD_CAPTURE", "STORY_DOWNLOAD", "LOKER_CLICK"
+  label      String?
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  @@index([eventType])
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  title       String
+  category    String   @default("Ebook")   // Ebook, Template, Kursus, Starter Pack
+  type        String   @default("digital") // dataentry, template, va, digital
+  desc        String   @default("")
+  price       String   @default("Rp 0")
+  badge       String?  @default("")        // Best Seller, Starter Pack, Paling Diminati
+  url         String                        // Link Lynk.id checkout
+  imageUrl    String?  @default("")        // URL cover gambar dari Lynk.id CDN
+  sideJob     String?  @default("")        // Target persona atau kategori side job
+  isPublished Boolean  @default(true)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([category])
+  @@index([sideJob])
+}
+

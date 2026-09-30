@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { REMOTE_JOBS_DB, JOB_CATEGORIES } from '@/lib/data';
 
+export const dynamic = 'force-dynamic';
+
 // GET all remote jobs
 export async function GET() {
   try {

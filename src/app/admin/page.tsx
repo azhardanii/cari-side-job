@@ -149,7 +149,7 @@ export default function AdminPage() {
     order: 0,
   });
 
-  const bookmarkletCode = `javascript:(function(){try{var doc=document,win=window,tabName=(doc.title||'').replace(/\\s*\\|\\s*LYNK.*$/i,'').trim(),pathUser=(win.location.pathname.split('/')[1]||'').toLowerCase(),t='';try{var ndEl=doc.getElementById('__NEXT_DATA__');if(ndEl){var nd=JSON.parse(ndEl.textContent||'{}'),pp=nd.props&&nd.props.pageProps;if(pp){var cand=pp.product||pp.item||pp.data||pp.productDetail||{};if(cand.title&&typeof cand.title==='string')t=cand.title.trim();else if(cand.name&&typeof cand.name==='string')t=cand.name.trim();}}}catch(e){}if(!t){var sel=(win.getSelection?win.getSelection().toString():'').trim();if(sel&&sel.length>4&&sel.length<120&&!sel.includes('\\n'))t=sel;}var bodyText=doc.body?doc.body.innerText:'',lines=bodyText.split('\\n').map(function(l){return l.trim();}).filter(Boolean);if(!t){for(var i=0;i<lines.length;i++){var l=lines[i];if(/^(?:rp\\.?|idr)\\s*[\\d\\.,]+/i.test(l)||/\\b(?:rp\\.?|idr)\\s*\\d+/i.test(l)){for(var k=i-1;k>=Math.max(0,i-3);k--){var prev=lines[k],pLow=prev.toLowerCase();if(prev.length>4&&prev.length<120&&pLow!==tabName.toLowerCase()&&pLow!==pathUser&&!pLow.includes('lynk')&&!/^(?:rp\\.?|idr|http)/i.test(prev)){t=prev;break;}}if(t)break;}}}if(!t){var headings=Array.from(doc.querySelectorAll('h1, h2, [role=\"heading\"], [class*=\"title\" i]'));for(var h=0;h<headings.length;h++){var ht=(headings[h].innerText||headings[h].textContent||'').trim(),hLow=ht.toLowerCase();if(ht.length>4&&ht.length<120&&hLow!==tabName.toLowerCase()&&hLow!==pathUser&&!hLow.includes('lynk')&&!/^(?:rp\\.?|idr|http)/i.test(ht)&&!['beli sekarang','checkout','bagikan','deskripsi'].includes(hLow)){t=ht;break;}}}if(!t){t=lines.find(function(l){var lLow=l.toLowerCase();return !l.startsWith('http')&&!lLow.startsWith('rp')&&!lLow.startsWith('idr')&&l.length>4&&l.length<90&&lLow!==tabName.toLowerCase()&&lLow!==pathUser&&!lLow.includes('lynk')&&!['beli sekarang','checkout','bagikan','deskripsi'].includes(lLow);})||'';}if(!t)t=tabName;var price='',priceMatch=bodyText.match(/(?:Rp\\.?|IDR)\\s*[\\d\\.,]+/i);if(priceMatch)price=priceMatch[0].trim();var imgEl=doc.querySelector('img[src*=\"cdn.lynkid.my.id\"]')||doc.querySelector('img[src*=\"lynk\"]')||doc.querySelector('meta[property=\"og:image\"]'),img=imgEl?(imgEl.src||imgEl.content||''):'';var d=(doc.querySelector('meta[property=\"og:description\"]')?.content||'').trim();if(!d||d.toLowerCase().includes('lynk.id')){var dCand=lines.filter(function(l){var lLow=l.toLowerCase();return l!==t&&!l.startsWith('http')&&!lLow.startsWith('rp')&&!lLow.startsWith('idr')&&l.length>15;}).slice(0,2).join(' ');if(dCand)d=dCand;}d=d.slice(0,250);var u=win.location.href.split('?')[0].replace(/\\/+$/,'').replace(/\\/checkout$/,'');var target='${origin}/admin?tab=produk&import=lynk&title='+encodeURIComponent(t)+'&image='+encodeURIComponent(img)+'&desc='+encodeURIComponent(d)+'&price='+encodeURIComponent(price)+'&url='+encodeURIComponent(u);var w=win.open(target,'_blank');if(!w||w.closed||typeof w.closed==='undefined'){win.location.href=target;}}catch(e){alert('Gagal impor Lynk.id: '+e.message);}})();`;
+  const bookmarkletCode = `javascript:(function(){try{var doc=document,win=window,tabName=(doc.title||'').replace(/\\s*\\|\\s*LYNK.*$/i,'').trim(),pathUser=(win.location.pathname.split('/')[1]||'').toLowerCase(),t='';try{var ndEl=doc.getElementById('__NEXT_DATA__');if(ndEl){var nd=JSON.parse(ndEl.textContent||'{}'),pp=nd.props&&nd.props.pageProps;if(pp){var cand=pp.product||pp.item||pp.data||pp.productDetail||{};if(cand.title&&typeof cand.title==='string')t=cand.title.trim();else if(cand.name&&typeof cand.name==='string')t=cand.name.trim();}}}catch(e){}if(!t){var sel=(win.getSelection?win.getSelection().toString():'').trim();if(sel&&sel.length>4&&sel.length<120&&!sel.includes('\\n'))t=sel;}var bodyText=doc.body?doc.body.innerText:'',lines=bodyText.split('\\n').map(function(l){return l.trim();}).filter(Boolean);if(!t){for(var i=0;i<lines.length;i++){var l=lines[i];if(/^(?:rp\\.?|idr)\\s*[\\d\\.,]+/i.test(l)||/\\b(?:rp\\.?|idr)\\s*\\d+/i.test(l)){for(var k=i-1;k>=Math.max(0,i-3);k--){var prev=lines[k],pLow=prev.toLowerCase();if(prev.length>4&&prev.length<120&&pLow!==tabName.toLowerCase()&&pLow!==pathUser&&!pLow.includes('lynk')&&!/^(?:rp\\.?|idr|http)/i.test(prev)){t=prev;break;}}if(t)break;}}}if(!t){var headings=Array.from(doc.querySelectorAll('h1, h2, [role=\"heading\"], [class*=\"title\" i]'));for(var h=0;h<headings.length;h++){var ht=(headings[h].innerText||headings[h].textContent||'').trim(),hLow=ht.toLowerCase();if(ht.length>4&&ht.length<120&&hLow!==tabName.toLowerCase()&&hLow!==pathUser&&!hLow.includes('lynk')&&!/^(?:rp\\.?|idr|http)/i.test(ht)&&!['beli sekarang','checkout','bagikan','deskripsi'].includes(hLow)){t=ht;break;}}}if(!t){t=lines.find(function(l){var lLow=l.toLowerCase();return !l.startsWith('http')&&!lLow.startsWith('rp')&&!lLow.startsWith('idr')&&l.length>4&&l.length<90&&lLow!==tabName.toLowerCase()&&lLow!==pathUser&&!lLow.includes('lynk')&&!['beli sekarang','checkout','bagikan','deskripsi'].includes(lLow);})||'';}if(!t)t=tabName;var price='',priceMatch=bodyText.match(/(?:Rp\\.?|IDR)\\s*[\\d\\.,]+/i);if(priceMatch)price=priceMatch[0].trim();var imgEl=doc.querySelector('img[src*=\"cdn.lynkid.my.id\"]')||doc.querySelector('img[src*=\"lynk\"]')||doc.querySelector('meta[property=\"og:image\"]'),img=imgEl?(imgEl.src||imgEl.content||''):'';var u=win.location.href.split('?')[0].replace(/\\/+$/,'').replace(/\\/checkout$/,'');var target='${origin}/admin?tab=produk&import=lynk&title='+encodeURIComponent(t)+'&image='+encodeURIComponent(img)+'&price='+encodeURIComponent(price)+'&url='+encodeURIComponent(u);var w=win.open(target,'_blank');if(!w||w.closed||typeof w.closed==='undefined'){win.location.href=target;}}catch(e){alert('Gagal impor Lynk.id: '+e.message);}})();`;
 
   // Attach real javascript: code via native DOM ref to bypass React's security block
   useEffect(() => {
@@ -187,7 +187,6 @@ export default function AdminPage() {
       price: priceMatch ? priceMatch[0].trim() : prev.price,
       imageUrl: imgMatch ? imgMatch[0].trim() : prev.imageUrl,
       url: cleanUrl || prev.url,
-      desc: lines.filter(l => l !== candidateTitle && !l.startsWith('http') && !l.toLowerCase().startsWith('rp') && !l.toLowerCase().startsWith('idr')).slice(0, 3).join(' ') || prev.desc
     }));
   };
 
@@ -207,7 +206,6 @@ export default function AdminPage() {
       if (params.get('import') === 'lynk') {
         const rawTitle = params.get('title') || '';
         const rawImage = params.get('image') || '';
-        const rawDesc = params.get('desc') || '';
         const rawUrl = params.get('url') || '';
         const rawPrice = params.get('price') || '';
 
@@ -228,7 +226,7 @@ export default function AdminPage() {
           title: cleanTitle,
           price: rawPrice || 'Rp 49.000',
           imageUrl: rawImage,
-          desc: rawDesc,
+          desc: '',
           url: cleanUrl,
           category: detectedCat,
           type: detectedCat.toLowerCase().replace(/\s+/g, ''),
@@ -717,7 +715,7 @@ export default function AdminPage() {
                     Tarik Data Produk Otomatis Tanpa Upload Ulang Cover
                   </h3>
                   <p style={{ fontSize: 13, color: '#94A3B8', margin: 0, lineHeight: 1.6 }}>
-                    Karena Lynk.id dilindungi Cloudflare, gunakan tombol bookmark ini langsung di browser Anda saat sedang membuka halaman produk di Lynk.id. Script akan otomatis menyedot Judul, Harga, Cover Image CDN, Deskripsi, dan Link Produk ke form Admin ini!
+                    Karena Lynk.id dilindungi Cloudflare, gunakan tombol bookmark ini langsung di browser Anda saat sedang membuka halaman produk di Lynk.id. Script akan otomatis menyedot Judul, Harga, Cover Image CDN, dan Link Produk ke form Admin ini!
                   </p>
                 </div>
 
@@ -780,7 +778,7 @@ export default function AdminPage() {
                 <div style={{ display: 'flex', gap: 12 }}>
                   <div style={{ width: 28, height: 28, borderRadius: 9999, background: 'rgba(59,130,246,0.3)', color: '#93C5FD', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800, flexShrink: 0 }}>3</div>
                   <div style={{ fontSize: 12, color: '#CBD5E1', lineHeight: 1.5 }}>
-                    <strong style={{ color: 'white' }}>Klik Bookmark/Favorit:</strong> Tab Admin terbuka otomatis dengan Cover, Judul, Harga, Deskripsi & Link terisi 100%!
+                    <strong style={{ color: 'white' }}>Klik Bookmark/Favorit:</strong> Tab Admin terbuka otomatis dengan Cover, Judul, Harga & Link terisi 100%!
                   </div>
                 </div>
               </div>
@@ -1197,11 +1195,11 @@ export default function AdminPage() {
 
                 {/* Deskripsi */}
                 <div>
-                  <label style={S.label}>Deskripsi Singkat</label>
+                  <label style={S.label}>Deskripsi Singkat (Opsional - Diisi Manual jika Perlu)</label>
                   <textarea
                     style={S.textarea}
                     rows={3}
-                    placeholder="Tuliskan ringkasan produk atau apa yang didapat pembeli..."
+                    placeholder="Boleh dikosongkan atau tulis ringkasan manfaat produk..."
                     value={productForm.desc}
                     onChange={e => setProductForm({ ...productForm, desc: e.target.value })}
                   />

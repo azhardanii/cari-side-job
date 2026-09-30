@@ -1327,9 +1327,11 @@ export default function HomePage() {
                     <h4 className="text-[15px] font-bold text-[#0A0E2E] leading-snug line-clamp-2">
                       {prod.title}
                     </h4>
-                    <p className="text-[12.5px] font-medium text-[#98A2B3] mt-1 line-clamp-2 leading-relaxed">
-                      {prod.desc}
-                    </p>
+                    {prod.desc ? (
+                      <p className="text-[12.5px] font-medium text-[#98A2B3] mt-1 line-clamp-2 leading-relaxed">
+                        {prod.desc}
+                      </p>
+                    ) : null}
                     <div className="flex items-center justify-between w-full mt-3">
                       <span className="text-[12px] font-bold text-[#0074FC] bg-[#EFF6FF] px-2.5 py-1 rounded-full">
                         {prod.badge || 'Panduan Rekomendasi'}
@@ -1686,9 +1688,11 @@ export default function HomePage() {
               </div>
             </div>
 
-            <p className="text-[13.5px] text-[#3A4160] leading-relaxed mb-5">
-              {selectedProductDetail.desc}
-            </p>
+            {selectedProductDetail.desc ? (
+              <p className="text-[13.5px] text-[#3A4160] leading-relaxed mb-5">
+                {selectedProductDetail.desc}
+              </p>
+            ) : null}
 
             <a
               href={selectedProductDetail.url}

@@ -30,7 +30,9 @@ function cleanLynkUrl(rawUrl: string): string {
   let url = (rawUrl || '').trim();
   if (!url) return '';
   url = url.split('?')[0].replace(/\/+$/, '');
-  url = url.replace(/\/checkout$/, '');
+  if (!url.startsWith('http://') && !url.startsWith('https://')) {
+    url = `https://${url}`;
+  }
   return url;
 }
 

@@ -8,10 +8,12 @@ import {
   REMOTE_JOBS_DB,
   MASTER_SKILLS_LIST,
   MASTER_TOOLS_LIST,
+  SKILL_CATEGORY_GROUPS,
   WORK_STYLES,
   SideJob,
   RemoteJobItem,
   ProductItem,
+  normalizeLynkUrl,
   getJobCategory,
 } from '@/lib/data';
 import {
@@ -105,6 +107,7 @@ export default function HomePage() {
   const [isSubmittingLead, setIsSubmittingLead] = useState(false);
 
   // Search & Filter States
+  const [selectedSkillCategory, setSelectedSkillCategory] = useState<string>('all');
   const [skillSearch, setSkillSearch] = useState('');
   const [showAllSkills, setShowAllSkills] = useState(false);
   const [toolSearch, setToolSearch] = useState('');
@@ -173,74 +176,120 @@ export default function HomePage() {
     switchTab('quiz');
   };
 
-  // Algorithm scoring calculation
+  // Algorithm scoring calculation with actual weighted skills from All Data.html
   const calculateResult = (): CalculatedResult => {
     const scores: Record<string, number> = {};
+    const matchedSkillsMap: Record<string, string[]> = {};
+    const missingSkillsMap: Record<string, string[]> = {};
+
     Object.keys(SIDE_JOBS_DB).forEach((jobKey) => {
       scores[jobKey] = 10;
+      matchedSkillsMap[jobKey] = [];
+      missingSkillsMap[jobKey] = [];
     });
 
-    userAnswers.skills.forEach((skillName) => {
-      const found = MASTER_SKILLS_LIST.find((s) => s.name === skillName);
-      if (found) {
-        found.sideJobs.forEach((jobKey) => {
-          if (scores[jobKey] !== undefined) scores[jobKey] += 12;
-        });
-      }
-    });
+    const userSkillsLower = userAnswers.skills.map((s) => s.toLowerCase());
 
-    userAnswers.tools.forEach((toolName) => {
-      const found = MASTER_TOOLS_LIST.find((t) => t.name === toolName);
-      if (found) {
-        found.sideJobs.forEach((jobKey) => {
-          if (scores[jobKey] !== undefined) scores[jobKey] += 10;
-        });
-      }
-    });
+    Object.entries(SIDE_JOBS_DB).forEach(([jobKey, job]) => {
+      job.skills.forEach((skillName) => {
+        const sLower = skillName.toLowerCase();
+        const weight = job.skillWeights[skillName] || 4;
+        const isMatched = userSkillsLower.some(
+          (u) => u === sLower || u.includes(sLower) || sLower.includes(u)
+        );
 
-    if (userAnswers.caraKerja) {
-      const style = WORK_STYLES.find((w) => w.id === userAnswers.caraKerja);
-      if (style) {
-        style.sideJobs.forEach((jobKey) => {
-          if (scores[jobKey] !== undefined) scores[jobKey] += 18;
-        });
-      }
-    }
+        if (isMatched) {
+          scores[jobKey] += weight * 4.5;
+          matchedSkillsMap[jobKey].push(skillName);
+        } else {
+          missingSkillsMap[jobKey].push(skillName);
+        }
+      });
 
-    const eng = userAnswers.englishLevel;
-    Object.keys(SIDE_JOBS_DB).forEach((jobKey) => {
-      const reqEng = SIDE_JOBS_DB[jobKey].keperluanEnglish;
+      // Tool matching
+      const userToolsLower = userAnswers.tools.map((t) => t.toLowerCase());
+      job.tools.forEach((toolName) => {
+        const tLower = toolName.toLowerCase();
+        if (userToolsLower.some((u) => u === tLower || u.includes(tLower) || tLower.includes(u))) {
+          scores[jobKey] += 8;
+        }
+      });
+
+      // Work style matching
+      if (userAnswers.caraKerja) {
+        const style = WORK_STYLES.find((w) => w.id === userAnswers.caraKerja);
+        if (style && style.sideJobs.includes(jobKey)) {
+          scores[jobKey] += 15;
+        }
+      }
+
+      // English level matching
+      const eng = userAnswers.englishLevel;
+      const reqEng = job.keperluanEnglish;
       if (eng >= reqEng) scores[jobKey] += 10;
       else if (reqEng - eng === 1) scores[jobKey] += 4;
     });
 
     const sortedKeys = Object.keys(scores).sort((a, b) => scores[b] - scores[a]);
-    const top1Key = sortedKeys[0] || 'dataentry';
-    const top2Key = sortedKeys[1] || 'va';
-    const top3Key = sortedKeys[2] || 'admin';
+    const top1Key = sortedKeys[0] || 'va';
+    const top2Key = sortedKeys[1] || 'copywriter';
+    const top3Key = sortedKeys[2] || 'dataentry';
+
+    const maxScore = Math.max(scores[top1Key], 50);
+    const getMatchPercent = (key: string, rank: number) => {
+      const raw = Math.round((scores[key] / maxScore) * 96);
+      if (rank === 1) return Math.min(Math.max(raw, 88), 98);
+      if (rank === 2) return Math.min(Math.max(raw - 4, 82), 92);
+      return Math.min(Math.max(raw - 8, 75), 87);
+    };
 
     const topMatches = [
-      { ...SIDE_JOBS_DB[top1Key], matchPercent: 92, rank: 1 },
-      { ...SIDE_JOBS_DB[top2Key], matchPercent: 87, rank: 2 },
-      { ...SIDE_JOBS_DB[top3Key], matchPercent: 82, rank: 3 },
+      { ...SIDE_JOBS_DB[top1Key], matchPercent: getMatchPercent(top1Key, 1), rank: 1 },
+      { ...SIDE_JOBS_DB[top2Key], matchPercent: getMatchPercent(top2Key, 2), rank: 2 },
+      { ...SIDE_JOBS_DB[top3Key], matchPercent: getMatchPercent(top3Key, 3), rank: 3 },
     ];
 
-    let readiness = 85;
-    if (userAnswers.englishLevel >= 4) readiness += 8;
-    if (userAnswers.skills.length >= 4) readiness += 5;
+    let readiness = 80;
+    if (userAnswers.englishLevel >= 4) readiness += 6;
+    if (userAnswers.skills.length >= 4) readiness += 8;
+    if (userAnswers.tools.length >= 3) readiness += 4;
     if (readiness > 98) readiness = 98;
+
+    const topJob = SIDE_JOBS_DB[top1Key];
+    const topStrengths = matchedSkillsMap[top1Key].slice(0, 3);
+    const fallbackStrengths = topJob.skills.slice(0, 3);
+    const strengths = topStrengths.length > 0 ? topStrengths : fallbackStrengths;
+
+    const topGaps = missingSkillsMap[top1Key].slice(0, 2);
+    const fallbackGaps = ['Optimasi Portofolio Freelance', 'Standardisasi Rate Card Jasa'];
+    const gaps = topGaps.length > 0 ? topGaps.map((g) => `Pendalaman: ${g}`) : fallbackGaps;
+
+    // Traits by category
+    const cat = topJob.kategori.toLowerCase();
+    let traits = ['Teliti', 'Terorganisir', 'Konsisten'];
+    if (cat.includes('creative') || cat.includes('audio')) {
+      traits = ['Kreatif', 'Visual', 'Peka Tren'];
+    } else if (cat.includes('marketing') || cat.includes('writing')) {
+      traits = ['Persuasif', 'Storyteller', 'Strategis'];
+    } else if (cat.includes('customer') || cat.includes('support') || cat.includes('education')) {
+      traits = ['Komunikatif', 'Empatis', 'Solutif'];
+    } else if (cat.includes('tech') || cat.includes('technology')) {
+      traits = ['Kritis', 'Detail-Oriented', 'Problem Solver'];
+    } else if (cat.includes('language')) {
+      traits = ['Bilingual', 'Cermat', 'Artikulatif'];
+    }
 
     return {
       topMatches,
       persona: {
-        name: SIDE_JOBS_DB[top1Key].persona,
-        icon: SIDE_JOBS_DB[top1Key].icon,
-        tagline: SIDE_JOBS_DB[top1Key].tagline,
-        traits: ['Teliti', 'Terorganisir', 'Analitis'],
+        name: topJob.persona,
+        icon: topJob.icon,
+        tagline: topJob.tagline,
+        traits,
       },
       readinessScore: readiness,
-      gaps: ['Optimasi Profil Freelance', 'Portofolio Nyata'],
-      strengths: ['Ketelitian Data', 'Penguasaan Software Dasar', 'Manajemen Waktu'],
+      gaps,
+      strengths,
     };
   };
 
@@ -386,43 +435,9 @@ export default function HomePage() {
     { id: 'Lainnya', label: 'Lainnya', subtext: 'Diisi sendiri selain pilihan diatas', icon: '💬' },
   ];
 
-  // Default skills list shown in mockup + extras
-  const defaultSkills = [
-    'Copywriting',
-    'Video Editing',
-    'Desain Grafis',
-    'Data Entry',
-    'Social Media Management',
-    'Virtual Assistant',
-    'Riset',
-    'Public Speaking',
-    'Content Writing',
-    'Typing / Transkripsi',
-    'SEO',
-    'Web Development',
-    'Customer Service',
-    'UI/UX Design',
-    'Digital Marketing',
-    'Accounting / Pembukuan',
-  ];
-
-  // Default tools list
-  const defaultTools = [
-    'Microsoft Excel',
-    'Google Sheets',
-    'Canva',
-    'Figma',
-    'Notion',
-    'Trello',
-    'CapCut',
-    'ChatGPT / AI Tools',
-    'WordPress',
-    'Google Docs',
-    'Slack',
-    'Adobe Photoshop',
-    'Adobe Premiere',
-    'Zoom',
-  ];
+  // Curated skills from 10 skills per side job in All Data.html
+  const allMasterSkills = Array.from(new Set(MASTER_SKILLS_LIST.map((s) => s.name)));
+  const defaultTools = MASTER_TOOLS_LIST.map((t) => t.name);
 
   // Work styles
   const workStylesList = [
@@ -469,18 +484,23 @@ export default function HomePage() {
     { id: '6+', label: 'Lebih dari 6 Jam / hari', desc: 'Persiapan penuh untuk transisi ke full-time remote worker' },
   ];
 
-  // Live products list from database for Screen 5 (Rekomendasi)
-  const productsCatalog = liveProducts;
+  // Live products list from database + curated master fallback
+  const masterFallbackProducts = Object.values(SIDE_JOBS_DB).flatMap((j) => j.products);
+  const productsCatalog = liveProducts.length > 0 ? liveProducts : masterFallbackProducts;
 
   const filteredProducts = productCategoryFilter === 'Semua'
     ? productsCatalog
     : productsCatalog.filter((p) => p.category?.toLowerCase() === productCategoryFilter.toLowerCase());
 
-  // Skills filtered
-  const filteredSkills = defaultSkills.filter((s) =>
+  // Skills filtered by category and search
+  const categorySkills = selectedSkillCategory === 'all'
+    ? allMasterSkills
+    : (SKILL_CATEGORY_GROUPS.find((g) => g.id === selectedSkillCategory)?.skills || []);
+
+  const filteredSkills = categorySkills.filter((s) =>
     s.toLowerCase().includes(skillSearch.toLowerCase())
   );
-  const visibleSkills = showAllSkills ? filteredSkills : filteredSkills.slice(0, 8);
+  const visibleSkills = showAllSkills ? filteredSkills : filteredSkills.slice(0, 16);
 
   // Tools filtered
   const filteredTools = defaultTools.filter((t) =>
@@ -711,13 +731,52 @@ export default function HomePage() {
             </div>
           )}
 
-          {/* STEP 2: SKILL */}
+          {/* STEP 2: SKILL (10 Skill per Side Job dari All Data.html) */}
           {quizStep === 2 && (
             <div>
-              <h2 className="text-[18px] font-[700] leading-[1.35] text-[var(--color-ink)] tracking-[-0.015em]">Pilih Skill yang Paling Kamu Kuasai</h2>
-              <p className="text-[14.5px] font-[500] leading-[1.55] text-[var(--color-muted)] text-[13.5px] mt-2 mb-6">
-                (Maksimal 10)
-              </p>
+              <div className="flex items-start justify-between gap-2 mb-1">
+                <div>
+                  <h2 className="text-[18px] font-[700] leading-[1.35] text-[var(--color-ink)] tracking-[-0.015em]">
+                    Pilih Skill yang Paling Kamu Kuasai
+                  </h2>
+                  <p className="text-[13.5px] text-[var(--color-muted)] mt-1">
+                    Pilih skill nyata kamu untuk dicocokkan ke 20 Side Job.
+                  </p>
+                </div>
+                <span className="text-[12px] font-extrabold px-3 py-1 rounded-full bg-[#E1EDFD] text-[#0074FC] whitespace-nowrap">
+                  {userAnswers.skills.length}/10 Skill
+                </span>
+              </div>
+
+              {/* Kategori Filter Tabs */}
+              <div className="flex gap-2 overflow-x-auto pb-2 mt-4 mb-3 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                <button
+                  type="button"
+                  onClick={() => setSelectedSkillCategory('all')}
+                  className={`px-3.5 py-1.5 rounded-full text-[12px] font-bold whitespace-nowrap transition-all ${
+                    selectedSkillCategory === 'all'
+                      ? 'bg-[var(--color-primary)] text-white shadow-xs'
+                      : 'bg-[#F1F4F9] text-[#475569] hover:bg-[#E5EAF2]'
+                  }`}
+                >
+                  ✨ Semua Skill
+                </button>
+                {SKILL_CATEGORY_GROUPS.map((grp) => (
+                  <button
+                    key={grp.id}
+                    type="button"
+                    onClick={() => setSelectedSkillCategory(grp.id)}
+                    className={`px-3.5 py-1.5 rounded-full text-[12px] font-bold whitespace-nowrap transition-all flex items-center gap-1.5 ${
+                      selectedSkillCategory === grp.id
+                        ? 'bg-[var(--color-primary)] text-white shadow-xs'
+                        : 'bg-[#F1F4F9] text-[#475569] hover:bg-[#E5EAF2]'
+                    }`}
+                  >
+                    <span>{grp.icon}</span>
+                    <span>{grp.name}</span>
+                  </button>
+                ))}
+              </div>
 
               {/* Search bar */}
               <div className="relative mb-3.5">
@@ -727,39 +786,80 @@ export default function HomePage() {
                 />
                 <input
                   type="text"
-                  placeholder="Cari skill..."
+                  placeholder="Cari skill (misal: Excel, Video, Copywriting, Ketik...)"
                   value={skillSearch}
                   onChange={(e) => setSkillSearch(e.target.value)}
-                  className="w-full h-[46px] rounded-full bg-[var(--color-surface)] border border-[var(--color-border)] pl-[42px] pr-[16px] text-[14px] text-[var(--color-ink)] outline-none transition-all duration-200 focus:border-[var(--color-primary)] focus:ring-[3px] focus:ring-[rgba(0,116,252,0.12)] placeholder:text-[var(--color-placeholder)]"
+                  className="w-full h-[46px] rounded-full bg-[var(--color-surface)] border border-[var(--color-border)] pl-[42px] pr-[16px] text-[13.5px] text-[var(--color-ink)] outline-none transition-all duration-200 focus:border-[var(--color-primary)] focus:ring-[3px] focus:ring-[rgba(0,116,252,0.12)] placeholder:text-[var(--color-placeholder)]"
                 />
               </div>
 
-              {/* Chip Selectable List */}
-              <div className="flex flex-wrap gap-2.5">
-                {visibleSkills.map((skill) => {
-                  const isSelected = userAnswers.skills.includes(skill);
-                  return (
+              {/* Selected Skills Preview Badges */}
+              {userAnswers.skills.length > 0 && (
+                <div className="mb-3 p-3 bg-[#EFF6FF] rounded-2xl border border-[#BFDBFE]/60">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[11.5px] font-bold text-[#1D64EC]">
+                      Skill Terpilih ({userAnswers.skills.length}/10):
+                    </span>
                     <button
-                      key={skill}
                       type="button"
-                      onClick={() => toggleSkill(skill)}
-                      className={`inline-flex items-center gap-[6px] px-[16px] py-[9px] rounded-full text-[13.5px] font-[600] border transition-all duration-[180ms] select-none ${isSelected ? 'bg-[var(--color-primary)] border-[var(--color-primary)] text-white' : 'bg-[var(--color-surface)] border-[var(--color-border)] text-[var(--color-ink-soft)] hover:border-[#B4C4DE] hover:bg-[#F9FAFC]'}`}
+                      onClick={() => setUserAnswers((prev) => ({ ...prev, skills: [] }))}
+                      className="text-[11px] font-semibold text-[#DC2626] hover:underline"
                     >
-                      <span>{skill}</span>
-                      {isSelected && <Check size={14} strokeWidth={2.5} />}
+                      Hapus Semua
                     </button>
-                  );
-                })}
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {userAnswers.skills.map((s) => (
+                      <span
+                        key={s}
+                        onClick={() => toggleSkill(s)}
+                        className="inline-flex items-center gap-1 text-[11.5px] font-bold text-[#1D64EC] bg-white px-2.5 py-1 rounded-full border border-[#93C5FD] shadow-xs cursor-pointer hover:bg-red-50 hover:text-red-600 hover:border-red-300 transition-colors"
+                        title="Klik untuk membatalkan"
+                      >
+                        <span>{s}</span>
+                        <X size={12} />
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Chip Selectable List */}
+              <div className="flex flex-wrap gap-2">
+                {visibleSkills.length === 0 ? (
+                  <div className="w-full py-6 text-center text-[#98A2B3] text-[13px]">
+                    Tidak ada skill yang cocok dengan pencarian &ldquo;{skillSearch}&rdquo;.
+                  </div>
+                ) : (
+                  visibleSkills.map((skill) => {
+                    const isSelected = userAnswers.skills.includes(skill);
+                    return (
+                      <button
+                        key={skill}
+                        type="button"
+                        onClick={() => toggleSkill(skill)}
+                        className={`inline-flex items-center gap-[6px] px-[14px] py-[8px] rounded-full text-[13px] font-[600] border transition-all duration-[180ms] select-none ${
+                          isSelected
+                            ? 'bg-[var(--color-primary)] border-[var(--color-primary)] text-white shadow-xs'
+                            : 'bg-[var(--color-surface)] border-[var(--color-border)] text-[var(--color-ink-soft)] hover:border-[#B4C4DE] hover:bg-[#F9FAFC]'
+                        }`}
+                      >
+                        <span>{skill}</span>
+                        {isSelected && <Check size={14} strokeWidth={2.5} />}
+                      </button>
+                    );
+                  })
+                )}
               </div>
 
-              {filteredSkills.length > 8 && (
+              {filteredSkills.length > 16 && (
                 <div className="text-center mt-3.5">
                   <button
                     type="button"
                     onClick={() => setShowAllSkills(!showAllSkills)}
                     className="inline-flex items-center gap-1 text-[13px] font-semibold text-[#0074FC] hover:underline"
                   >
-                    <span>{showAllSkills ? 'Sembunyikan' : 'Lihat semua skill'}</span>
+                    <span>{showAllSkills ? 'Sembunyikan Sebagian' : `Lihat Semua (${filteredSkills.length} Skill)`}</span>
                     <ChevronDown
                       size={16}
                       className={`transform transition-transform ${showAllSkills ? 'rotate-180' : ''}`}
@@ -1172,15 +1272,28 @@ export default function HomePage() {
                 </button>
               </div>
 
-              {/* ── REKOMENDASI PRODUK BERDASARKAN HASIL TES ── */}
+              {/* ── REKOMENDASI PRODUK BERDASARKAN HASIL TES (Dinamis DB + Lynk.id) ── */}
               {(() => {
-                const topJobName = calculatedResult.topMatches[0]?.name || '';
-                const personalizedProducts = liveProducts.filter(
+                const topJob = calculatedResult.topMatches[0];
+                if (!topJob) return null;
+
+                // 1. Cari produk dari database live yang ditargetkan untuk job ini atau umum
+                const dbMatches = liveProducts.filter(
                   (p) =>
                     p.isPublished !== false &&
-                    (p.sideJob === topJobName || p.sideJob === 'Umum / Semua Profil')
+                    (
+                      p.sideJob?.toLowerCase() === topJob.name.toLowerCase() ||
+                      p.sideJob?.toLowerCase() === topJob.kategori.toLowerCase() ||
+                      p.sideJob === 'Umum / Semua Profil' ||
+                      !p.sideJob
+                    )
                 );
-                if (personalizedProducts.length === 0) return null;
+
+                // 2. Jika DB belum ada produk spesifik, gunakan produk resmi dari All Data.html
+                const productsToShow = dbMatches.length > 0 ? dbMatches : (topJob.products || []);
+
+                if (!productsToShow || productsToShow.length === 0) return null;
+
                 return (
                   <div className="mt-8">
                     <div className="mb-4">
@@ -1189,51 +1302,67 @@ export default function HomePage() {
                         Panduan &amp; Produk Rekomendasi
                       </h3>
                       <p className="text-[13px] text-[#98A2B3] mt-1 leading-relaxed">
-                        Dipilih khusus berdasarkan profil <span className="font-bold text-[#0A0E2E]">{calculatedResult.persona.name}</span> kamu.
+                        Dipilih khusus berdasarkan rekomendasi <span className="font-bold text-[#0A0E2E]">{topJob.name}</span> kamu.
                       </p>
                     </div>
 
                     <div className="flex flex-col gap-3">
-                      {personalizedProducts.map((prod) => (
-                        <div
-                          key={prod.id}
-                          className="bg-white rounded-[18px] border border-[#EDEFF3] shadow-[0_2px_10px_rgba(10,14,46,0.05)] p-[14px] flex gap-[14px] items-center hover:shadow-[0_6px_18px_rgba(10,14,46,0.09)] hover:border-[#DCE3EE] transition-all duration-200"
-                        >
-                          {/* Thumbnail */}
-                          {prod.imageUrl ? (
-                            <div className="w-[68px] h-[68px] rounded-[14px] overflow-hidden flex-shrink-0 bg-slate-100 border border-slate-200/80 shadow-sm">
-                              <img
-                                src={prod.imageUrl}
-                                alt={prod.title}
-                                className="w-full h-full object-cover"
-                                loading="lazy"
-                              />
-                            </div>
-                          ) : (
-                            <ProductCover3D type={prod.type || 'digital'} />
-                          )}
+                      {productsToShow.map((prod, pIdx) => {
+                        const directUrl = normalizeLynkUrl(prod.url);
+                        return (
+                          <div
+                            key={prod.id || pIdx}
+                            className="bg-white rounded-[18px] border border-[#EDEFF3] shadow-[0_2px_10px_rgba(10,14,46,0.05)] p-[14px] flex gap-[14px] items-center hover:shadow-[0_6px_18px_rgba(10,14,46,0.09)] hover:border-[#DCE3EE] transition-all duration-200"
+                          >
+                            {/* Thumbnail */}
+                            {prod.imageUrl ? (
+                              <div className="w-[68px] h-[68px] rounded-[14px] overflow-hidden flex-shrink-0 bg-slate-100 border border-slate-200/80 shadow-sm">
+                                <img
+                                  src={prod.imageUrl}
+                                  alt={prod.title}
+                                  className="w-full h-full object-cover"
+                                  loading="lazy"
+                                />
+                              </div>
+                            ) : (
+                              <ProductCover3D type={prod.type || 'digital'} />
+                            )}
 
-                          {/* Info */}
-                          <div className="flex-1 flex flex-col min-w-0">
-                            <span className="bg-[var(--lav-tag)] text-[var(--color-ink-soft)] text-[11px] font-[600] px-[9px] py-[2px] rounded-full inline-block mb-1.5 w-fit">{prod.category}</span>
-                            <h4 className="text-[14px] font-bold text-[#0A0E2E] leading-snug line-clamp-2">{prod.title}</h4>
-                            <div className="flex items-center justify-between w-full mt-2.5">
-                              {prod.badge ? (
-                                <span className="text-[11.5px] font-bold text-[#0074FC] bg-[#EFF6FF] px-2 py-0.5 rounded-full">{prod.badge}</span>
-                              ) : <span />}
-                              <a
-                                href={prod.url}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="bg-[var(--color-primary)] text-white rounded-full px-[14px] py-[6px] text-[12px] font-[700] transition-colors duration-150 inline-flex items-center gap-1.5 hover:bg-[var(--color-primary-hover)] flex-shrink-0"
-                              >
-                                <ExternalLink size={12} />
-                                Buka
-                              </a>
+                            {/* Info */}
+                            <div className="flex-1 flex flex-col min-w-0">
+                              <span className="bg-[var(--lav-tag)] text-[var(--color-ink-soft)] text-[11px] font-[600] px-[9px] py-[2px] rounded-full inline-block mb-1 w-fit">
+                                {prod.category || 'Panduan'}
+                              </span>
+                              <h4 className="text-[14px] font-bold text-[#0A0E2E] leading-snug line-clamp-2">
+                                {prod.title}
+                              </h4>
+                              {prod.desc && (
+                                <p className="text-[12px] text-[#64748B] mt-0.5 line-clamp-1">
+                                  {prod.desc}
+                                </p>
+                              )}
+                              <div className="flex items-center justify-between w-full mt-2.5">
+                                {prod.badge ? (
+                                  <span className="text-[11.5px] font-bold text-[#0074FC] bg-[#EFF6FF] px-2 py-0.5 rounded-full">
+                                    {prod.badge}
+                                  </span>
+                                ) : (
+                                  <span className="text-[12px] font-bold text-[#0F172A]">{prod.price || 'Panduan'}</span>
+                                )}
+                                <a
+                                  href={directUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="bg-[var(--color-primary)] text-white rounded-full px-[14px] py-[6px] text-[12px] font-[700] transition-colors duration-150 inline-flex items-center gap-1.5 hover:bg-[var(--color-primary-hover)] flex-shrink-0 shadow-xs"
+                                >
+                                  <span>Buka di Lynk.id</span>
+                                  <ExternalLink size={12} />
+                                </a>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
                 );
@@ -1336,13 +1465,24 @@ export default function HomePage() {
                       <span className="text-[12px] font-bold text-[#0074FC] bg-[#EFF6FF] px-2.5 py-1 rounded-full">
                         {prod.badge || 'Panduan Rekomendasi'}
                       </span>
-                      <button
-                        type="button"
-                        onClick={() => setSelectedProductDetail(prod)}
-                        className="bg-[var(--color-primary)] text-white rounded-full px-[15px] py-[7px] text-[12.5px] font-[700] transition-colors duration-150 inline-flex items-center justify-center hover:bg-[var(--color-primary-hover)]"
-                      >
-                        Lihat Detail
-                      </button>
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => setSelectedProductDetail(prod)}
+                          className="bg-[#EFF6FF] text-[#0074FC] hover:bg-[#DBEAFE] rounded-full px-3 py-1.5 text-[11.5px] font-bold transition-colors"
+                        >
+                          Detail
+                        </button>
+                        <a
+                          href={normalizeLynkUrl(prod.url)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="bg-[var(--color-primary)] text-white rounded-full px-3.5 py-1.5 text-[11.5px] font-bold transition-colors duration-150 inline-flex items-center gap-1 hover:bg-[var(--color-primary-hover)] shadow-xs"
+                        >
+                          <span>Buka</span>
+                          <ExternalLink size={11} />
+                        </a>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1628,6 +1768,29 @@ export default function HomePage() {
                 </div>
               </div>
 
+              {/* Lynk.id Guide CTA */}
+              <div className="p-4 rounded-2xl bg-[#EFF6FF] border border-[#BFDBFE] mt-1">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[11.5px] font-bold text-[#1D64EC] uppercase tracking-wider">Mulai Melangkah</span>
+                  <span className="text-[11px] font-bold text-[#059669] bg-[#ECFDF5] px-2 py-0.5 rounded-full">Resmi Lynk.id</span>
+                </div>
+                <h4 className="text-[14.5px] font-bold text-[#0A0E2E]">
+                  Panduan Lengkap Side Job {calculatedResult.topMatches[0].name}
+                </h4>
+                <p className="text-[12px] text-[#475569] mt-1 mb-3">
+                  Dapatkan blueprint langkah kerja, template proposal klien, dan cara mulai menghasilkan dari rumah.
+                </p>
+                <a
+                  href={normalizeLynkUrl(calculatedResult.topMatches[0].linkPanduan)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full py-2.5 rounded-xl bg-[#0074FC] hover:bg-[#0060D1] text-white text-[13px] font-bold inline-flex items-center justify-center gap-1.5 transition-colors shadow-xs"
+                >
+                  <span>Buka Panduan di Lynk.id</span>
+                  <ExternalLink size={14} />
+                </a>
+              </div>
+
               {/* Share & Download actions */}
               <div className="flex items-center gap-2 pt-2">
                 <button
@@ -1695,12 +1858,12 @@ export default function HomePage() {
             ) : null}
 
             <a
-              href={selectedProductDetail.url}
+              href={normalizeLynkUrl(selectedProductDetail.url)}
               target="_blank"
-              rel="noreferrer"
-              className="bg-[var(--color-primary)] text-white rounded-[999px] h-[52px] inline-flex items-center justify-center font-[700] text-[15px] w-full shadow-[0_6px_16px_rgba(0,116,252,0.28)] transition-all duration-200 ease-[cubic-bezier(0.2,0.8,0.2,1)] hover:bg-[var(--color-primary-hover)] hover:-translate-y-[1px] hover:shadow-[0_8px_20px_rgba(0,116,252,0.36)] disabled:opacity-55 disabled:cursor-not-allowed disabled:shadow-none text-[14.5px]"
+              rel="noopener noreferrer"
+              className="bg-[var(--color-primary)] text-white rounded-[999px] h-[52px] inline-flex items-center justify-center font-[700] text-[15px] w-full shadow-[0_6px_16px_rgba(0,116,252,0.28)] transition-all duration-200 ease-[cubic-bezier(0.2,0.8,0.2,1)] hover:bg-[var(--color-primary-hover)] hover:-translate-y-[1px] hover:shadow-[0_8px_20px_rgba(0,116,252,0.36)] disabled:opacity-55 disabled:cursor-not-allowed disabled:shadow-none text-[14.5px] gap-2"
             >
-              <span>Lihat Panduan Lengkap</span>
+              <span>Buka Panduan di Lynk.id</span>
               <ExternalLink size={16} />
             </a>
           </div>

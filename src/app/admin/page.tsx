@@ -139,7 +139,7 @@ export default function AdminPage() {
     badge: 'Best Seller',
     url: '',
     imageUrl: '',
-    sideJob: JOB_CATEGORIES[0] || 'Data Entry Specialist',
+    sideJob: 'Umum / Semua Profil',
     isPublished: true,
     order: 0,
   });
@@ -148,7 +148,9 @@ export default function AdminPage() {
     let url = (rawUrl || '').trim();
     if (!url) return '';
     url = url.split('?')[0].replace(/\/+$/, '');
-    url = url.replace(/\/checkout$/, '');
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+      url = `https://${url}`;
+    }
     return url;
   };
 
@@ -190,7 +192,7 @@ export default function AdminPage() {
           category: detectedCat,
           type: detectedCat.toLowerCase().replace(/\s+/g, ''),
           badge: 'Best Seller',
-          sideJob: JOB_CATEGORIES[0] || 'Data Entry Specialist',
+          sideJob: 'Umum / Semua Profil',
           isPublished: true,
           order: 0,
         });
@@ -225,7 +227,7 @@ export default function AdminPage() {
       badge: 'Best Seller',
       url: '',
       imageUrl: '',
-      sideJob: JOB_CATEGORIES[0] || 'Data Entry Specialist',
+      sideJob: 'Umum / Semua Profil',
       isPublished: true,
       order: 0,
     });
@@ -243,7 +245,7 @@ export default function AdminPage() {
       badge: prod.badge || '',
       url: prod.url || '',
       imageUrl: prod.imageUrl || '',
-      sideJob: prod.sideJob || JOB_CATEGORIES[0] || 'Data Entry Specialist',
+      sideJob: prod.sideJob || 'Umum / Semua Profil',
       isPublished: prod.isPublished ?? true,
       order: prod.order || 0,
     });

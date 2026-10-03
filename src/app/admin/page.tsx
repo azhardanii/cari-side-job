@@ -758,7 +758,7 @@ export default function AdminPage() {
                             rel="noreferrer"
                             style={{ ...S.btnOutline, textDecoration: 'none', padding: '7px 14px', fontSize: 11.5 }}
                           >
-                            🔗 Buka Lynk.id ↗
+                            🔗 Buka Link Produk ↗
                           </a>
                           <button
                             style={{ ...S.btnOutline, padding: '7px 14px', fontSize: 11.5 }}
@@ -944,10 +944,10 @@ export default function AdminPage() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                 {/* Lynk URL */}
                 <div>
-                  <label style={S.label}>Link Produk (Lynk.id) *</label>
+                  <label style={S.label}>Link Produk *</label>
                   <input
                     style={{ ...S.input, color: '#1D64EC', fontWeight: 600 }}
-                    placeholder="https://lynk.id/..."
+                    placeholder="https://..."
                     value={productForm.url}
                     onChange={e => setProductForm({ ...productForm, url: e.target.value })}
                   />

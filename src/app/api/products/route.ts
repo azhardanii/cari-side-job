@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
 
     if (!title || !url) {
       return NextResponse.json(
-        { error: 'Judul dan URL produk Lynk.id wajib diisi' },
+        { error: 'Judul dan URL produk wajib diisi' },
         { status: 400 }
       );
     }

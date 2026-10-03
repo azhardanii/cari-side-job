@@ -1262,6 +1262,7 @@ export default function HomePage() {
 
                 {/* Secondary Button: Lihat Penjelasan Lengkap */}
                 <button
+                  type="button"
                   onClick={() => setIsDetailExplanationOpen(true)}
                   className="bg-[#EDF4FD] text-[var(--color-ink)] rounded-[20px] px-[18px] py-[15px] flex items-center justify-between font-[700] text-[14.5px] border border-[rgba(0,116,252,0.1)] w-full transition-colors duration-200 hover:bg-[#E2EEFD] hover:border-[rgba(0,116,252,0.2)] mt-3.5"
                 >
@@ -1270,6 +1271,45 @@ export default function HomePage() {
                   </span>
                   <ChevronRight size={19} className="text-[#0A0E2E]" />
                 </button>
+
+                {/* ── BAGIKAN HASIL TES (Share WA & Download Story) ── */}
+                <div className="mt-4 p-4 rounded-[20px] bg-white border border-[#EDEFF3] shadow-[0_2px_10px_rgba(10,14,46,0.04)]">
+                  <div className="flex items-center justify-between mb-3 px-0.5">
+                    <div>
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-[#98A2B3]">
+                        Bagikan Hasil
+                      </span>
+                      <h4 className="text-[14px] font-bold text-[#0A0E2E] mt-0.5">
+                        Pamerkan Hasil Tes Kamu
+                      </h4>
+                    </div>
+                    <div className="w-8 h-8 rounded-full bg-[#E1EDFD] text-[#0074FC] flex items-center justify-center flex-shrink-0">
+                      <Share2 size={15} />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={shareToWhatsApp}
+                      className="flex items-center justify-center gap-2.5 h-[48px] px-4 rounded-[14px] bg-[#25D366] hover:bg-[#20BD5A] text-white font-bold text-[13.5px] shadow-[0_4px_12px_rgba(37,211,102,0.25)] active:scale-[0.98] transition-all duration-150"
+                    >
+                      <svg className="w-4 h-4 fill-current flex-shrink-0" viewBox="0 0 24 24">
+                        <path d="M17.472 14.382c-.301-.15-1.776-.877-2.05-0.976-.275-.099-.474-.15-.674.15-.2.299-.775.976-.95 1.174-.175.2-.35.224-.651.075s-1.272-.469-2.424-1.496c-.896-.799-1.501-1.785-1.677-2.086-.175-.3-.019-.462.132-.611.135-.134.3-.35.45-.525.15-.175.2-.299.3-.499.1-.2.05-.374-.025-.524-.075-.15-.674-1.625-.925-2.224-.243-.585-.49-.506-.674-.515-.174-.009-.374-.01-.574-.01-.2 0-.524.075-.798.374-.275.299-1.05 1.026-1.05 2.502 0 1.475 1.074 2.899 1.224 3.1 0.15.2 2.115 3.23 5.124 4.529.715.309 1.274.494 1.709.633.719.228 1.374.196 1.892.118.577-.087 1.775-.726 2.025-1.426.25-.699.25-1.299.175-1.425-.075-.125-.275-.2-.575-.35zM12.04 2C6.52 2 2.04 6.48 2.04 12c0 1.98.58 3.82 1.58 5.37L2 22l4.8-1.54C8.28 21.36 10.1 22 12.04 22c5.52 0 10-4.48 10-10S17.56 2 12.04 2z"/>
+                      </svg>
+                      <span className="whitespace-nowrap">Share ke WA</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={downloadStoryAsImage}
+                      className="flex items-center justify-center gap-2.5 h-[48px] px-4 rounded-[14px] bg-[#0A0E2E] hover:bg-[#1E2448] text-white font-bold text-[13.5px] shadow-[0_4px_12px_rgba(10,14,46,0.18)] active:scale-[0.98] transition-all duration-150"
+                    >
+                      <Download size={17} className="flex-shrink-0 text-white" />
+                      <span className="whitespace-nowrap">Download Story</span>
+                    </button>
+                  </div>
+                </div>
               </div>
 
               {/* ── REKOMENDASI PRODUK BERDASARKAN HASIL TES (Dinamis DB + Lynk.id) ── */}
@@ -1353,9 +1393,9 @@ export default function HomePage() {
                                   href={directUrl}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="bg-[var(--color-primary)] text-white rounded-full px-[14px] py-[6px] text-[12px] font-[700] transition-colors duration-150 inline-flex items-center gap-1.5 hover:bg-[var(--color-primary-hover)] flex-shrink-0 shadow-xs"
+                                  className="bg-[var(--color-primary)] text-white rounded-full px-[16px] py-[7px] text-[12px] font-[700] transition-colors duration-150 inline-flex items-center gap-1.5 hover:bg-[var(--color-primary-hover)] flex-shrink-0 shadow-xs"
                                 >
-                                  <span>Buka di Lynk.id</span>
+                                  <span>Buka</span>
                                   <ExternalLink size={12} />
                                 </a>
                               </div>
@@ -1768,11 +1808,11 @@ export default function HomePage() {
                 </div>
               </div>
 
-              {/* Lynk.id Guide CTA */}
+              {/* Panduan Rekomendasi CTA */}
               <div className="p-4 rounded-2xl bg-[#EFF6FF] border border-[#BFDBFE] mt-1">
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-[11.5px] font-bold text-[#1D64EC] uppercase tracking-wider">Mulai Melangkah</span>
-                  <span className="text-[11px] font-bold text-[#059669] bg-[#ECFDF5] px-2 py-0.5 rounded-full">Resmi Lynk.id</span>
+                  <span className="text-[11px] font-bold text-[#059669] bg-[#ECFDF5] px-2 py-0.5 rounded-full">Panduan Resmi</span>
                 </div>
                 <h4 className="text-[14.5px] font-bold text-[#0A0E2E]">
                   Panduan Lengkap Side Job {calculatedResult.topMatches[0].name}
@@ -1786,27 +1826,9 @@ export default function HomePage() {
                   rel="noopener noreferrer"
                   className="w-full py-2.5 rounded-xl bg-[#0074FC] hover:bg-[#0060D1] text-white text-[13px] font-bold inline-flex items-center justify-center gap-1.5 transition-colors shadow-xs"
                 >
-                  <span>Buka Panduan di Lynk.id</span>
+                  <span>Buka Panduan</span>
                   <ExternalLink size={14} />
                 </a>
-              </div>
-
-              {/* Share & Download actions */}
-              <div className="flex items-center gap-2 pt-2">
-                <button
-                  onClick={shareToWhatsApp}
-                  className="bg-[var(--color-primary)] text-white rounded-[999px] h-[52px] inline-flex items-center justify-center font-[700] text-[15px] w-full shadow-[0_6px_16px_rgba(0,116,252,0.28)] transition-all duration-200 ease-[cubic-bezier(0.2,0.8,0.2,1)] hover:bg-[var(--color-primary-hover)] hover:-translate-y-[1px] hover:shadow-[0_8px_20px_rgba(0,116,252,0.36)] disabled:opacity-55 disabled:cursor-not-allowed disabled:shadow-none flex-1 !h-[48px] text-[13.5px]"
-                >
-                  <Share2 size={16} />
-                  <span>Share ke WA</span>
-                </button>
-                <button
-                  onClick={downloadStoryAsImage}
-                  className="bg-[var(--color-surface-sunken)] text-[var(--color-ink)] rounded-[999px] h-[52px] inline-flex items-center justify-center font-[700] text-[15px] w-full transition-colors duration-200 hover:bg-[#E6EAF0] flex-1 !h-[48px] text-[13.5px]"
-                >
-                  <Download size={16} />
-                  <span>Download Story</span>
-                </button>
               </div>
             </div>
           </div>
@@ -1863,7 +1885,7 @@ export default function HomePage() {
               rel="noopener noreferrer"
               className="bg-[var(--color-primary)] text-white rounded-[999px] h-[52px] inline-flex items-center justify-center font-[700] text-[15px] w-full shadow-[0_6px_16px_rgba(0,116,252,0.28)] transition-all duration-200 ease-[cubic-bezier(0.2,0.8,0.2,1)] hover:bg-[var(--color-primary-hover)] hover:-translate-y-[1px] hover:shadow-[0_8px_20px_rgba(0,116,252,0.36)] disabled:opacity-55 disabled:cursor-not-allowed disabled:shadow-none text-[14.5px] gap-2"
             >
-              <span>Buka Panduan di Lynk.id</span>
+              <span>Buka Panduan</span>
               <ExternalLink size={16} />
             </a>
           </div>

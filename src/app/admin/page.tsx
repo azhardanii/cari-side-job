@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { JOB_CATEGORIES, SIDE_JOBS_DB, getJobCategory } from '@/lib/data';
+import { JOB_CATEGORIES, SIDE_JOBS_DB, getJobCategory, toTitleCase } from '@/lib/data';
 
 interface LeadItem {
   id: string; name: string; wa: string; email: string; profesi: string;
@@ -1135,7 +1135,7 @@ export default function AdminPage() {
                 <div style={{ fontSize: 11.5, fontWeight: 700, color: '#64748B', marginBottom: 8 }}>Keahlian:</div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                   {selectedLead.skills?.map((s, i) => (
-                    <span key={i} style={S.pill('#F1F5F9', '#334155')}>{s}</span>
+                    <span key={i} style={S.pill('#F1F5F9', '#334155')}>{toTitleCase(s)}</span>
                   )) || <span style={{ color: '#94A3B8', fontSize: 12 }}>-</span>}
                 </div>
               </div>

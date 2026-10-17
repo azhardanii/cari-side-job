@@ -120,6 +120,34 @@ export interface CommunityUSP {
   };
 }
 
+/**
+ * Capitalize Each Word helper for skill names, preserving technical acronyms
+ */
+export function toTitleCase(str: string): string {
+  if (!str) return '';
+  return str
+    .split(' ')
+    .map((word) => {
+      if (!word) return '';
+      const upper = word.toUpperCase();
+      if (['SEO', 'UI', 'UX', 'UI/UX', 'AI', 'HTML', 'CSS', 'WPM', 'SOP', 'CRM', 'ROI', 'KOL', 'CAT', 'OCR', 'QA'].includes(upper)) {
+        return upper;
+      }
+      if (word.includes('-')) {
+        return word
+          .split('-')
+          .map((part) => {
+            const pUpper = part.toUpperCase();
+            if (['SEO', 'UI', 'UX', 'AI'].includes(pUpper)) return pUpper;
+            return part.charAt(0).toUpperCase() + part.slice(1).toLowerCase();
+          })
+          .join('-');
+      }
+      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    })
+    .join(' ');
+}
+
 
 /**
  * 20 MASTER DATABASE SIDE JOBS (All Data.html)
@@ -517,23 +545,23 @@ export const SKILL_CATEGORY_GROUPS: SkillCategoryGroup[] = [
     "name": "Administrasi & Data",
     "icon": "📊",
     "skills": [
-      "Data entry",
+      "Data Entry",
       "Typing",
       "Spreadsheet",
       "Administrasi",
       "Administration",
-      "Data organization",
-      "Data validation",
+      "Data Organization",
+      "Data Validation",
       "Accuracy",
-      "Attention to detail",
-      "File management",
-      "Document management",
-      "Basic computer skills",
+      "Attention To Detail",
+      "File Management",
+      "Document Management",
+      "Basic Computer Skills",
       "Scheduling",
-      "Time management",
+      "Time Management",
       "Organisasi",
       "Organization",
-      "Following instructions",
+      "Following Instructions",
       "Categorization"
     ]
   },
@@ -542,21 +570,21 @@ export const SKILL_CATEGORY_GROUPS: SkillCategoryGroup[] = [
     "name": "Kreatif & Visual",
     "icon": "🎨",
     "skills": [
-      "Video editing",
+      "Video Editing",
       "Cutting",
-      "Color grading",
-      "Motion graphics",
-      "Audio editing",
-      "Visual composition",
-      "Design principles",
+      "Color Grading",
+      "Motion Graphics",
+      "Audio Editing",
+      "Visual Composition",
+      "Design Principles",
       "Typography",
-      "Color theory",
+      "Color Theory",
       "Layout",
       "Branding",
-      "Image editing",
+      "Image Editing",
       "Composition",
       "Creativity",
-      "Content awareness"
+      "Content Awareness"
     ]
   },
   {
@@ -568,14 +596,14 @@ export const SKILL_CATEGORY_GROUPS: SkillCategoryGroup[] = [
       "Writing",
       "Storytelling",
       "Persuasion",
-      "Headline writing",
+      "Headline Writing",
       "Editing",
       "Proofreading",
-      "Content creation",
-      "Content planning",
+      "Content Creation",
+      "Content Planning",
       "Summarization",
       "Reading",
-      "Audience understanding"
+      "Audience Understanding"
     ]
   },
   {
@@ -583,25 +611,25 @@ export const SKILL_CATEGORY_GROUPS: SkillCategoryGroup[] = [
     "name": "Marketing & Medsos",
     "icon": "📱",
     "skills": [
-      "Social media strategy",
+      "Social Media Strategy",
       "Analytics",
-      "Trend research",
-      "Community management",
-      "Keyword research",
-      "SEO strategy",
-      "On-page SEO",
+      "Trend Research",
+      "Community Management",
+      "Keyword Research",
+      "SEO Strategy",
+      "On-Page SEO",
       "Technical SEO",
-      "Content optimization",
-      "Competitor research",
-      "Link building",
-      "Data analysis",
-      "Email strategy",
+      "Content Optimization",
+      "Competitor Research",
+      "Link Building",
+      "Data Analysis",
+      "Email Strategy",
       "Segmentation",
       "Automation",
-      "A/B testing",
-      "Influencer research",
+      "A/B Testing",
+      "Influencer Research",
       "Outreach",
-      "Campaign management"
+      "Campaign Management"
     ]
   },
   {
@@ -611,18 +639,18 @@ export const SKILL_CATEGORY_GROUPS: SkillCategoryGroup[] = [
     "skills": [
       "Komunikasi",
       "Communication",
-      "Customer service",
+      "Customer Service",
       "Empathy",
-      "Problem solving",
+      "Problem Solving",
       "Patience",
-      "Active listening",
-      "Conflict resolution",
-      "Product knowledge",
+      "Active Listening",
+      "Conflict Resolution",
+      "Product Knowledge",
       "Negotiation",
-      "Relationship management",
+      "Relationship Management",
       "Teaching",
       "Presentation",
-      "Lesson planning",
+      "Lesson Planning",
       "Explanation"
     ]
   },
@@ -632,29 +660,29 @@ export const SKILL_CATEGORY_GROUPS: SkillCategoryGroup[] = [
     "icon": "🌐",
     "skills": [
       "Testing",
-      "Bug reporting",
-      "Critical thinking",
-      "Usability testing",
+      "Bug Reporting",
+      "Critical Thinking",
+      "Usability Testing",
       "Documentation",
-      "Mobile knowledge",
-      "Analytical thinking",
-      "Website testing",
-      "Navigation testing",
-      "Basic web knowledge",
-      "Language proficiency",
+      "Mobile Knowledge",
+      "Analytical Thinking",
+      "Website Testing",
+      "Navigation Testing",
+      "Basic Web Knowledge",
+      "Language Proficiency",
       "Grammar",
       "Vocabulary",
-      "Cultural awareness",
+      "Cultural Awareness",
       "Terminology",
       "Listening",
       "Concentration",
-      "Language comprehension",
-      "Voice control",
+      "Language Comprehension",
+      "Voice Control",
       "Pronunciation",
       "Articulation",
       "Acting",
-      "Script reading",
-      "Audio recording",
+      "Script Reading",
+      "Audio Recording",
       "Emotion"
     ]
   }

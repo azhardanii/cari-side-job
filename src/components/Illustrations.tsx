@@ -27,27 +27,27 @@ export function BrandLogo({ onClick }: { onClick?: () => void }) {
   );
 }
 
-// Screen 1: Hero Character with Laptop & Floating Badges
+// Screen 1: Hero Characters (Cowok & Cewek) with Laptop & Floating Badges
 export function HeroCharacterVisual() {
   return (
-    <div className="relative w-full max-w-[340px] mx-auto my-3 flex flex-col items-center justify-center">
+    <div className="relative w-full max-w-[360px] mx-auto my-3 flex flex-col items-center justify-center">
       {/* Soft circular background glow */}
       <div
-        className="absolute w-[260px] h-[260px] rounded-full -z-10 pointer-events-none"
+        className="absolute w-[300px] h-[260px] rounded-full -z-10 pointer-events-none"
         style={{
-          background: 'radial-gradient(circle, rgba(225, 237, 253, 0.9) 0%, rgba(240, 246, 254, 0.4) 65%, rgba(255,255,255,0) 100%)',
-          top: '45%',
+          background: 'radial-gradient(circle, rgba(225, 237, 253, 0.95) 0%, rgba(240, 246, 254, 0.45) 65%, rgba(255,255,255,0) 100%)',
+          top: '46%',
           left: '50%',
           transform: 'translate(-50%, -50%)',
         }}
       />
 
-      {/* Floating Badge 1: 💡 Skill (Amber) */}
+      {/* Floating Badge 1: 💡 Skill (Amber, Left) */}
       <div
         className="absolute z-10 flex items-center gap-1.5 px-3 py-1.5 rounded-full shadow-sm select-none animate-float-slow"
         style={{
-          top: '32px',
-          right: '54px',
+          top: '18px',
+          left: '10px',
           backgroundColor: 'var(--amber-bg, #FDF3E5)',
           border: '1px solid rgba(251, 159, 5, 0.18)',
         }}
@@ -64,12 +64,12 @@ export function HeroCharacterVisual() {
         </span>
       </div>
 
-      {/* Floating Badge 2: 💼 Peluang (Mint) */}
+      {/* Floating Badge 2: 💼 Peluang (Mint, Right) */}
       <div
         className="absolute z-10 flex items-center gap-1.5 px-3 py-1.5 rounded-full shadow-sm select-none animate-float-delayed"
         style={{
-          top: '78px',
-          right: '2px',
+          top: '20px',
+          right: '10px',
           backgroundColor: 'var(--mint-bg, #DDF8EF)',
           border: '1px solid rgba(0, 174, 102, 0.18)',
         }}
@@ -86,12 +86,12 @@ export function HeroCharacterVisual() {
         </span>
       </div>
 
-      {/* Floating Badge 3: 📊 Penghasilan (Lavender) */}
+      {/* Floating Badge 3: 📊 Penghasilan (Lavender, Bottom Right) */}
       <div
         className="absolute z-10 flex items-center gap-1.5 px-3 py-1.5 rounded-full shadow-sm select-none animate-float-reverse"
         style={{
-          top: '124px',
-          right: '20px',
+          top: '116px',
+          right: '2px',
           backgroundColor: 'var(--lav-bg, #EDEDFD)',
           border: '1px solid rgba(62, 55, 249, 0.18)',
         }}
@@ -108,10 +108,10 @@ export function HeroCharacterVisual() {
         </span>
       </div>
 
-      {/* Main Character Vector Graphic */}
-      <div className="w-[280px] h-[240px] relative">
+      {/* Main Dual Character Vector Graphic */}
+      <div className="w-[330px] h-[235px] relative">
         <svg
-          viewBox="0 0 320 280"
+          viewBox="0 0 380 280"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
           className="w-full h-full drop-shadow-sm"
@@ -125,101 +125,179 @@ export function HeroCharacterVisual() {
               <stop offset="0%" stopColor="#357DFF" />
               <stop offset="100%" stopColor="#1353CE" />
             </linearGradient>
+            <linearGradient id="bodyCoral" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#FB7185" />
+              <stop offset="100%" stopColor="#E11D48" />
+            </linearGradient>
+            <linearGradient id="sleeveCoral" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="#FDA4AF" />
+              <stop offset="100%" stopColor="#F43F5E" />
+            </linearGradient>
             <linearGradient id="skin" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#FED8BA" />
               <stop offset="100%" stopColor="#F9C39B" />
             </linearGradient>
-            <linearGradient id="hairGrad" x1="0" y1="0" x2="1" y2="1">
+            <linearGradient id="hairGuy" x1="0" y1="0" x2="1" y2="1">
               <stop offset="0%" stopColor="#302018" />
               <stop offset="100%" stopColor="#1B120C" />
+            </linearGradient>
+            <linearGradient id="hairGirl" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="#4A2E20" />
+              <stop offset="100%" stopColor="#28160E" />
             </linearGradient>
             <linearGradient id="laptopLid" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#CBD5E1" />
               <stop offset="100%" stopColor="#94A3B8" />
+            </linearGradient>
+            <linearGradient id="laptopLidPink" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#F1F5F9" />
+              <stop offset="100%" stopColor="#CBD5E1" />
             </linearGradient>
             <filter id="softShadow" x="-10%" y="-10%" width="130%" height="130%">
               <feDropShadow dx="0" dy="4" stdDeviation="6" floodOpacity="0.1" />
             </filter>
           </defs>
 
-          {/* Torso / Blue Sweatshirt */}
+          {/* ── COWOK (LEFT, CENTER ~125) ── */}
+          {/* Guy Torso / Blue Sweatshirt */}
           <path
-            d="M60 280 C60 220 85 185 125 180 L160 180 C200 185 225 220 225 280 Z"
+            d="M40 280 C40 215 65 180 102 176 L144 176 C176 180 196 215 200 280 Z"
             fill="url(#bodyBlue)"
           />
-          {/* Collar */}
+          {/* Guy Collar */}
           <path
-            d="M125 180 C135 192 150 192 160 180"
+            d="M104 176 C114 188 132 188 142 176"
             stroke="#1D56BF"
-            strokeWidth="4"
+            strokeWidth="3.5"
             strokeLinecap="round"
           />
-
-          {/* Left Arm / Shoulder */}
+          {/* Guy Left Arm */}
           <path
-            d="M70 240 C65 210 85 190 110 185 L95 245 Z"
+            d="M48 240 C44 210 65 188 88 182 L76 248 Z"
             fill="url(#sleeveBlue)"
           />
-
-          {/* Right Arm forward towards laptop */}
+          {/* Guy Right Arm towards laptop */}
           <path
-            d="M215 240 C220 210 200 190 175 185 L190 245 Z"
+            d="M192 240 C196 210 174 188 152 182 L164 248 Z"
             fill="url(#sleeveBlue)"
           />
-
-          {/* Neck */}
-          <rect x="131" y="152" width="23" height="32" rx="6" fill="url(#skin)" />
-          {/* Neck shadow under chin */}
-          <path d="M131 155 Q142 165 154 155 Z" fill="#E8A97C" opacity="0.6" />
-
-          {/* Ears */}
-          <circle cx="111" cy="132" r="9" fill="#F8BFA0" />
-          <circle cx="174" cy="132" r="9" fill="#F8BFA0" />
-
-          {/* Head */}
-          <rect x="114" y="92" width="57" height="66" rx="26" fill="url(#skin)" />
-
-          {/* Eyes */}
-          <ellipse cx="131" cy="130" rx="3.5" ry="4" fill="#1E293B" />
-          <circle cx="132.5" cy="128.5" r="1.2" fill="#FFFFFF" />
-          <ellipse cx="154" cy="130" rx="3.5" ry="4" fill="#1E293B" />
-          <circle cx="155.5" cy="128.5" r="1.2" fill="#FFFFFF" />
-
-          {/* Eyebrows */}
-          <path d="M125 122 Q131 119 137 122" stroke="#2D1A10" strokeWidth="2.5" strokeLinecap="round" />
-          <path d="M148 122 Q154 119 160 122" stroke="#2D1A10" strokeWidth="2.5" strokeLinecap="round" />
-
-          {/* Cute Smile */}
-          <path d="M136 142 Q142.5 148 149 142" stroke="#C26A4D" strokeWidth="2.5" strokeLinecap="round" />
-
-          {/* Soft Blush */}
-          <circle cx="123" cy="138" r="5" fill="#F472B6" opacity="0.35" />
-          <circle cx="162" cy="138" r="5" fill="#F472B6" opacity="0.35" />
-
-          {/* Stylized Modern Hair */}
+          {/* Guy Neck */}
+          <rect x="112" y="148" width="22" height="30" rx="6" fill="url(#skin)" />
+          <path d="M112 152 Q123 161 134 152 Z" fill="#E8A97C" opacity="0.6" />
+          {/* Guy Ears */}
+          <circle cx="94" cy="128" r="8" fill="#F8BFA0" />
+          <circle cx="152" cy="128" r="8" fill="#F8BFA0" />
+          {/* Guy Head */}
+          <rect x="96" y="90" width="54" height="62" rx="24" fill="url(#skin)" />
+          {/* Guy Eyes */}
+          <ellipse cx="112" cy="126" rx="3.2" ry="3.8" fill="#1E293B" />
+          <circle cx="113.5" cy="124.5" r="1.1" fill="#FFFFFF" />
+          <ellipse cx="134" cy="126" rx="3.2" ry="3.8" fill="#1E293B" />
+          <circle cx="135.5" cy="124.5" r="1.1" fill="#FFFFFF" />
+          {/* Guy Eyebrows */}
+          <path d="M106 118 Q112 115 118 118" stroke="#2D1A10" strokeWidth="2.2" strokeLinecap="round" />
+          <path d="M128 118 Q134 115 140 118" stroke="#2D1A10" strokeWidth="2.2" strokeLinecap="round" />
+          {/* Guy Smile */}
+          <path d="M117 137 Q123 143 129 137" stroke="#C26A4D" strokeWidth="2.2" strokeLinecap="round" />
+          {/* Guy Soft Blush */}
+          <circle cx="105" cy="133" r="4.5" fill="#F472B6" opacity="0.32" />
+          <circle cx="141" cy="133" r="4.5" fill="#F472B6" opacity="0.32" />
+          {/* Guy Hair */}
           <path
-            d="M110 115 C108 90 125 72 142 72 C162 72 178 88 176 115 C176 115 170 100 156 98 C142 96 136 102 126 98 C118 95 110 115 110 115 Z"
-            fill="url(#hairGrad)"
+            d="M92 112 C90 88 106 70 123 70 C142 70 156 86 154 112 C154 112 148 97 135 95 C122 93 116 99 106 95 C98 92 92 112 92 112 Z"
+            fill="url(#hairGuy)"
           />
-          {/* Hair volume top */}
           <path
-            d="M120 80 Q142 66 165 78 Q174 88 174 100 Q162 82 140 82 Q125 82 120 80 Z"
+            d="M102 78 Q123 65 144 76 Q153 85 153 96 Q142 79 122 79 Q107 79 102 78 Z"
             fill="#422C20"
           />
 
-          {/* Laptop Behind Bottom Desk */}
+          {/* ── CEWEK (RIGHT, CENTER ~255) ── */}
+          {/* Girl Hair Back (Flowing behind shoulders) */}
+          <path
+            d="M216 115 C212 145 214 180 224 205 C232 185 278 185 286 205 C296 180 298 145 294 115 Z"
+            fill="url(#hairGirl)"
+          />
+          {/* Girl Torso / Coral Blouse */}
+          <path
+            d="M182 280 C186 215 210 180 240 176 L278 176 C310 180 334 215 340 280 Z"
+            fill="url(#bodyCoral)"
+          />
+          {/* Girl Collar */}
+          <path
+            d="M240 176 C250 188 268 188 278 176"
+            stroke="#BE123C"
+            strokeWidth="3.5"
+            strokeLinecap="round"
+          />
+          {/* Girl Left Arm towards laptop */}
+          <path
+            d="M186 240 C182 210 204 188 226 182 L216 248 Z"
+            fill="url(#sleeveCoral)"
+          />
+          {/* Girl Right Arm */}
+          <path
+            d="M332 240 C336 210 314 188 292 182 L304 248 Z"
+            fill="url(#sleeveCoral)"
+          />
+          {/* Girl Neck */}
+          <rect x="248" y="148" width="20" height="30" rx="6" fill="url(#skin)" />
+          <path d="M248 152 Q258 161 268 152 Z" fill="#E8A97C" opacity="0.6" />
+          {/* Girl Ears with cute golden earrings */}
+          <circle cx="230" cy="128" r="7.5" fill="#F8BFA0" />
+          <circle cx="230" cy="134" r="2" fill="#FBBF24" />
+          <circle cx="286" cy="128" r="7.5" fill="#F8BFA0" />
+          <circle cx="286" cy="134" r="2" fill="#FBBF24" />
+          {/* Girl Head */}
+          <rect x="232" y="90" width="52" height="62" rx="24" fill="url(#skin)" />
+          {/* Girl Eyes (with soft cute lashes) */}
+          <ellipse cx="247" cy="126" rx="3.2" ry="3.8" fill="#1E293B" />
+          <circle cx="248.5" cy="124.5" r="1.1" fill="#FFFFFF" />
+          <path d="M243 123 Q247 121 251 123" stroke="#1E293B" strokeWidth="1.2" strokeLinecap="round" />
+          <ellipse cx="269" cy="126" rx="3.2" ry="3.8" fill="#1E293B" />
+          <circle cx="270.5" cy="124.5" r="1.1" fill="#FFFFFF" />
+          <path d="M265 123 Q269 121 273 123" stroke="#1E293B" strokeWidth="1.2" strokeLinecap="round" />
+          {/* Girl Eyebrows */}
+          <path d="M241 118 Q247 115 253 118" stroke="#372115" strokeWidth="2.2" strokeLinecap="round" />
+          <path d="M263 118 Q269 115 275 118" stroke="#372115" strokeWidth="2.2" strokeLinecap="round" />
+          {/* Girl Sweet Smile */}
+          <path d="M252 137 Q258 143 264 137" stroke="#BE123C" strokeWidth="2.2" strokeLinecap="round" />
+          {/* Girl Soft Blush */}
+          <circle cx="240" cy="133" r="5" fill="#FB7185" opacity="0.45" />
+          <circle cx="276" cy="133" r="5" fill="#FB7185" opacity="0.45" />
+          {/* Girl Hair Top & Bangs */}
+          <path
+            d="M228 114 C224 88 240 68 258 68 C278 68 292 88 288 114 C282 98 270 94 258 94 C244 94 236 98 228 114 Z"
+            fill="url(#hairGirl)"
+          />
+          <path
+            d="M236 78 Q258 64 278 75 Q288 84 286 96 Q274 78 256 78 Q242 78 236 78 Z"
+            fill="#5C3828"
+          />
+
+          {/* ── LAPTOPS ON DESK ── */}
+          {/* Desk Surface Accent Line */}
+          <rect x="20" y="272" width="340" height="8" rx="4" fill="#E2E8F0" opacity="0.8" />
+
+          {/* Guy's Laptop */}
           <g filter="url(#softShadow)">
-            {/* Open Laptop Screen */}
-            <path
-              d="M102 215 L198 215 L204 278 L96 278 Z"
-              fill="url(#laptopLid)"
-              rx="6"
-            />
-            {/* Laptop Inner Bezel */}
-            <rect x="105" y="222" width="90" height="52" rx="4" fill="#0F172A" opacity="0.08" />
-            {/* Laptop Back Logo Circle */}
-            <circle cx="150" cy="245" r="7" fill="#FFFFFF" opacity="0.8" />
+            <path d="M72 216 L158 216 L164 274 L66 274 Z" fill="url(#laptopLid)" rx="6" />
+            <rect x="75" y="222" width="80" height="46" rx="4" fill="#0F172A" opacity="0.08" />
+            <circle cx="115" cy="242" r="6" fill="#FFFFFF" opacity="0.85" />
           </g>
+
+          {/* Girl's Laptop / Tablet */}
+          <g filter="url(#softShadow)">
+            <path d="M216 216 L302 216 L308 274 L210 274 Z" fill="url(#laptopLidPink)" rx="6" />
+            <rect x="219" y="222" width="80" height="46" rx="4" fill="#0F172A" opacity="0.07" />
+            <circle cx="259" cy="242" r="6" fill="#FFFFFF" opacity="0.9" />
+          </g>
+
+          {/* Cute Coffee Mug in the Middle */}
+          <rect x="180" y="246" width="16" height="22" rx="3" fill="#FFFFFF" stroke="#CBD5E1" strokeWidth="1.5" />
+          <path d="M196 250 C200 250 200 258 196 258" stroke="#CBD5E1" strokeWidth="1.5" fill="none" />
+          <path d="M185 242 Q187 238 185 235" stroke="#94A3B8" strokeWidth="1.2" strokeLinecap="round" opacity="0.6" fill="none" />
+          <path d="M190 242 Q192 238 190 235" stroke="#94A3B8" strokeWidth="1.2" strokeLinecap="round" opacity="0.6" fill="none" />
         </svg>
       </div>
 

@@ -358,8 +358,8 @@ export default function HomePage() {
       `Side Job Paling Cocok: ${topJob.name} (${topJob.matchPercent}% Cocok)!\n\n` +
       `Yuk cari tahu side job yang paling pas dengan skill kamu di sini:\nhttps://carisidejob.id`
     );
-    const waUrl = `https://wa.me/?text=${text}`;
-    window.open(waUrl, '_blank') || (window.location.href = waUrl);
+    const waUrl = `https://api.whatsapp.com/send?text=${text}`;
+    window.location.href = waUrl;
   };
 
   // Canvas 9:16 Generator & Web Share / Direct IG
@@ -372,7 +372,10 @@ export default function HomePage() {
       canvas.width = 1080;
       canvas.height = 1920;
       const ctx = canvas.getContext('2d');
-      if (!ctx) return;
+      if (!ctx) {
+        setIsSharingStory(false);
+        return;
+      }
 
       // Background Gradient Tech Ink & Blue
       const bgGrad = ctx.createLinearGradient(0, 0, 1080, 1920);
@@ -433,30 +436,40 @@ export default function HomePage() {
       ctx.fillText('Temukan Side Job Kamu di carisidejob.id', 540, 1780);
 
       const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/png'));
-      if (!blob) return;
+      if (!blob) {
+        setIsSharingStory(false);
+        return;
+      }
 
       const fileName = `CariSideJob_${(leadData.name || 'hasil').replace(/\s+/g, '_')}.png`;
       const file = new File([blob], fileName, { type: 'image/png' });
 
-      // If mobile supports Web Share with files (iOS Safari / Android Chrome)
-      if (typeof navigator !== 'undefined' && navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({
-          title: 'Hasil Tes Cari Side Job',
-          text: `Karakterku: "${calculatedResult.persona.name}" - Side Job Paling Cocok: ${calculatedResult.topMatches[0].name}! Cek punyamu di https://carisidejob.id`,
-          files: [file],
-        });
-        return;
-      }
-
-      // Desktop / fallback: direct download & open Instagram
+      // Trigger automatic direct download for story
+      const fileUrl = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.download = fileName;
-      link.href = URL.createObjectURL(blob);
+      link.href = fileUrl;
+      document.body.appendChild(link);
       link.click();
-      setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+      document.body.removeChild(link);
+      setTimeout(() => URL.revokeObjectURL(fileUrl), 4000);
 
-      window.open('https://instagram.com', '_blank');
-      alert('Gambar Story berhasil diunduh! Silakan unggah ke Instagram Story kamu 🚀');
+      // If mobile supports Web Share with files
+      if (typeof navigator !== 'undefined' && navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({
+            title: 'Hasil Tes Cari Side Job',
+            text: `Karakterku: "${calculatedResult.persona.name}" - Side Job Paling Cocok: ${calculatedResult.topMatches[0].name}! Cek punyamu di https://carisidejob.id`,
+            files: [file],
+          });
+          return;
+        } catch (shareErr: any) {
+          if (shareErr?.name === 'AbortError') return;
+        }
+      }
+
+      // Direct fallback to Instagram
+      window.location.href = 'https://www.instagram.com/';
     } catch (err: any) {
       if (err?.name !== 'AbortError') {
         console.warn('Share error:', err);
@@ -533,10 +546,12 @@ export default function HomePage() {
     ? productsCatalog
     : productsCatalog.filter((p) => p.category?.toLowerCase() === productCategoryFilter.toLowerCase());
 
-  // Skills filtered by category and search
-  const categorySkills = selectedSkillCategory === 'all'
+  // Skills filtered by category and search (Title Case & deduplicated)
+  const rawCategorySkills = selectedSkillCategory === 'all'
     ? allMasterSkills
     : (SKILL_CATEGORY_GROUPS.find((g) => g.id === selectedSkillCategory)?.skills || []);
+
+  const categorySkills = Array.from(new Set(rawCategorySkills.map((s) => toTitleCase(s))));
 
   const filteredSkills = categorySkills.filter((s) =>
     s.toLowerCase().includes(skillSearch.toLowerCase())
@@ -1774,7 +1789,8 @@ export default function HomePage() {
       {isRemoteJobsOpen && (
         <div
           onClick={() => setIsRemoteJobsOpen(false)}
-          className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 pb-[68px] sm:pb-4 animate-fadeIn"
+          className="fixed inset-x-0 top-0 bottom-[64px] sm:bottom-0 sm:inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 animate-fadeIn"
+          style={{ zIndex: 50 }}
         >
           <div
             onClick={(e) => e.stopPropagation()}
@@ -1991,7 +2007,10 @@ export default function HomePage() {
       )}
 
       {/* ── BOTTOM NAVIGATION (Fixed 4 tabs) ── */}
-      <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] h-[64px] bg-white border-t border-[var(--color-border-soft)] flex items-center justify-around px-[8px] py-[2px] pb-[calc(2px+env(safe-area-inset-bottom))] z-[60]">
+      <nav
+        className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] h-[64px] bg-white border-t border-[var(--color-border-soft)] flex items-center justify-around px-[8px] py-[2px] pb-[calc(2px+env(safe-area-inset-bottom))] z-[100]"
+        style={{ zIndex: 100 }}
+      >
         {/* Tab 1: Beranda */}
         <button
           type="button"

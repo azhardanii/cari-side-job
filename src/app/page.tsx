@@ -668,9 +668,9 @@ export default function HomePage() {
 
       {/* ── SCREEN 1: BERANDA ── */}
       {currentTab === 'beranda' && (
-        <main className="flex-1 flex flex-col w-full px-5 pt-8 pb-28 animate-fadeIn flex-1">
+        <main className="flex-1 flex flex-col w-full pt-8 pb-28 animate-fadeIn">
           {/* Hero Headline & Subtitle */}
-          <div className="mb-2">
+          <div className="px-5 mb-2">
             <h1 className="text-[27px] font-[800] leading-[1.25] text-[var(--color-ink)] tracking-[-0.025em]">
               Mulai<br />
               Langkah Baru<br />
@@ -681,11 +681,11 @@ export default function HomePage() {
             </p>
           </div>
 
-          {/* Hero Character Visual */}
+          {/* Hero Character Visual (Truly Fullwidth - Zero Padding) */}
           <HeroCharacterVisual />
 
           {/* CTA Buttons / Action Cards */}
-          <div className="flex flex-col gap-4 mt-8">
+          <div className="px-5 flex flex-col gap-4 mt-6">
             {/* Primary Card: Cari SIDE JOB */}
             <button
               onClick={startNewQuiz}

@@ -27,10 +27,10 @@ export function BrandLogo({ onClick }: { onClick?: () => void }) {
   );
 }
 
-// Screen 1: Hero Characters Visual (Cowok & Cewek at Laptop with Floating Badges - Optimized Video Animation)
+// Screen 1: Hero Characters Visual (Cowok & Cewek at Laptop with Floating Badges - Optimized Fullwidth Video Animation)
 export function HeroCharacterVisual() {
   return (
-    <div className="w-full my-2 flex items-center justify-center overflow-hidden">
+    <div className="w-full my-1 flex items-center justify-center overflow-hidden">
       <video
         autoPlay
         loop
@@ -38,14 +38,14 @@ export function HeroCharacterVisual() {
         playsInline
         preload="auto"
         poster="/hero-character.jpg"
-        className="w-full h-auto object-contain select-none pointer-events-none"
+        className="w-full h-auto block select-none pointer-events-none"
         aria-label="Animasi Karakter Cari Side Job"
       >
         <source src="/heycarisideojob.mp4" type="video/mp4" />
         <img
           src="/hero-character.jpg"
           alt="Mulai Langkah Baru dari Skill Kamu"
-          className="w-full h-auto object-contain select-none"
+          className="w-full h-auto block select-none"
         />
       </video>
     </div>

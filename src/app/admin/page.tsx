@@ -331,7 +331,9 @@ export default function AdminPage() {
 
   const fetchJobs = async () => {
     try {
-      const res = await fetch('/api/jobs');
+      const res = await fetch(`/api/jobs?admin=true&t=${Date.now()}`, {
+        cache: 'no-store',
+      });
       const data = await res.json();
       if (data.success && Array.isArray(data.jobs)) setJobs(data.jobs);
     } catch (e) { console.error(e); }
@@ -380,16 +382,19 @@ export default function AdminPage() {
     try {
       const res = await fetch(`/api/jobs?id=${encodeURIComponent(id)}`, {
         method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }),
       });
       const data = await res.json();
       if (data.success) {
         setJobs(prev => prev.filter(j => j.id !== id));
+        fetchJobs();
         alert('Lowongan berhasil dihapus.');
       } else {
-        alert('Gagal menghapus: ' + data.error);
+        alert('Gagal menghapus: ' + (data.error || 'Terjadi kesalahan'));
       }
-    } catch {
-      alert('Gagal menghapus lowongan.');
+    } catch (e: any) {
+      alert('Gagal menghapus lowongan: ' + (e?.message || 'Terjadi kesalahan jaringan'));
     }
   };
 
@@ -564,74 +569,87 @@ export default function AdminPage() {
               </button>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(340px,1fr))', gap: 20 }}>
-              {jobs.map((job, idx) => (
-                <div key={job.id} style={S.jobCard}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <span style={S.pill('#EFF6FF', '#1D64EC', '#BFDBFE')}>#{idx + 1} {getJobCategory(job)}</span>
-                    <span style={{ fontSize: 11, color: '#94A3B8', fontWeight: 600 }}>{job.posted}</span>
-                  </div>
-
-                  <div>
-                    <label style={S.label}>Judul Lowongan</label>
-                    <input style={S.input} value={job.title} onChange={e => { const u = [...jobs]; u[idx] = { ...u[idx], title: e.target.value }; setJobs(u); }} />
-                  </div>
-
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                    <div>
-                      <label style={S.label}>Perusahaan</label>
-                      <input style={S.input} value={job.company} onChange={e => { const u = [...jobs]; u[idx] = { ...u[idx], company: e.target.value }; setJobs(u); }} />
+            {jobs.length === 0 ? (
+              <div style={{ background: 'white', borderRadius: 16, border: '1px solid #E2E8F0', padding: '48px 20px', textAlign: 'center' }}>
+                <div style={{ fontSize: 40, marginBottom: 10 }}>💼</div>
+                <div style={{ fontSize: 17, fontWeight: 800, color: '#0F172A', marginBottom: 6 }}>Belum Ada Lowongan Kerja</div>
+                <p style={{ fontSize: 13.5, color: '#64748B', margin: '0 auto 20px', maxWidth: 380, lineHeight: 1.5 }}>
+                  Belum ada data lowongan kerja di database. Klik tombol di bawah untuk menambahkan lowongan baru.
+                </p>
+                <button style={S.btnPrimary} onClick={() => setIsAddModalOpen(true)}>
+                  + Tambah Lowongan Pertama
+                </button>
+              </div>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(340px,1fr))', gap: 20 }}>
+                {jobs.map((job, idx) => (
+                  <div key={job.id} style={S.jobCard}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <span style={S.pill('#EFF6FF', '#1D64EC', '#BFDBFE')}>#{idx + 1} {getJobCategory(job)}</span>
+                      <span style={{ fontSize: 11, color: '#94A3B8', fontWeight: 600 }}>{job.posted}</span>
                     </div>
+
                     <div>
-                      <label style={S.label}>Kategori</label>
-                      <select
-                        style={S.input}
-                        value={getJobCategory(job)}
-                        onChange={e => {
-                          const u = [...jobs];
-                          u[idx] = { ...u[idx], primarySideJob: e.target.value };
-                          setJobs(u);
-                        }}
-                      >
-                        {JOB_CATEGORIES.map(cat => (
-                          <option key={cat} value={cat}>{cat}</option>
-                        ))}
-                      </select>
+                      <label style={S.label}>Judul Lowongan</label>
+                      <input style={S.input} value={job.title} onChange={e => { const u = [...jobs]; u[idx] = { ...u[idx], title: e.target.value }; setJobs(u); }} />
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                      <div>
+                        <label style={S.label}>Perusahaan</label>
+                        <input style={S.input} value={job.company} onChange={e => { const u = [...jobs]; u[idx] = { ...u[idx], company: e.target.value }; setJobs(u); }} />
+                      </div>
+                      <div>
+                        <label style={S.label}>Kategori</label>
+                        <select
+                          style={S.input}
+                          value={getJobCategory(job)}
+                          onChange={e => {
+                            const u = [...jobs];
+                            u[idx] = { ...u[idx], primarySideJob: e.target.value };
+                            setJobs(u);
+                          }}
+                        >
+                          {JOB_CATEGORIES.map(cat => (
+                            <option key={cat} value={cat}>{cat}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                      <div>
+                        <label style={S.label}>Gaji</label>
+                        <input style={S.input} value={job.salary} onChange={e => { const u = [...jobs]; u[idx] = { ...u[idx], salary: e.target.value }; setJobs(u); }} />
+                      </div>
+                      <div>
+                        <label style={S.label}>Tipe Kerja</label>
+                        <input style={S.input} value={job.type} onChange={e => { const u = [...jobs]; u[idx] = { ...u[idx], type: e.target.value }; setJobs(u); }} />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label style={S.label}>Link Pendaftaran</label>
+                      <input style={{ ...S.input, color: '#1D64EC', fontWeight: 600 }} value={job.applyUrl} onChange={e => { const u = [...jobs]; u[idx] = { ...u[idx], applyUrl: e.target.value }; setJobs(u); }} />
+                    </div>
+
+                    <div>
+                      <label style={S.label}>Deskripsi Singkat</label>
+                      <textarea style={S.textarea} rows={2} value={job.description} onChange={e => { const u = [...jobs]; u[idx] = { ...u[idx], description: e.target.value }; setJobs(u); }} />
+                    </div>
+
+                    <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
+                      <button style={{ ...S.btnPrimary, flex: 1, justifyContent: 'center' as const }} disabled={isSaving} onClick={() => saveJob(job)}>
+                        {isSaving ? 'Menyimpan...' : 'Simpan'}
+                      </button>
+                      <button style={S.btnRed} onClick={() => deleteJob(job.id, job.title)}>
+                        Hapus
+                      </button>
                     </div>
                   </div>
-
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                    <div>
-                      <label style={S.label}>Gaji</label>
-                      <input style={S.input} value={job.salary} onChange={e => { const u = [...jobs]; u[idx] = { ...u[idx], salary: e.target.value }; setJobs(u); }} />
-                    </div>
-                    <div>
-                      <label style={S.label}>Tipe Kerja</label>
-                      <input style={S.input} value={job.type} onChange={e => { const u = [...jobs]; u[idx] = { ...u[idx], type: e.target.value }; setJobs(u); }} />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label style={S.label}>Link Pendaftaran</label>
-                    <input style={{ ...S.input, color: '#1D64EC', fontWeight: 600 }} value={job.applyUrl} onChange={e => { const u = [...jobs]; u[idx] = { ...u[idx], applyUrl: e.target.value }; setJobs(u); }} />
-                  </div>
-
-                  <div>
-                    <label style={S.label}>Deskripsi Singkat</label>
-                    <textarea style={S.textarea} rows={2} value={job.description} onChange={e => { const u = [...jobs]; u[idx] = { ...u[idx], description: e.target.value }; setJobs(u); }} />
-                  </div>
-
-                  <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
-                    <button style={{ ...S.btnPrimary, flex: 1, justifyContent: 'center' as const }} disabled={isSaving} onClick={() => saveJob(job)}>
-                      {isSaving ? 'Menyimpan...' : 'Simpan'}
-                    </button>
-                    <button style={S.btnRed} onClick={() => deleteJob(job.id, job.title)}>
-                      Hapus
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 

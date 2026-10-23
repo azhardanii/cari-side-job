@@ -24,6 +24,8 @@ import {
   ThumbsUpCharacterVisual,
   ProductCover3D,
 } from '@/components/Illustrations';
+import { ShareGraphicCard } from '@/components/ShareGraphicCard';
+import { renderStoryGraphicCanvas } from '@/lib/shareGraphic';
 import {
   Home,
   FileText,
@@ -368,72 +370,17 @@ export default function HomePage() {
     setIsSharingStory(true);
 
     try {
-      const canvas = document.createElement('canvas');
-      canvas.width = 1080;
-      canvas.height = 1920;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) {
-        setIsSharingStory(false);
-        return;
-      }
-
-      // Background Gradient Tech Ink & Blue
-      const bgGrad = ctx.createLinearGradient(0, 0, 1080, 1920);
-      bgGrad.addColorStop(0, '#0A0E2E');
-      bgGrad.addColorStop(0.45, '#0B3F9E');
-      bgGrad.addColorStop(1, '#0074FC');
-      ctx.fillStyle = bgGrad;
-      ctx.fillRect(0, 0, 1080, 1920);
-
-      // Header Badge
-      ctx.fillStyle = '#FFFFFF';
-      ctx.beginPath();
-      ctx.roundRect(80, 120, 260, 60, 16);
-      ctx.fill();
-
-      ctx.fillStyle = '#0A0E2E';
-      ctx.font = 'bold 26px Plus Jakarta Sans, sans-serif';
-      ctx.textAlign = 'left';
-      ctx.fillText('CARI SIDE JOB', 105, 160);
-
-      // Persona
-      ctx.textAlign = 'center';
-      ctx.fillStyle = '#FFFFFF';
-      ctx.font = 'bold 54px Plus Jakarta Sans, sans-serif';
-      ctx.fillText(`“${calculatedResult.persona.name}”`, 540, 520);
-
-      ctx.fillStyle = '#93C5FD';
-      ctx.font = '600 32px Plus Jakarta Sans, sans-serif';
-      ctx.fillText(calculatedResult.topMatches[0].name, 540, 580);
-
-      // Top 3 Matches Box
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.12)';
-      ctx.beginPath();
-      ctx.roundRect(140, 700, 800, 500, 28);
-      ctx.fill();
-
-      ctx.textAlign = 'left';
-      ctx.fillStyle = '#FFFFFF';
-      ctx.font = 'bold 30px Plus Jakarta Sans, sans-serif';
-      ctx.fillText('SIDE JOB YANG COCOK UNTUK KAMU:', 180, 770);
-
-      calculatedResult.topMatches.forEach((j, i) => {
-        const yPos = 870 + i * 110;
-        ctx.fillStyle = i === 0 ? '#34D399' : '#FFFFFF';
-        ctx.font = 'bold 36px Plus Jakarta Sans, sans-serif';
-        ctx.fillText(`${i + 1}. ${toTitleCase(j.name)}`, 180, yPos);
-
-        ctx.textAlign = 'right';
-        ctx.fillStyle = '#FDE68A';
-        ctx.fillText(`${j.matchPercent}% Cocok`, 900, yPos);
-        ctx.textAlign = 'left';
+      const canvas = await renderStoryGraphicCanvas({
+        leadName: leadData.name || 'Sobat',
+        personaName: calculatedResult.persona.name,
+        personaTagline: calculatedResult.persona.tagline,
+        topMatches: calculatedResult.topMatches.map((m) => ({
+          id: m.id,
+          name: m.name,
+          matchPercent: m.matchPercent,
+          kategori: m.kategori,
+        })),
       });
-
-      // Watermark
-      ctx.textAlign = 'center';
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-      ctx.font = '600 28px Plus Jakarta Sans, sans-serif';
-      ctx.fillText('Temukan Side Job Kamu di carisidejob.id', 540, 1780);
 
       const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/png'));
       if (!blob) {
@@ -441,7 +388,7 @@ export default function HomePage() {
         return;
       }
 
-      const fileName = `CariSideJob_${(leadData.name || 'hasil').replace(/\s+/g, '_')}.png`;
+      const fileName = `CariSideJob_${(leadData.name || 'hasil').replace(/\s+/g, '_')}_Story.png`;
       const file = new File([blob], fileName, { type: 'image/png' });
 
       // Trigger automatic direct download for story
@@ -458,8 +405,8 @@ export default function HomePage() {
       if (typeof navigator !== 'undefined' && navigator.canShare && navigator.canShare({ files: [file] })) {
         try {
           await navigator.share({
-            title: 'Hasil Tes Cari Side Job',
-            text: `Karakterku: "${calculatedResult.persona.name}" - Side Job Paling Cocok: ${calculatedResult.topMatches[0].name}! Cek punyamu di https://carisidejob.id`,
+            title: 'Hasil Tes Potensi Cari Side Job',
+            text: `Karakterku: "${calculatedResult.persona.name}" - Side Job Paling Cocok: ${calculatedResult.topMatches[0].name} (${calculatedResult.topMatches[0].matchPercent}% Cocok)! Cek punyamu di https://carisidejob.id`,
             files: [file],
           });
           return;
@@ -671,13 +618,13 @@ export default function HomePage() {
         <main className="flex-1 flex flex-col w-full pt-8 pb-28 animate-fadeIn">
           {/* Hero Headline & Subtitle */}
           <div className="px-5 mb-2">
-            <h1 className="text-[27px] font-[800] leading-[1.25] text-[var(--color-ink)] tracking-[-0.025em]">
-              Mulai<br />
-              Langkah Baru<br />
-              dari <span className="text-[var(--color-primary)]">Skill Kamu</span>
+            <h1 className="text-[31px] sm:text-[34px] font-[800] leading-[1.22] text-[var(--color-ink)] tracking-[-0.025em]">
+              Temukan <span className="text-[var(--color-primary)]">SIDE JOB</span><br />
+              yang Cocok dengan<br />
+              Skill Kamu
             </h1>
-            <p className="text-[14.5px] font-[500] leading-[1.55] text-[var(--color-muted)] mt-2">
-              Temukan peluang side job yang sesuai dengan kemampuan dan gaya hidup kamu.
+            <p className="text-[15px] font-[500] leading-[1.55] text-[var(--color-muted)] mt-2.5">
+              Mulai cari peluang kerja fleksibel yang sesuai dengan kemampuan dan minat kamu.
             </p>
           </div>
 
@@ -1329,51 +1276,21 @@ export default function HomePage() {
                   <ChevronRight size={19} className="text-[#0A0E2E]" />
                 </button>
 
-                {/* ── BAGIKAN HASIL TES (Share WA & Download Story) ── */}
-                <div className="mt-4 p-4 rounded-[20px] bg-white border border-[#EDEFF3] shadow-[0_2px_10px_rgba(10,14,46,0.04)]">
-                  <div className="flex items-center justify-between mb-3 px-0.5">
-                    <div>
-                      <span className="text-[11px] font-bold uppercase tracking-wider text-[#98A2B3]">
-                        Bagikan Hasil
-                      </span>
-                      <h4 className="text-[14px] font-bold text-[#0A0E2E] mt-0.5">
-                        Pamerkan Hasil Tes Kamu
-                      </h4>
-                    </div>
-                    <div className="w-8 h-8 rounded-full bg-[#E1EDFD] text-[#0074FC] flex items-center justify-center flex-shrink-0">
-                      <Share2 size={15} />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <button
-                      type="button"
-                      onClick={shareToWhatsApp}
-                      className="flex items-center justify-center gap-2.5 h-[48px] px-3.5 rounded-[14px] bg-[#25D366] hover:bg-[#20BD5A] text-white font-bold text-[13px] shadow-[0_4px_12px_rgba(37,211,102,0.25)] active:scale-[0.98] transition-all duration-150"
-                    >
-                      <svg className="w-4 h-4 fill-current flex-shrink-0" viewBox="0 0 24 24">
-                        <path d="M17.472 14.382c-.301-.15-1.776-.877-2.05-0.976-.275-.099-.474-.15-.674.15-.2.299-.775.976-.95 1.174-.175.2-.35.224-.651.075s-1.272-.469-2.424-1.496c-.896-.799-1.501-1.785-1.677-2.086-.175-.3-.019-.462.132-.611.135-.134.3-.35.45-.525.15-.175.2-.299.3-.499.1-.2.05-.374-.025-.524-.075-.15-.674-1.625-.925-2.224-.243-.585-.49-.506-.674-.515-.174-.009-.374-.01-.574-.01-.2 0-.524.075-.798.374-.275.299-1.05 1.026-1.05 2.502 0 1.475 1.074 2.899 1.224 3.1 0.15.2 2.115 3.23 5.124 4.529.715.309 1.274.494 1.709.633.719.228 1.374.196 1.892.118.577-.087 1.775-.726 2.025-1.426.25-.699.25-1.299.175-1.425-.075-.125-.275-.2-.575-.35zM12.04 2C6.52 2 2.04 6.48 2.04 12c0 1.98.58 3.82 1.58 5.37L2 22l4.8-1.54C8.28 21.36 10.1 22 12.04 22c5.52 0 10-4.48 10-10S17.56 2 12.04 2z"/>
-                      </svg>
-                      <span className="whitespace-nowrap">Share ke WA</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      disabled={isSharingStory}
-                      onClick={shareToInstagramStory}
-                      className="flex items-center justify-center gap-2 h-[48px] px-3.5 rounded-[14px] bg-gradient-to-r from-[#833AB4] via-[#FD1D1D] to-[#FCB045] hover:opacity-95 text-white font-bold text-[13px] shadow-[0_4px_12px_rgba(253,29,29,0.25)] active:scale-[0.98] transition-all duration-150 disabled:opacity-60"
-                    >
-                      <svg className="w-4 h-4 fill-none stroke-current flex-shrink-0 text-white" viewBox="0 0 24 24" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                        <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
-                        <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-                        <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
-                      </svg>
-                      <span className="whitespace-nowrap">
-                        {isSharingStory ? 'Menyiapkan...' : 'Share ke Story'}
-                      </span>
-                    </button>
-                  </div>
-                </div>
+                {/* ── BAGIKAN HASIL TES DENGAN GRAFIS STORY MODERN (3D GLASS SPHERES) ── */}
+                <ShareGraphicCard
+                  params={{
+                    leadName: leadData.name || 'Sobat',
+                    personaName: calculatedResult.persona.name,
+                    personaTagline: calculatedResult.persona.tagline,
+                    topMatches: calculatedResult.topMatches.map((m) => ({
+                      id: m.id,
+                      name: m.name,
+                      matchPercent: m.matchPercent,
+                      kategori: m.kategori,
+                    })),
+                  }}
+                  onShareWhatsApp={shareToWhatsApp}
+                />
               </div>
 
               {/* ── REKOMENDASI PRODUK BERDASARKAN HASIL TES (Tetap 2 Ebook: Sesuai Hasil + Bimbingan Lengkap) ── */}
@@ -1435,7 +1352,7 @@ export default function HomePage() {
                     <div className="mb-4">
                       <span className="text-[13px] font-semibold text-[#98A2B3]">Khusus Untuk Kamu</span>
                       <h3 className="text-[18px] font-[700] leading-[1.35] text-[var(--color-ink)] tracking-[-0.015em] mt-0.5">
-                        Hasil Rekomendasi Ebook
+                        Cobain Side Job {topJob.name} dengan Rekomendasi Panduan Lengkap ini dan Ikuti Step By Stepnya
                       </h3>
                       <p className="text-[13px] text-[#98A2B3] mt-1 leading-relaxed">
                         2 panduan terpilih: rekomendasi spesifik <span className="font-bold text-[#0A0E2E]">{topJob.name}</span> dan bimbingan lengkap side job.
@@ -1491,7 +1408,7 @@ export default function HomePage() {
                                   rel="noopener noreferrer"
                                   className="bg-[var(--color-primary)] text-white rounded-full px-[16px] py-[7px] text-[12px] font-[700] transition-colors duration-150 inline-flex items-center gap-1.5 hover:bg-[var(--color-primary-hover)] flex-shrink-0 shadow-xs"
                                 >
-                                  <span>Buka Ebook</span>
+                                  <span>Buka Panduan</span>
                                   <ExternalLink size={12} />
                                 </a>
                               </div>

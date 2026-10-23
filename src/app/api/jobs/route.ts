@@ -3,17 +3,25 @@ import { prisma } from '@/lib/prisma';
 import { REMOTE_JOBS_DB, JOB_CATEGORIES } from '@/lib/data';
 
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 // GET all remote jobs
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
+    const admin = req.nextUrl.searchParams.get('admin') === 'true';
+
+    const where: any = {};
+    if (!admin) {
+      where.isPublished = true;
+    }
+
     const jobs = await prisma.remoteJob.findMany({
-      where: { isPublished: true },
+      where,
       orderBy: [{ order: 'asc' }, { createdAt: 'desc' }],
     });
 
     if (!jobs || jobs.length === 0) {
-      return NextResponse.json({ success: true, jobs: REMOTE_JOBS_DB });
+      return NextResponse.json({ success: true, jobs: admin ? [] : REMOTE_JOBS_DB });
     }
 
     return NextResponse.json({ success: true, jobs });
@@ -156,8 +164,7 @@ export async function PUT(req: NextRequest) {
 // DELETE a remote job
 export async function DELETE(req: NextRequest) {
   try {
-    const { searchParams } = new URL(req.url);
-    let id = searchParams.get('id');
+    let id = req.nextUrl.searchParams.get('id');
 
     if (!id) {
       try {
@@ -172,11 +179,16 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ error: 'ID lowongan wajib diisi' }, { status: 400 });
     }
 
-    await prisma.remoteJob.delete({
+    // Safely delete without throwing if record not found
+    const res = await prisma.remoteJob.deleteMany({
       where: { id },
     });
 
-    return NextResponse.json({ success: true, message: 'Lowongan berhasil dihapus' });
+    return NextResponse.json({
+      success: true,
+      message: 'Lowongan berhasil dihapus',
+      count: res.count,
+    });
   } catch (error: any) {
     console.error('Error deleting remote job:', error);
     return NextResponse.json(

@@ -44,7 +44,7 @@ export function HeroCharacterVisual() {
         <source src="/heycarisideojob.mp4" type="video/mp4" />
         <img
           src="/hero-character.jpg"
-          alt="Mulai Langkah Baru dari Skill Kamu"
+          alt="Temukan SIDE JOB yang Cocok dengan Skill Kamu"
           className="w-full h-auto block select-none"
         />
       </video>

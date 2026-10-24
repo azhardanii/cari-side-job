@@ -25,6 +25,7 @@ import {
   ProductCover3D,
 } from '@/components/Illustrations';
 import { ShareGraphicCard } from '@/components/ShareGraphicCard';
+import { RemoteJobsModal } from '@/components/RemoteJobsModal';
 import { renderStoryGraphicCanvas } from '@/lib/shareGraphic';
 import {
   Home,
@@ -1702,70 +1703,12 @@ export default function HomePage() {
         </main>
       )}
 
-      {/* ── MODAL: LOWONGAN KERJA REMOTE ── */}
-      {isRemoteJobsOpen && (
-        <div
-          onClick={() => setIsRemoteJobsOpen(false)}
-          className="fixed inset-x-0 top-0 bottom-[64px] sm:bottom-0 sm:inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 animate-fadeIn"
-          style={{ zIndex: 50 }}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-[440px] bg-white rounded-t-[28px] sm:rounded-[28px] max-h-[80vh] flex flex-col overflow-hidden shadow-2xl"
-          >
-            {/* Header */}
-            <div className="p-4 border-b border-[#EDEFF3] flex items-center justify-between bg-white sticky top-0 z-10">
-              <div className="flex items-center gap-2">
-                <Briefcase size={20} className="text-[#0074FC]" />
-                <h3 className="text-[17px] font-bold text-[#0A0E2E]">Lowongan Kerja Remote</h3>
-              </div>
-              <button
-                onClick={() => setIsRemoteJobsOpen(false)}
-                className="w-8 h-8 rounded-full bg-[#F1F3F7] flex items-center justify-center text-[#0A0E2E]"
-              >
-                <X size={18} />
-              </button>
-            </div>
-
-            {/* Content List */}
-            <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
-              {remoteJobs.map((job) => (
-                <div
-                  key={job.id}
-                  className="p-3.5 rounded-2xl border border-[#EDEFF3] bg-[#FAFBFC] hover:border-[#0074FC] transition-colors"
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <h4 className="text-[14.5px] font-bold text-[#0A0E2E]">{job.title}</h4>
-                      <p className="text-[12px] text-[#98A2B3] mt-0.5">{job.company} • {job.location}</p>
-                    </div>
-                    <span className="text-[12px] font-extrabold text-[#0074FC] bg-[#E1EDFD] px-2.5 py-1 rounded-full whitespace-nowrap">
-                      {job.salary}
-                    </span>
-                  </div>
-
-                  <p className="text-[12px] text-[#3A4160] mt-2 line-clamp-2">
-                    {job.description}
-                  </p>
-
-                  <div className="flex items-center justify-between mt-3 pt-2 border-t border-[#EDEFF3]">
-                    <span className="text-[11px] text-[#98A2B3]">Diposting {job.posted}</span>
-                    <a
-                      href={job.applyUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-[12px] font-bold text-[#0074FC] flex items-center gap-1 hover:underline"
-                    >
-                      <span>Lamar Sekarang</span>
-                      <ExternalLink size={13} />
-                    </a>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
+      {/* ── MODAL: LOWONGAN KERJA REMOTE (REDESIGNED ULTRA PREMIUM) ── */}
+      <RemoteJobsModal
+        isOpen={isRemoteJobsOpen}
+        onClose={() => setIsRemoteJobsOpen(false)}
+        jobs={remoteJobs}
+      />
 
       {/* ── MODAL: PENJELASAN LENGKAP HASIL (Detail Explanation & Roadmap) ── */}
       {isDetailExplanationOpen && calculatedResult && (

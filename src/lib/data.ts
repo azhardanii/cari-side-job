@@ -2408,9 +2408,6 @@ export function normalizeLynkUrl(rawUrl: string): string {
   return url;
 }
 
-/**
- * Helper kategori loker
- */
 export function getJobCategory(job: { primarySideJob?: string; tags?: string[] }): string {
   if (job.primarySideJob && (JOB_CATEGORIES as readonly string[]).includes(job.primarySideJob)) {
     return job.primarySideJob;
@@ -2424,3 +2421,32 @@ export function getJobCategory(job: { primarySideJob?: string; tags?: string[] }
   }
   return 'Lainnya';
 }
+
+export function getCompanyAvatarStyle(companyName: string = ''): string {
+  const gradients = [
+    'linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%)',
+    'linear-gradient(135deg, #10B981 0%, #047857 100%)',
+    'linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%)',
+    'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
+    'linear-gradient(135deg, #EC4899 0%, #BE185D 100%)',
+    'linear-gradient(135deg, #06B6D4 0%, #0E7490 100%)',
+    'linear-gradient(135deg, #6366F1 0%, #4338CA 100%)',
+  ];
+  let hash = 0;
+  for (let i = 0; i < (companyName || '').length; i++) {
+    hash = companyName.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const index = Math.abs(hash) % gradients.length;
+  return gradients[index];
+}
+
+export function getCompanyMonogram(companyName: string = ''): string {
+  if (!companyName) return 'CO';
+  const clean = companyName.replace(/^(PT|CV|UD|Studio|Agency)\s+/i, '').trim();
+  const words = clean.split(/\s+/).filter(Boolean);
+  if (words.length >= 2) {
+    return (words[0][0] + words[1][0]).toUpperCase();
+  }
+  return (clean.slice(0, 2) || 'CO').toUpperCase();
+}
+

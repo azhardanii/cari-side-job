@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { JOB_CATEGORIES, SIDE_JOBS_DB, getJobCategory, toTitleCase } from '@/lib/data';
+import { JOB_CATEGORIES, SIDE_JOBS_DB, getJobCategory, toTitleCase, getCompanyAvatarStyle, getCompanyMonogram } from '@/lib/data';
 
 interface LeadItem {
   id: string; name: string; wa: string; email: string; profesi: string;
@@ -113,12 +113,11 @@ export default function AdminPage() {
   const [selectedLead, setSelectedLead] = useState<LeadItem | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isProductModalOpen, setIsProductModalOpen] = useState(false);
-  const [editingProduct, setEditingProduct] = useState<ProductItem | null>(null);
-  const [importNotification, setImportNotification] = useState<string | null>(null);
-
-  const [newJob, setNewJob] = useState({
+  const [isJobModalOpen, setIsJobModalOpen] = useState(false);
+  const [editingJob, setEditingJob] = useState<JobItem | null>(null);
+  const [jobSearch, setJobSearch] = useState('');
+  const [jobCategoryFilter, setJobCategoryFilter] = useState('ALL');
+  const [jobForm, setJobForm] = useState({
     title: '',
     company: '',
     location: 'WFH / Remote Indonesia',
@@ -129,6 +128,10 @@ export default function AdminPage() {
     description: '',
     applyUrl: '',
   });
+
+  const [isProductModalOpen, setIsProductModalOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<ProductItem | null>(null);
+  const [importNotification, setImportNotification] = useState<string | null>(null);
 
   const [productForm, setProductForm] = useState<ProductFormData>({
     title: '',
@@ -339,36 +342,66 @@ export default function AdminPage() {
     } catch (e) { console.error(e); }
   };
 
-  const createJob = async () => {
-    if (!newJob.title.trim() || !newJob.company.trim()) {
+  const openAddJobModal = () => {
+    setEditingJob(null);
+    setJobForm({
+      title: '',
+      company: '',
+      location: 'WFH / Remote Indonesia',
+      salary: 'Rp 4.500.000 - Rp 6.500.000 / bln',
+      type: 'Full-time Remote',
+      category: JOB_CATEGORIES[0] as string,
+      tags: '',
+      description: '',
+      applyUrl: '',
+    });
+    setIsJobModalOpen(true);
+  };
+
+  const openEditJobModal = (job: JobItem) => {
+    setEditingJob(job);
+    setJobForm({
+      title: job.title || '',
+      company: job.company || '',
+      location: job.location || 'WFH / Remote Indonesia',
+      salary: job.salary || '',
+      type: job.type || 'Full-time Remote',
+      category: getJobCategory(job),
+      tags: Array.isArray(job.tags) ? job.tags.join(', ') : (job.tags || ''),
+      description: job.description || '',
+      applyUrl: job.applyUrl || '',
+    });
+    setIsJobModalOpen(true);
+  };
+
+  const saveJob = async () => {
+    if (!jobForm.title.trim() || !jobForm.company.trim()) {
       alert('Judul lowongan dan nama perusahaan wajib diisi.');
       return;
     }
     setIsSaving(true);
     try {
-      const res = await fetch('/api/jobs', {
-        method: 'POST',
+      const isEdit = Boolean(editingJob?.id);
+      const url = '/api/jobs';
+      const method = isEdit ? 'PUT' : 'POST';
+      const payload = {
+        ...(isEdit ? { id: editingJob!.id } : {}),
+        ...jobForm,
+      };
+
+      const res = await fetch(url, {
+        method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newJob),
+        body: JSON.stringify(payload),
       });
       const data = await res.json();
       if (data.success) {
-        alert(`Berhasil menambahkan lowongan "${newJob.title}"`);
-        setIsAddModalOpen(false);
-        setNewJob({
-          title: '',
-          company: '',
-          location: 'WFH / Remote Indonesia',
-          salary: 'Rp 4.500.000 - Rp 6.500.000 / bln',
-          type: 'Full-time Remote',
-          category: JOB_CATEGORIES[0],
-          tags: '',
-          description: '',
-          applyUrl: '',
-        });
+        setIsJobModalOpen(false);
+        setEditingJob(null);
         fetchJobs();
+        alert(isEdit ? `Lowongan "${jobForm.title}" berhasil diperbarui.` : `Lowongan "${jobForm.title}" berhasil ditambahkan.`);
       } else {
-        alert('Gagal: ' + data.error);
+        alert('Gagal menyimpan: ' + (data.error || 'Terjadi kesalahan'));
       }
     } catch (e: any) {
       alert('Error: ' + e?.message);
@@ -396,24 +429,6 @@ export default function AdminPage() {
     } catch (e: any) {
       alert('Gagal menghapus lowongan: ' + (e?.message || 'Terjadi kesalahan jaringan'));
     }
-  };
-
-  const saveJob = async (job: JobItem) => {
-    setIsSaving(true);
-    try {
-      const res = await fetch('/api/jobs', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...job,
-          category: job.primarySideJob,
-        }),
-      });
-      const data = await res.json();
-      if (data.success) alert(`Berhasil menyimpan perubahan lowongan "${job.title}"`);
-      else alert('Gagal: ' + data.error);
-    } catch (e: any) { alert('Error: ' + e?.message); }
-    finally { setIsSaving(false); }
   };
 
   const deleteLead = async (id: string) => {
@@ -557,99 +572,222 @@ export default function AdminPage() {
         {/* TAB: LOKER */}
         {activeTab === 'loker' && (
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
-              <div>
-                <h2 style={{ fontSize: 22, fontWeight: 800, margin: 0, marginBottom: 6, letterSpacing: '-0.02em' }}>Kelola Lowongan Kerja</h2>
-                <p style={{ fontSize: 13.5, color: '#64748B', margin: 0, lineHeight: 1.5 }}>
-                  Daftar lowongan kerja remote yang ditampilkan kepada pengguna.
-                </p>
-              </div>
-              <button style={S.btnPrimary} onClick={() => setIsAddModalOpen(true)}>
-                + Tambah Lowongan
-              </button>
+            {/* METRICS */}
+            <div style={S.metGrid}>
+              <MetricCard title="Total Lowongan" value={jobs.length} sub="Semua loker terdaftar" accent="blue" />
+              <MetricCard title="Kategori Loker" value={new Set(jobs.map(j => getJobCategory(j))).size} sub="Variasi bidang side job" accent="gold" />
+              <MetricCard title="Gaji Transparan" value={jobs.filter(j => j.salary && !j.salary.toLowerCase().includes('kompetitif')).length} sub="Rentang nominal tertera" accent="emerald" />
             </div>
 
-            {jobs.length === 0 ? (
-              <div style={{ background: 'white', borderRadius: 16, border: '1px solid #E2E8F0', padding: '48px 20px', textAlign: 'center' }}>
-                <div style={{ fontSize: 40, marginBottom: 10 }}>💼</div>
-                <div style={{ fontSize: 17, fontWeight: 800, color: '#0F172A', marginBottom: 6 }}>Belum Ada Lowongan Kerja</div>
-                <p style={{ fontSize: 13.5, color: '#64748B', margin: '0 auto 20px', maxWidth: 380, lineHeight: 1.5 }}>
-                  Belum ada data lowongan kerja di database. Klik tombol di bawah untuk menambahkan lowongan baru.
-                </p>
-                <button style={S.btnPrimary} onClick={() => setIsAddModalOpen(true)}>
-                  + Tambah Lowongan Pertama
-                </button>
+            {/* PANEL */}
+            <div style={S.panel}>
+              <div style={S.panelHdr}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
+                  <div>
+                    <h2 style={{ fontSize: 18, fontWeight: 800, margin: 0, marginBottom: 2 }}>Kelola Lowongan Kerja Remote</h2>
+                    <p style={{ fontSize: 12.5, color: '#64748B', margin: 0 }}>Daftar lowongan kerja yang tayang di website untuk pencari side job</p>
+                  </div>
+                  <input
+                    style={{ ...S.input, width: 230, padding: '7px 12px', fontSize: 12 }}
+                    placeholder="Cari judul, perusahaan, skill..."
+                    value={jobSearch}
+                    onChange={e => setJobSearch(e.target.value)}
+                  />
+                  <select
+                    style={{ ...S.input, width: 180, padding: '7px 10px', fontSize: 12 }}
+                    value={jobCategoryFilter}
+                    onChange={e => setJobCategoryFilter(e.target.value)}
+                  >
+                    <option value="ALL">Semua Kategori</option>
+                    {JOB_CATEGORIES.map(cat => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </select>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <button style={S.btnPrimary} onClick={openAddJobModal}>
+                    + Tambah Lowongan
+                  </button>
+                </div>
               </div>
-            ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(340px,1fr))', gap: 20 }}>
-                {jobs.map((job, idx) => (
-                  <div key={job.id} style={S.jobCard}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <span style={S.pill('#EFF6FF', '#1D64EC', '#BFDBFE')}>#{idx + 1} {getJobCategory(job)}</span>
-                      <span style={{ fontSize: 11, color: '#94A3B8', fontWeight: 600 }}>{job.posted}</span>
-                    </div>
 
-                    <div>
-                      <label style={S.label}>Judul Lowongan</label>
-                      <input style={S.input} value={job.title} onChange={e => { const u = [...jobs]; u[idx] = { ...u[idx], title: e.target.value }; setJobs(u); }} />
-                    </div>
+              {/* LIST / EMPTY STATES */}
+              {jobs.length === 0 ? (
+                <div style={{ padding: '60px 20px', textAlign: 'center' }}>
+                  <div style={{ fontSize: 40, marginBottom: 12 }}>💼</div>
+                  <div style={{ fontSize: 16, fontWeight: 800, color: '#0F172A', marginBottom: 6 }}>Belum Ada Lowongan Kerja</div>
+                  <p style={{ fontSize: 13, color: '#64748B', maxWidth: 360, margin: '0 auto 18px', lineHeight: 1.5 }}>
+                    Belum ada data lowongan kerja di database. Klik tombol di bawah untuk menambahkan lowongan kerja pertama.
+                  </p>
+                  <button style={S.btnPrimary} onClick={openAddJobModal}>
+                    + Tambah Lowongan Pertama
+                  </button>
+                </div>
+              ) : (() => {
+                const filteredAdminJobs = jobs.filter(job => {
+                  const q = jobSearch.toLowerCase().trim();
+                  const matchesQ = !q ||
+                    job.title.toLowerCase().includes(q) ||
+                    job.company.toLowerCase().includes(q) ||
+                    (job.description || '').toLowerCase().includes(q) ||
+                    (job.tags || []).some(t => t.toLowerCase().includes(q));
+                  const cat = getJobCategory(job);
+                  const matchesCat = jobCategoryFilter === 'ALL' || cat === jobCategoryFilter;
+                  return matchesQ && matchesCat;
+                });
 
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                      <div>
-                        <label style={S.label}>Perusahaan</label>
-                        <input style={S.input} value={job.company} onChange={e => { const u = [...jobs]; u[idx] = { ...u[idx], company: e.target.value }; setJobs(u); }} />
+                if (filteredAdminJobs.length === 0) {
+                  return (
+                    <div style={{ padding: '50px 20px', textAlign: 'center' }}>
+                      <div style={{ fontSize: 32, marginBottom: 10 }}>🔍</div>
+                      <div style={{ fontSize: 15, fontWeight: 800, color: '#0F172A', marginBottom: 4 }}>
+                        Tidak Ada Lowongan yang Sesuai
                       </div>
-                      <div>
-                        <label style={S.label}>Kategori</label>
-                        <select
-                          style={S.input}
-                          value={getJobCategory(job)}
-                          onChange={e => {
-                            const u = [...jobs];
-                            u[idx] = { ...u[idx], primarySideJob: e.target.value };
-                            setJobs(u);
+                      <p style={{ fontSize: 12.5, color: '#64748B', margin: '0 auto 16px' }}>
+                        Coba gunakan kata kunci lain atau ubah filter kategori.
+                      </p>
+                      <button
+                        style={{ ...S.btnOutline, padding: '6px 14px', fontSize: 12 }}
+                        onClick={() => { setJobSearch(''); setJobCategoryFilter('ALL'); }}
+                      >
+                        Reset Pencarian
+                      </button>
+                    </div>
+                  );
+                }
+
+                return (
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: 16, padding: '22px 24px' }}>
+                    {filteredAdminJobs.map((job) => {
+                      const avatarBg = getCompanyAvatarStyle(job.company);
+                      const monogram = getCompanyMonogram(job.company);
+
+                      return (
+                        <div
+                          key={job.id}
+                          style={{
+                            background: 'white',
+                            border: '1.5px solid #E2E8F0',
+                            borderRadius: 18,
+                            padding: '18px 20px',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'space-between',
+                            gap: 14,
+                            boxShadow: '0 2px 6px rgba(15,23,42,0.03)',
+                            transition: 'border-color 0.15s, box-shadow 0.15s',
                           }}
                         >
-                          {JOB_CATEGORIES.map(cat => (
-                            <option key={cat} value={cat}>{cat}</option>
-                          ))}
-                        </select>
-                      </div>
-                    </div>
+                          <div>
+                            {/* Top info: Monogram + Company & Location + Category badge */}
+                            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10, marginBottom: 10 }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
+                                <div
+                                  style={{
+                                    width: 40,
+                                    height: 40,
+                                    borderRadius: 12,
+                                    background: avatarBg,
+                                    color: 'white',
+                                    fontWeight: 900,
+                                    fontSize: 13,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    flexShrink: 0,
+                                    letterSpacing: '0.5px',
+                                    boxShadow: '0 2px 6px rgba(0,0,0,0.1)',
+                                  }}
+                                >
+                                  {monogram}
+                                </div>
+                                <div style={{ minWidth: 0 }}>
+                                  <div style={{ fontWeight: 800, fontSize: 13.5, color: '#0F172A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                    {job.company}
+                                  </div>
+                                  <div style={{ fontSize: 11.5, color: '#64748B', display: 'flex', alignItems: 'center', gap: 4, marginTop: 1 }}>
+                                    <span>📍 {job.location || 'WFH Remote'}</span>
+                                  </div>
+                                </div>
+                              </div>
+                              <span style={S.pill('#EFF6FF', '#1D64EC', '#BFDBFE')}>
+                                {getJobCategory(job)}
+                              </span>
+                            </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                      <div>
-                        <label style={S.label}>Gaji</label>
-                        <input style={S.input} value={job.salary} onChange={e => { const u = [...jobs]; u[idx] = { ...u[idx], salary: e.target.value }; setJobs(u); }} />
-                      </div>
-                      <div>
-                        <label style={S.label}>Tipe Kerja</label>
-                        <input style={S.input} value={job.type} onChange={e => { const u = [...jobs]; u[idx] = { ...u[idx], type: e.target.value }; setJobs(u); }} />
-                      </div>
-                    </div>
+                            {/* Job Title */}
+                            <h3 style={{ margin: '4px 0 10px', fontSize: 15.5, fontWeight: 800, color: '#0F172A', lineHeight: 1.3 }}>
+                              {job.title}
+                            </h3>
 
-                    <div>
-                      <label style={S.label}>Link Pendaftaran</label>
-                      <input style={{ ...S.input, color: '#1D64EC', fontWeight: 600 }} value={job.applyUrl} onChange={e => { const u = [...jobs]; u[idx] = { ...u[idx], applyUrl: e.target.value }; setJobs(u); }} />
-                    </div>
+                            {/* Salary & Type badges */}
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 10 }}>
+                              <span style={{ background: '#ECFDF5', color: '#059669', border: '1px solid #A7F3D0', padding: '3px 9px', borderRadius: 8, fontSize: 11.5, fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                                <span>💰</span>
+                                <span>{job.salary}</span>
+                              </span>
+                              <span style={{ background: '#F8FAFC', color: '#475569', border: '1px solid #E2E8F0', padding: '3px 9px', borderRadius: 8, fontSize: 11.5, fontWeight: 700 }}>
+                                💼 {job.type}
+                              </span>
+                            </div>
 
-                    <div>
-                      <label style={S.label}>Deskripsi Singkat</label>
-                      <textarea style={S.textarea} rows={2} value={job.description} onChange={e => { const u = [...jobs]; u[idx] = { ...u[idx], description: e.target.value }; setJobs(u); }} />
-                    </div>
+                            {/* Description snippet */}
+                            {job.description && (
+                              <p style={{ margin: '0 0 10px', fontSize: 12, color: '#475569', lineHeight: 1.5, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', background: '#F8FAFC', padding: '8px 12px', borderRadius: 10, border: '1px solid #F1F5F9' }}>
+                                {job.description}
+                              </p>
+                            )}
 
-                    <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
-                      <button style={{ ...S.btnPrimary, flex: 1, justifyContent: 'center' as const }} disabled={isSaving} onClick={() => saveJob(job)}>
-                        {isSaving ? 'Menyimpan...' : 'Simpan'}
-                      </button>
-                      <button style={S.btnRed} onClick={() => deleteJob(job.id, job.title)}>
-                        Hapus
-                      </button>
-                    </div>
+                            {/* Skill tags */}
+                            {job.tags && job.tags.length > 0 && (
+                              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                                {job.tags.slice(0, 4).map((tag, tIdx) => (
+                                  <span key={tIdx} style={{ fontSize: 10.5, color: '#64748B', background: '#F1F5F9', border: '1px solid #E2E8F0', padding: '2px 8px', borderRadius: 6, fontWeight: 600 }}>
+                                    #{tag}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Footer Actions */}
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, paddingTop: 12, borderTop: '1px solid #F1F5F9' }}>
+                            <span style={{ fontSize: 11, color: '#94A3B8', fontWeight: 600 }}>
+                              🕒 {job.posted || 'Hari ini'}
+                            </span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                              {job.applyUrl && (
+                                <a
+                                  href={job.applyUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  style={{ ...S.btnOutline, padding: '6px 12px', fontSize: 11.5, textDecoration: 'none' }}
+                                  title="Buka link pendaftaran"
+                                >
+                                  🔗 Link ↗
+                                </a>
+                              )}
+                              <button
+                                style={{ ...S.btnOutline, padding: '6px 12px', fontSize: 11.5 }}
+                                onClick={() => openEditJobModal(job)}
+                              >
+                                ✏️ Edit
+                              </button>
+                              <button
+                                style={{ ...S.btnRed, padding: '6px 12px', fontSize: 11.5 }}
+                                onClick={() => deleteJob(job.id, job.title)}
+                              >
+                                Hapus
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
-                ))}
-              </div>
-            )}
+                );
+              })()}
+            </div>
           </div>
         )}
 
@@ -800,42 +938,101 @@ export default function AdminPage() {
         )}
       </div>
 
-      {/* MODAL TAMBAH LOWONGAN */}
-      {isAddModalOpen && (
-        <div style={S.overlay} onClick={() => setIsAddModalOpen(false)}>
-          <div style={S.modal} onClick={e => e.stopPropagation()}>
-            <button style={S.closeBtn} onClick={() => setIsAddModalOpen(false)}>✕</button>
+      {/* MODAL TAMBAH / EDIT LOWONGAN */}
+      {isJobModalOpen && (
+        <div style={S.overlay} onClick={() => setIsJobModalOpen(false)}>
+          <div style={{ ...S.modal, maxWidth: 620 }} onClick={e => e.stopPropagation()}>
+            <button style={S.closeBtn} onClick={() => setIsJobModalOpen(false)}>✕</button>
             <div style={S.modalPad}>
-              <h2 style={{ fontSize: 20, fontWeight: 800, margin: '0 0 4px', letterSpacing: '-0.02em' }}>Tambah Lowongan Kerja</h2>
-              <p style={{ fontSize: 12.5, color: '#64748B', margin: '0 0 20px' }}>Masukkan rincian lowongan kerja remote baru.</p>
+              <h2 style={{ fontSize: 20, fontWeight: 800, margin: '0 0 4px', letterSpacing: '-0.02em' }}>
+                {editingJob ? 'Edit Lowongan Kerja' : 'Tambah Lowongan Kerja'}
+              </h2>
+              <p style={{ fontSize: 12.5, color: '#64748B', margin: '0 0 18px' }}>
+                {editingJob ? 'Perbarui detail lowongan kerja remote ini.' : 'Masukkan rincian lowongan kerja remote baru.'}
+              </p>
 
+              {/* LIVE CARD PREVIEW */}
+              <div style={{ background: '#F8FAFC', border: '1.5px dashed #CBD5E1', borderRadius: 16, padding: '14px 16px', marginBottom: 18 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span>👁️ Preview Tampilan Kandidat</span>
+                </div>
+                <div style={{ background: 'white', borderRadius: 14, border: '1px solid #E2E8F0', padding: 14, boxShadow: '0 2px 6px rgba(0,0,0,0.03)' }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10, marginBottom: 8 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <div
+                        style={{
+                          width: 36,
+                          height: 36,
+                          borderRadius: 10,
+                          background: getCompanyAvatarStyle(jobForm.company || 'Perusahaan'),
+                          color: 'white',
+                          fontWeight: 900,
+                          fontSize: 12,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          flexShrink: 0,
+                        }}
+                      >
+                        {getCompanyMonogram(jobForm.company || 'Perusahaan')}
+                      </div>
+                      <div>
+                        <div style={{ fontWeight: 800, fontSize: 13, color: '#0F172A' }}>
+                          {jobForm.company || 'Nama Perusahaan'}
+                        </div>
+                        <div style={{ fontSize: 11, color: '#64748B' }}>
+                          📍 {jobForm.location || 'WFH Remote Indonesia'}
+                        </div>
+                      </div>
+                    </div>
+                    <span style={S.pill('#EFF6FF', '#1D64EC', '#BFDBFE')}>
+                      {jobForm.category || 'Kategori'}
+                    </span>
+                  </div>
+
+                  <div style={{ fontWeight: 800, fontSize: 14.5, color: '#0F172A', marginBottom: 6 }}>
+                    {jobForm.title || 'Judul Lowongan Kerja'}
+                  </div>
+
+                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
+                    <span style={{ background: '#ECFDF5', color: '#059669', border: '1px solid #A7F3D0', padding: '2px 8px', borderRadius: 6, fontSize: 11, fontWeight: 800 }}>
+                      💰 {jobForm.salary || 'Kompetitif'}
+                    </span>
+                    <span style={{ background: '#F8FAFC', color: '#475569', border: '1px solid #E2E8F0', padding: '2px 8px', borderRadius: 6, fontSize: 11, fontWeight: 700 }}>
+                      💼 {jobForm.type || 'Full-time Remote'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* FORM FIELDS */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                 <div>
                   <label style={S.label}>Judul Lowongan *</label>
                   <input
                     style={S.input}
-                    placeholder="Contoh: Graphic Designer & Canva Specialist"
-                    value={newJob.title}
-                    onChange={e => setNewJob({ ...newJob, title: e.target.value })}
+                    placeholder="Contoh: Virtual Assistant & Operations Coordinator"
+                    value={jobForm.title}
+                    onChange={e => setJobForm({ ...jobForm, title: e.target.value })}
                   />
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                   <div>
-                    <label style={S.label}>Perusahaan *</label>
+                    <label style={S.label}>Nama Perusahaan / Brand *</label>
                     <input
                       style={S.input}
-                      placeholder="Nama perusahaan atau brand"
-                      value={newJob.company}
-                      onChange={e => setNewJob({ ...newJob, company: e.target.value })}
+                      placeholder="Contoh: Digital Solutions Asia"
+                      value={jobForm.company}
+                      onChange={e => setJobForm({ ...jobForm, company: e.target.value })}
                     />
                   </div>
                   <div>
-                    <label style={S.label}>Kategori *</label>
+                    <label style={S.label}>Kategori Side Job *</label>
                     <select
                       style={S.input}
-                      value={newJob.category}
-                      onChange={e => setNewJob({ ...newJob, category: e.target.value })}
+                      value={jobForm.category}
+                      onChange={e => setJobForm({ ...jobForm, category: e.target.value })}
                     >
                       {JOB_CATEGORIES.map(cat => (
                         <option key={cat} value={cat}>{cat}</option>
@@ -846,20 +1043,20 @@ export default function AdminPage() {
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                   <div>
-                    <label style={S.label}>Gaji</label>
+                    <label style={S.label}>Estimasi Gaji / Fee</label>
                     <input
                       style={S.input}
-                      placeholder="Contoh: Rp 4.500.000 - Rp 6.000.000 / bln"
-                      value={newJob.salary}
-                      onChange={e => setNewJob({ ...newJob, salary: e.target.value })}
+                      placeholder="Contoh: Rp 4.500.000 - Rp 6.500.000 / bln"
+                      value={jobForm.salary}
+                      onChange={e => setJobForm({ ...jobForm, salary: e.target.value })}
                     />
                   </div>
                   <div>
                     <label style={S.label}>Tipe Kerja</label>
                     <select
                       style={S.input}
-                      value={newJob.type}
-                      onChange={e => setNewJob({ ...newJob, type: e.target.value })}
+                      value={jobForm.type}
+                      onChange={e => setJobForm({ ...jobForm, type: e.target.value })}
                     >
                       <option value="Full-time Remote">Full-time Remote</option>
                       <option value="Part-time Remote">Part-time Remote</option>
@@ -869,53 +1066,54 @@ export default function AdminPage() {
                   </div>
                 </div>
 
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                  <div>
+                    <label style={S.label}>Lokasi</label>
+                    <input
+                      style={S.input}
+                      placeholder="Contoh: WFH / Remote Indonesia"
+                      value={jobForm.location}
+                      onChange={e => setJobForm({ ...jobForm, location: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <label style={S.label}>Link Pendaftaran / Form / WA *</label>
+                    <input
+                      style={{ ...S.input, color: '#1D64EC', fontWeight: 600 }}
+                      placeholder="https://wa.me/... atau link form"
+                      value={jobForm.applyUrl}
+                      onChange={e => setJobForm({ ...jobForm, applyUrl: e.target.value })}
+                    />
+                  </div>
+                </div>
+
                 <div>
-                  <label style={S.label}>Lokasi</label>
+                  <label style={S.label}>Tags / Keahlian (Pisahkan dengan koma)</label>
                   <input
                     style={S.input}
-                    placeholder="Contoh: Remote Indonesia / WFH"
-                    value={newJob.location}
-                    onChange={e => setNewJob({ ...newJob, location: e.target.value })}
+                    placeholder="Contoh: Canva, Notion, Trello, Customer Care"
+                    value={jobForm.tags}
+                    onChange={e => setJobForm({ ...jobForm, tags: e.target.value })}
                   />
                 </div>
 
                 <div>
-                  <label style={S.label}>Link Pendaftaran</label>
-                  <input
-                    style={{ ...S.input, color: '#1D64EC', fontWeight: 600 }}
-                    placeholder="https://wa.me/... atau link form"
-                    value={newJob.applyUrl}
-                    onChange={e => setNewJob({ ...newJob, applyUrl: e.target.value })}
-                  />
-                </div>
-
-                <div>
-                  <label style={S.label}>Tags / Keahlian</label>
-                  <input
-                    style={S.input}
-                    placeholder="Canva, Photoshop, Remote"
-                    value={newJob.tags}
-                    onChange={e => setNewJob({ ...newJob, tags: e.target.value })}
-                  />
-                </div>
-
-                <div>
-                  <label style={S.label}>Deskripsi Singkat</label>
+                  <label style={S.label}>Deskripsi Singkat & Kualifikasi</label>
                   <textarea
                     style={S.textarea}
                     rows={3}
-                    placeholder="Kriteria dan gambaran singkat pekerjaan..."
-                    value={newJob.description}
-                    onChange={e => setNewJob({ ...newJob, description: e.target.value })}
+                    placeholder="Gambaran tanggung jawab dan kualifikasi yang dicari..."
+                    value={jobForm.description}
+                    onChange={e => setJobForm({ ...jobForm, description: e.target.value })}
                   />
                 </div>
 
-                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 10 }}>
-                  <button style={S.btnOutline} onClick={() => setIsAddModalOpen(false)}>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 8 }}>
+                  <button style={S.btnOutline} onClick={() => setIsJobModalOpen(false)}>
                     Batal
                   </button>
-                  <button style={S.btnPrimary} disabled={isSaving} onClick={createJob}>
-                    {isSaving ? 'Menyimpan...' : 'Simpan Lowongan'}
+                  <button style={S.btnPrimary} disabled={isSaving} onClick={saveJob}>
+                    {isSaving ? 'Menyimpan...' : (editingJob ? 'Simpan Perubahan' : 'Tambah Lowongan')}
                   </button>
                 </div>
               </div>

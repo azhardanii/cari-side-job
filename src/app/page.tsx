@@ -104,6 +104,8 @@ export default function HomePage() {
     name: '',
     wa: '',
     email: '',
+    gender: '' as 'cowok' | 'cewek' | '',
+    charImage: '',
   });
 
   const [calculatedResult, setCalculatedResult] = useState<CalculatedResult | null>(null);
@@ -301,6 +303,17 @@ export default function HomePage() {
     };
   };
 
+  const MAN_CHARS = [
+    '/assets/char/man1.webp',
+    '/assets/char/man2.webp',
+    '/assets/char/man3.webp',
+  ];
+  const WOMAN_CHARS = [
+    '/assets/char/woman1.webp',
+    '/assets/char/woman2.webp',
+    '/assets/char/woman3.webp',
+  ];
+
   const handleLeadSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!leadData.name.trim() || !leadData.wa.trim() || !leadData.email.trim()) {
@@ -308,14 +321,29 @@ export default function HomePage() {
       return;
     }
 
+    if (!leadData.gender) {
+      alert('Harap pilih gender kamu (Cowok atau Cewek) terlebih dahulu.');
+      return;
+    }
+
     setIsSubmittingLead(true);
     const computed = calculateResult();
     setCalculatedResult(computed);
 
+    // Pick random character image according to selected gender
+    const pool = leadData.gender === 'cewek' ? WOMAN_CHARS : MAN_CHARS;
+    const randomChar = pool[Math.floor(Math.random() * pool.length)];
+
+    const updatedLead = {
+      ...leadData,
+      charImage: randomChar,
+    };
+    setLeadData(updatedLead);
+
     // Save to localStorage
     localStorage.setItem(
       'arah_user_result',
-      JSON.stringify({ lead: leadData, result: computed })
+      JSON.stringify({ lead: updatedLead, result: computed })
     );
 
     // Persist to Supabase
@@ -327,6 +355,8 @@ export default function HomePage() {
           name: leadData.name,
           wa: leadData.wa,
           email: leadData.email,
+          gender: leadData.gender,
+          charImage: randomChar,
           profesi: userAnswers.profesi === 'Lainnya' ? userAnswers.profesiCustom : userAnswers.profesi,
           topMatch: `${computed.topMatches[0].name} (${computed.topMatches[0].matchPercent}%)`,
           topMatchScore: computed.topMatches[0].matchPercent,
@@ -1152,6 +1182,64 @@ export default function HomePage() {
               </div>
             </div>
 
+            {/* Pilihan Gender: Cowok / Cewek */}
+            <div className="flex flex-col gap-[8px]">
+              <label className="text-[13px] font-[700] text-[var(--color-ink-soft)] flex items-center justify-between">
+                <span>Pilih Gender Kamu</span>
+                <span className="text-[11.5px] font-medium text-[var(--color-muted)]">Personalisasi Karakter</span>
+              </label>
+
+              <div className="grid grid-cols-2 gap-3">
+                {/* Opsi Cowok */}
+                <button
+                  type="button"
+                  onClick={() => setLeadData((prev) => ({ ...prev, gender: 'cowok' }))}
+                  className={`h-[64px] rounded-[16px] px-3.5 flex items-center gap-3 border transition-all duration-200 cursor-pointer ${
+                    leadData.gender === 'cowok'
+                      ? 'bg-[#EBF3FE] border-[var(--color-primary)] shadow-[0_2px_12px_rgba(0,116,252,0.18)] ring-2 ring-[var(--color-primary)]/25'
+                      : 'bg-[var(--color-surface)] border-[var(--color-border)] hover:border-[#D0D5DD] hover:bg-[#F9FAFB]'
+                  }`}
+                >
+                  <div className="w-11 h-11 rounded-full overflow-hidden bg-blue-100 flex-shrink-0 border-2 border-blue-200">
+                    <img src="/assets/char/man1.webp" alt="Cowok" className="w-full h-full object-cover object-top" />
+                  </div>
+                  <div className="text-left flex-1 min-w-0">
+                    <div className="text-[14px] font-[700] text-[var(--color-ink)] flex items-center justify-between">
+                      <span>Cowok</span>
+                      {leadData.gender === 'cowok' && (
+                        <CheckCircle2 size={16} className="text-[var(--color-primary)] flex-shrink-0" />
+                      )}
+                    </div>
+                    <span className="text-[11px] text-[var(--color-muted)] font-medium">Laki-laki</span>
+                  </div>
+                </button>
+
+                {/* Opsi Cewek */}
+                <button
+                  type="button"
+                  onClick={() => setLeadData((prev) => ({ ...prev, gender: 'cewek' }))}
+                  className={`h-[64px] rounded-[16px] px-3.5 flex items-center gap-3 border transition-all duration-200 cursor-pointer ${
+                    leadData.gender === 'cewek'
+                      ? 'bg-[#FDF2F8] border-[#EC4899] shadow-[0_2px_12px_rgba(236,72,153,0.18)] ring-2 ring-[#EC4899]/25'
+                      : 'bg-[var(--color-surface)] border-[var(--color-border)] hover:border-[#D0D5DD] hover:bg-[#F9FAFB]'
+                  }`}
+                >
+                  <div className="w-11 h-11 rounded-full overflow-hidden bg-pink-100 flex-shrink-0 border-2 border-pink-200">
+                    <img src="/assets/char/woman1.webp" alt="Cewek" className="w-full h-full object-cover object-top" />
+                  </div>
+                  <div className="text-left flex-1 min-w-0">
+                    <div className="text-[14px] font-[700] text-[var(--color-ink)] flex items-center justify-between">
+                      <span>Cewek</span>
+                      {leadData.gender === 'cewek' && (
+                        <CheckCircle2 size={16} className="text-[#EC4899] flex-shrink-0" />
+                      )}
+                    </div>
+                    <span className="text-[11px] text-[var(--color-muted)] font-medium">Perempuan</span>
+                  </div>
+                </button>
+              </div>
+            </div>
+
             {/* Microcopy Trust */}
             <div className="flex items-center gap-2 text-[#98A2B3] text-[12px] mt-1 select-none">
               <Lock size={15} className="flex-shrink-0 text-[#98A2B3]" />
@@ -1191,8 +1279,11 @@ export default function HomePage() {
                 </p>
               </div>
 
-              {/* Thumbs Up Character Visual with Trait Badge */}
-              <ThumbsUpCharacterVisual traits={calculatedResult.persona.traits} />
+              {/* Thumbs Up Character Visual with Trait Badge & Selected Gender Avatar */}
+              <ThumbsUpCharacterVisual
+                traits={calculatedResult.persona.traits}
+                charImage={leadData.charImage || (leadData.gender === 'cewek' ? '/assets/char/woman1.webp' : '/assets/char/man1.webp')}
+              />
 
               {/* Top Side Jobs Section */}
               <div className="mt-8">
@@ -1686,7 +1777,7 @@ export default function HomePage() {
                 if (confirm('Yakin ingin mereset sesi dan keluar?')) {
                   localStorage.removeItem('arah_user_result');
                   setCalculatedResult(null);
-                  setLeadData({ name: '', wa: '', email: '' });
+                  setLeadData({ name: '', wa: '', email: '', gender: '', charImage: '' });
                   switchTab('beranda');
                 }
               }}

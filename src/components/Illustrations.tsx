@@ -134,9 +134,15 @@ export function EnvelopeChecklistVisual() {
 }
 
 // Screen 4: Thumbs Up Character with Trait Card
-export function ThumbsUpCharacterVisual({ traits = ['Teliti', 'Terorganisir', 'Analitis'] }: { traits?: string[] }) {
+export function ThumbsUpCharacterVisual({
+  traits = ['Teliti', 'Terorganisir', 'Analitis'],
+  charImage,
+}: {
+  traits?: string[];
+  charImage?: string;
+}) {
   return (
-    <div className="relative w-full max-w-[340px] mx-auto my-3 flex items-center justify-center">
+    <div className="relative w-full max-w-[340px] mx-auto my-3 flex items-center justify-center min-h-[220px]">
       {/* Background Soft Glow */}
       <div
         className="absolute w-[240px] h-[240px] rounded-full -z-10 pointer-events-none"
@@ -150,7 +156,7 @@ export function ThumbsUpCharacterVisual({ traits = ['Teliti', 'Terorganisir', 'A
 
       {/* Floating Trait Card on the Left */}
       <div
-        className="absolute left-1 top-8 z-10 p-3 rounded-2xl shadow-sm bg-white/95 backdrop-blur-sm flex flex-col items-start gap-1 select-none"
+        className="absolute left-1 top-6 z-10 p-3 rounded-2xl shadow-sm bg-white/95 backdrop-blur-sm flex flex-col items-start gap-1 select-none"
         style={{
           border: '1px solid #E1EDFD',
           boxShadow: '0 4px 14px rgba(10, 14, 46, 0.06)',
@@ -175,9 +181,20 @@ export function ThumbsUpCharacterVisual({ traits = ['Teliti', 'Terorganisir', 'A
         ))}
       </div>
 
-      {/* Male Character Giving Thumbs Up */}
-      <div className="w-[260px] h-[210px] relative ml-12">
-        <svg
+      {charImage ? (
+        <div className="w-[230px] h-[230px] relative ml-12 flex items-center justify-center animate-fadeIn">
+          {/* Subtle desk shadow beneath character */}
+          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-[180px] h-[12px] bg-black/5 rounded-full blur-[4px] -z-10" />
+          <img
+            src={charImage}
+            alt="Karakter Persona"
+            className="w-full h-full object-contain filter drop-shadow-[0_8px_20px_rgba(0,116,252,0.12)] transition-transform duration-300 hover:scale-105"
+          />
+        </div>
+      ) : (
+        /* Male Character Giving Thumbs Up */
+        <div className="w-[260px] h-[210px] relative ml-12">
+          <svg
           viewBox="0 0 300 250"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"

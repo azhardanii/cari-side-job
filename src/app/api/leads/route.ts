@@ -10,6 +10,8 @@ export async function POST(req: NextRequest) {
       name,
       wa,
       email,
+      gender,
+      charImage,
       profesi,
       topMatch,
       topMatchScore = 92,
@@ -50,7 +52,12 @@ export async function POST(req: NextRequest) {
       data: {
         eventType: 'LEAD_CAPTURE',
         label: lead.topMatch,
-        metadata: { leadId: lead.id, readinessScore: lead.readinessScore },
+        metadata: {
+          leadId: lead.id,
+          readinessScore: lead.readinessScore,
+          gender: gender || null,
+          charImage: charImage || null,
+        },
       },
     });
 

@@ -116,14 +116,14 @@ export default function AdminPage() {
   const [isJobModalOpen, setIsJobModalOpen] = useState(false);
   const [editingJob, setEditingJob] = useState<JobItem | null>(null);
   const [jobSearch, setJobSearch] = useState('');
-  const [jobCategoryFilter, setJobCategoryFilter] = useState('ALL');
+  const [jobTypeFilter, setJobTypeFilter] = useState('ALL');
   const [jobForm, setJobForm] = useState({
     title: '',
     company: '',
     location: 'WFH / Remote Indonesia',
     salary: 'Rp 4.500.000 - Rp 6.500.000 / bln',
     type: 'Full-time Remote',
-    category: JOB_CATEGORIES[0] as string,
+    category: 'Remote Job',
     tags: '',
     description: '',
     applyUrl: '',
@@ -350,7 +350,7 @@ export default function AdminPage() {
       location: 'WFH / Remote Indonesia',
       salary: 'Rp 4.500.000 - Rp 6.500.000 / bln',
       type: 'Full-time Remote',
-      category: JOB_CATEGORIES[0] as string,
+      category: 'Remote Job',
       tags: '',
       description: '',
       applyUrl: '',
@@ -366,7 +366,7 @@ export default function AdminPage() {
       location: job.location || 'WFH / Remote Indonesia',
       salary: job.salary || '',
       type: job.type || 'Full-time Remote',
-      category: getJobCategory(job),
+      category: job.primarySideJob || 'Remote Job',
       tags: Array.isArray(job.tags) ? job.tags.join(', ') : (job.tags || ''),
       description: job.description || '',
       applyUrl: job.applyUrl || '',
@@ -595,13 +595,14 @@ export default function AdminPage() {
                   />
                   <select
                     style={{ ...S.input, width: 180, padding: '7px 10px', fontSize: 12 }}
-                    value={jobCategoryFilter}
-                    onChange={e => setJobCategoryFilter(e.target.value)}
+                    value={jobTypeFilter}
+                    onChange={e => setJobTypeFilter(e.target.value)}
                   >
-                    <option value="ALL">Semua Kategori</option>
-                    {JOB_CATEGORIES.map(cat => (
-                      <option key={cat} value={cat}>{cat}</option>
-                    ))}
+                    <option value="ALL">Semua Tipe Kerja</option>
+                    <option value="Full-time Remote">Full-time Remote</option>
+                    <option value="Part-time Remote">Part-time Remote</option>
+                    <option value="Freelance Project">Freelance Project</option>
+                    <option value="Contract Remote">Contract Remote</option>
                   </select>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -631,9 +632,8 @@ export default function AdminPage() {
                     job.company.toLowerCase().includes(q) ||
                     (job.description || '').toLowerCase().includes(q) ||
                     (job.tags || []).some(t => t.toLowerCase().includes(q));
-                  const cat = getJobCategory(job);
-                  const matchesCat = jobCategoryFilter === 'ALL' || cat === jobCategoryFilter;
-                  return matchesQ && matchesCat;
+                  const matchesType = jobTypeFilter === 'ALL' || job.type === jobTypeFilter;
+                  return matchesQ && matchesType;
                 });
 
                 if (filteredAdminJobs.length === 0) {
@@ -644,11 +644,11 @@ export default function AdminPage() {
                         Tidak Ada Lowongan yang Sesuai
                       </div>
                       <p style={{ fontSize: 12.5, color: '#64748B', margin: '0 auto 16px' }}>
-                        Coba gunakan kata kunci lain atau ubah filter kategori.
+                        Coba gunakan kata kunci lain atau ubah filter tipe kerja.
                       </p>
                       <button
                         style={{ ...S.btnOutline, padding: '6px 14px', fontSize: 12 }}
-                        onClick={() => { setJobSearch(''); setJobCategoryFilter('ALL'); }}
+                        onClick={() => { setJobSearch(''); setJobTypeFilter('ALL'); }}
                       >
                         Reset Pencarian
                       </button>
@@ -711,7 +711,7 @@ export default function AdminPage() {
                                 </div>
                               </div>
                               <span style={S.pill('#EFF6FF', '#1D64EC', '#BFDBFE')}>
-                                {getJobCategory(job)}
+                                {job.type || 'Remote'}
                               </span>
                             </div>
 
@@ -986,7 +986,7 @@ export default function AdminPage() {
                       </div>
                     </div>
                     <span style={S.pill('#EFF6FF', '#1D64EC', '#BFDBFE')}>
-                      {jobForm.category || 'Kategori'}
+                      {jobForm.type || 'Full-time Remote'}
                     </span>
                   </div>
 
@@ -1028,16 +1028,13 @@ export default function AdminPage() {
                     />
                   </div>
                   <div>
-                    <label style={S.label}>Kategori Side Job *</label>
-                    <select
+                    <label style={S.label}>Lokasi</label>
+                    <input
                       style={S.input}
-                      value={jobForm.category}
-                      onChange={e => setJobForm({ ...jobForm, category: e.target.value })}
-                    >
-                      {JOB_CATEGORIES.map(cat => (
-                        <option key={cat} value={cat}>{cat}</option>
-                      ))}
-                    </select>
+                      placeholder="Contoh: WFH / Remote Indonesia"
+                      value={jobForm.location}
+                      onChange={e => setJobForm({ ...jobForm, location: e.target.value })}
+                    />
                   </div>
                 </div>
 
@@ -1066,25 +1063,14 @@ export default function AdminPage() {
                   </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                  <div>
-                    <label style={S.label}>Lokasi</label>
-                    <input
-                      style={S.input}
-                      placeholder="Contoh: WFH / Remote Indonesia"
-                      value={jobForm.location}
-                      onChange={e => setJobForm({ ...jobForm, location: e.target.value })}
-                    />
-                  </div>
-                  <div>
-                    <label style={S.label}>Link Pendaftaran / Form / WA *</label>
-                    <input
-                      style={{ ...S.input, color: '#1D64EC', fontWeight: 600 }}
-                      placeholder="https://wa.me/... atau link form"
-                      value={jobForm.applyUrl}
-                      onChange={e => setJobForm({ ...jobForm, applyUrl: e.target.value })}
-                    />
-                  </div>
+                <div>
+                  <label style={S.label}>Link Pendaftaran / Form / WA *</label>
+                  <input
+                    style={{ ...S.input, color: '#1D64EC', fontWeight: 600 }}
+                    placeholder="https://wa.me/... atau link form"
+                    value={jobForm.applyUrl}
+                    onChange={e => setJobForm({ ...jobForm, applyUrl: e.target.value })}
+                  />
                 </div>
 
                 <div>

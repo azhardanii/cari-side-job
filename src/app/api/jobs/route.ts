@@ -54,16 +54,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const selectedCategory = category || JOB_CATEGORIES[0];
+    const selectedCategory = category || 'Remote Job';
     const jobTags: string[] = Array.isArray(tags)
       ? tags
       : typeof tags === 'string'
       ? tags.split(',').map((t: string) => t.trim()).filter(Boolean)
-      : [selectedCategory];
-
-    if (!jobTags.includes(selectedCategory)) {
-      jobTags.unshift(selectedCategory);
-    }
+      : [];
 
     const created = await prisma.remoteJob.create({
       data: {
@@ -132,18 +128,7 @@ export async function PUT(req: NextRequest) {
         : typeof tags === 'string'
         ? tags.split(',').map((t: string) => t.trim()).filter(Boolean)
         : [];
-      if (category && !parsedTags.includes(category)) {
-        parsedTags.unshift(category);
-      }
       dataToUpdate.tags = parsedTags;
-    } else if (category) {
-      // make sure category is represented
-      const existing = await prisma.remoteJob.findUnique({ where: { id } });
-      if (existing) {
-        const nextTags = [...existing.tags];
-        if (!nextTags.includes(category)) nextTags.unshift(category);
-        dataToUpdate.tags = nextTags;
-      }
     }
 
     const updated = await prisma.remoteJob.update({

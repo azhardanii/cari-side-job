@@ -27,13 +27,13 @@ export function RemoteJobsModal({ isOpen, onClose, jobs }: RemoteJobsModalProps)
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('Semua');
 
-  // Available unique categories derived from jobs + master categories
+  // Available unique categories derived from jobs
   const categories = useMemo(() => {
     const set = new Set<string>();
     jobs.forEach((j) => {
-      if (j.primarySideJob) set.add(j.primarySideJob);
+      if (j.primarySideJob && j.primarySideJob !== 'Remote Job') set.add(j.primarySideJob);
     });
-    return ['Semua', ...Array.from(set)];
+    return Array.from(set);
   }, [jobs]);
 
   // Filtered jobs
@@ -126,24 +126,26 @@ export function RemoteJobsModal({ isOpen, onClose, jobs }: RemoteJobsModalProps)
           </div>
 
           {/* ── CATEGORY PILLS (Horizontal Scroll) ── */}
-          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-2.5 pb-0.5 -mx-1 px-1">
-            {categories.map((cat) => {
-              const isActive = selectedCategory === cat;
-              return (
-                <button
-                  key={cat}
-                  onClick={() => setSelectedCategory(cat)}
-                  className={`px-3 py-1.5 rounded-full text-[11.5px] font-bold whitespace-nowrap transition-all duration-150 flex-shrink-0 ${
-                    isActive
-                      ? 'bg-[#0074FC] text-white shadow-[0_2px_8px_rgba(0,116,252,0.3)]'
-                      : 'bg-[#F1F5F9] text-[#475569] hover:bg-[#E2E8F0] hover:text-[#0A0E2E]'
-                  }`}
-                >
-                  {cat}
-                </button>
-              );
-            })}
-          </div>
+          {categories.length > 0 && (
+            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-2.5 pb-0.5 -mx-1 px-1">
+              {['Semua', ...categories].map((cat) => {
+                const isActive = selectedCategory === cat;
+                return (
+                  <button
+                    key={cat}
+                    onClick={() => setSelectedCategory(cat)}
+                    className={`px-3 py-1.5 rounded-full text-[11.5px] font-bold whitespace-nowrap transition-all duration-150 flex-shrink-0 ${
+                      isActive
+                        ? 'bg-[#0074FC] text-white shadow-[0_2px_8px_rgba(0,116,252,0.3)]'
+                        : 'bg-[#F1F5F9] text-[#475569] hover:bg-[#E2E8F0] hover:text-[#0A0E2E]'
+                    }`}
+                  >
+                    {cat}
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* ── JOB CARDS LIST ── */}
@@ -192,9 +194,11 @@ export function RemoteJobsModal({ isOpen, onClose, jobs }: RemoteJobsModalProps)
                       {/* Main Titles */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1.5 flex-wrap">
-                          <span className="text-[10.5px] font-bold text-[#0074FC] bg-[#EFF6FF] px-2 py-0.5 rounded-full inline-block">
-                            {job.primarySideJob || 'Remote Job'}
-                          </span>
+                          {job.primarySideJob && job.primarySideJob !== 'Remote Job' && (
+                            <span className="text-[10.5px] font-bold text-[#0074FC] bg-[#EFF6FF] px-2 py-0.5 rounded-full inline-block">
+                              {job.primarySideJob}
+                            </span>
+                          )}
                           <span className="text-[10.5px] font-semibold text-[#64748B] bg-slate-100 px-2 py-0.5 rounded-full">
                             {job.type}
                           </span>

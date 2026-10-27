@@ -192,7 +192,6 @@ export function ThumbsUpCharacterVisual({
           />
         </div>
       ) : (
-        /* Male Character Giving Thumbs Up */
         <div className="w-[260px] h-[210px] relative ml-12">
           <svg
           viewBox="0 0 300 250"
@@ -278,6 +277,7 @@ export function ThumbsUpCharacterVisual({
           <circle cx="115" cy="227" r="5.5" fill="#FFFFFF" opacity="0.8" />
         </svg>
       </div>
+      )}
     </div>
   );
 }

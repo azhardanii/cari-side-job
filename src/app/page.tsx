@@ -789,11 +789,10 @@ export default function HomePage() {
                 <button
                   type="button"
                   onClick={() => setSelectedSkillCategory('all')}
-                  className={`px-3.5 py-1.5 rounded-full text-[12px] font-bold whitespace-nowrap transition-all ${
-                    selectedSkillCategory === 'all'
+                  className={`px-3.5 py-1.5 rounded-full text-[12px] font-bold whitespace-nowrap transition-all ${selectedSkillCategory === 'all'
                       ? 'bg-[var(--color-primary)] text-white shadow-xs'
                       : 'bg-[#F1F4F9] text-[#475569] hover:bg-[#E5EAF2]'
-                  }`}
+                    }`}
                 >
                   ✨ Semua Skill
                 </button>
@@ -802,11 +801,10 @@ export default function HomePage() {
                     key={grp.id}
                     type="button"
                     onClick={() => setSelectedSkillCategory(grp.id)}
-                    className={`px-3.5 py-1.5 rounded-full text-[12px] font-bold whitespace-nowrap transition-all flex items-center gap-1.5 ${
-                      selectedSkillCategory === grp.id
+                    className={`px-3.5 py-1.5 rounded-full text-[12px] font-bold whitespace-nowrap transition-all flex items-center gap-1.5 ${selectedSkillCategory === grp.id
                         ? 'bg-[var(--color-primary)] text-white shadow-xs'
                         : 'bg-[#F1F4F9] text-[#475569] hover:bg-[#E5EAF2]'
-                    }`}
+                      }`}
                   >
                     <span>{grp.icon}</span>
                     <span>{grp.name}</span>
@@ -874,11 +872,10 @@ export default function HomePage() {
                         key={skill}
                         type="button"
                         onClick={() => toggleSkill(skill)}
-                        className={`inline-flex items-center gap-[6px] px-[14px] py-[8px] rounded-full text-[13px] font-[600] border transition-all duration-[180ms] select-none ${
-                          isSelected
+                        className={`inline-flex items-center gap-[6px] px-[14px] py-[8px] rounded-full text-[13px] font-[600] border transition-all duration-[180ms] select-none ${isSelected
                             ? 'bg-[var(--color-primary)] border-[var(--color-primary)] text-white shadow-xs'
                             : 'bg-[var(--color-surface)] border-[var(--color-border)] text-[var(--color-ink-soft)] hover:border-[#B4C4DE] hover:bg-[#F9FAFC]'
-                        }`}
+                          }`}
                       >
                         <span>{toTitleCase(skill)}</span>
                         {isSelected && <Check size={14} strokeWidth={2.5} />}
@@ -1195,11 +1192,10 @@ export default function HomePage() {
                 <button
                   type="button"
                   onClick={() => setLeadData((prev) => ({ ...prev, gender: 'cowok' }))}
-                  className={`h-[64px] rounded-[16px] px-3.5 flex items-center gap-3 border transition-all duration-200 cursor-pointer ${
-                    leadData.gender === 'cowok'
+                  className={`h-[64px] rounded-[16px] px-3.5 flex items-center gap-3 border transition-all duration-200 cursor-pointer ${leadData.gender === 'cowok'
                       ? 'bg-[#EBF3FE] border-[var(--color-primary)] shadow-[0_2px_12px_rgba(0,116,252,0.18)] ring-2 ring-[var(--color-primary)]/25'
                       : 'bg-[var(--color-surface)] border-[var(--color-border)] hover:border-[#D0D5DD] hover:bg-[#F9FAFB]'
-                  }`}
+                    }`}
                 >
                   <div className="w-11 h-11 rounded-full overflow-hidden bg-blue-100 flex-shrink-0 border-2 border-blue-200">
                     <img src="/assets/char/man1.webp" alt="Cowok" className="w-full h-full object-cover object-top" />
@@ -1219,11 +1215,10 @@ export default function HomePage() {
                 <button
                   type="button"
                   onClick={() => setLeadData((prev) => ({ ...prev, gender: 'cewek' }))}
-                  className={`h-[64px] rounded-[16px] px-3.5 flex items-center gap-3 border transition-all duration-200 cursor-pointer ${
-                    leadData.gender === 'cewek'
+                  className={`h-[64px] rounded-[16px] px-3.5 flex items-center gap-3 border transition-all duration-200 cursor-pointer ${leadData.gender === 'cewek'
                       ? 'bg-[#FDF2F8] border-[#EC4899] shadow-[0_2px_12px_rgba(236,72,153,0.18)] ring-2 ring-[#EC4899]/25'
                       : 'bg-[var(--color-surface)] border-[var(--color-border)] hover:border-[#D0D5DD] hover:bg-[#F9FAFB]'
-                  }`}
+                    }`}
                 >
                   <div className="w-11 h-11 rounded-full overflow-hidden bg-pink-100 flex-shrink-0 border-2 border-pink-200">
                     <img src="/assets/char/woman1.webp" alt="Cewek" className="w-full h-full object-cover object-top" />
@@ -1261,765 +1256,767 @@ export default function HomePage() {
 
       {/* ── SCREEN 4: HASIL PEMETAAN ── */}
       {currentTab === 'hasil' && (
-        <main className="flex-1 flex flex-col w-full px-5 pt-6 pb-28 animate-fadeIn flex-1">
-          {calculatedResult ? (
-            <div>
-              {/* Hasil Header Badge & Title */}
-              <div className="mb-2">
-                <span className="text-[13px] font-semibold text-[#98A2B3]">
-                  Hasil Kamu
-                </span>
-                <h2 className="text-[24px] font-[800] leading-[1.3] text-[var(--color-ink)] tracking-[-0.02em] mt-0.5">
-                  Kamu adalah<br />
-                  <span className="text-[var(--color-primary)]">
-                    “{calculatedResult.persona.name}”
-                  </span>
-                </h2>
-                <p className="text-[14.5px] font-[500] leading-[1.55] text-[var(--color-muted)] text-[13.5px] mt-1 leading-relaxed">
-                  {calculatedResult.persona.tagline}
-                </p>
-              </div>
+          <main className="flex-1 flex flex-col w-full pt-6 pb-28 animate-fadeIn">
+            {calculatedResult ? (
+              <div>
+                {/* Hasil Header Badge & Title */}
+                  <div className="px-5 mb-2">
+                    <span className="text-[13px] font-semibold text-[#98A2B3]">
+                      Hasil Kamu
+                    </span>
+                    <h2 className="text-[24px] font-[800] leading-[1.3] text-[var(--color-ink)] tracking-[-0.02em] mt-0.5">
+                      Kamu adalah<br />
+                      <span className="text-[var(--color-primary)]">
+                        “{calculatedResult.persona.name}”
+                      </span>
+                    </h2>
+                    <p className="text-[14.5px] font-[500] leading-[1.55] text-[var(--color-muted)] text-[13.5px] mt-1 leading-relaxed">
+                      {calculatedResult.persona.tagline}
+                    </p>
+                  </div>
 
-              {/* Thumbs Up Character Visual with Trait Badge & Selected Gender Avatar */}
-              <ThumbsUpCharacterVisual
-                traits={calculatedResult.persona.traits}
-                charImage={leadData.charImage || (leadData.gender === 'cewek' ? '/assets/char/woman1.webp' : '/assets/char/man1.webp')}
-              />
+                  {/* Thumbs Up Character Visual (Full Width - Zero Padding X) */}
+                  <ThumbsUpCharacterVisual
+                    traits={calculatedResult.persona.traits}
+                    charImage={leadData.charImage || (leadData.gender === 'cewek' ? '/assets/char/woman1.webp' : '/assets/char/man1.webp')}
+                  />
 
-              {/* Top Side Jobs Section */}
-              <div className="mt-8">
-                <h3 className="text-[18px] font-[700] leading-[1.35] text-[var(--color-ink)] tracking-[-0.015em] mb-3">
-                  Side Job yang Cocok Untuk Kamu
-                </h3>
+                    <div className="px-5">
+                      {/* Top Side Jobs Section */}
+                      <div className="mt-6">
+                        <h3 className="text-[18px] font-[700] leading-[1.35] text-[var(--color-ink)] tracking-[-0.015em] mb-3">
+                          Side Job yang Cocok Untuk Kamu
+                        </h3>
 
-                <div className="flex flex-col gap-3">
-                  {calculatedResult.topMatches.map((job, idx) => {
-                    // Semantic pastel pairs from design.md
-                    let bgPastel = 'var(--green-bg, #DEF6F2)';
-                    let iconColor = 'var(--green-icon, #00A55E)';
-                    let IconComponent = FileCheck;
+                        <div className="flex flex-col gap-3">
+                          {calculatedResult.topMatches.map((job, idx) => {
+                            // Semantic pastel pairs from design.md
+                            let bgPastel = 'var(--green-bg, #DEF6F2)';
+                            let iconColor = 'var(--green-icon, #00A55E)';
+                            let IconComponent = FileCheck;
 
-                    if (idx === 1) {
-                      bgPastel = 'var(--blue-bg, #E1EDFD)';
-                      iconColor = 'var(--blue-icon, #0074FC)';
-                      IconComponent = User;
-                    } else if (idx === 2) {
-                      bgPastel = 'var(--orange-bg, #FDEFDD)';
-                      iconColor = 'var(--orange-icon, #FEAA00)';
-                      IconComponent = Layers;
-                    }
+                            if (idx === 1) {
+                              bgPastel = 'var(--blue-bg, #E1EDFD)';
+                              iconColor = 'var(--blue-icon, #0074FC)';
+                              IconComponent = User;
+                            } else if (idx === 2) {
+                              bgPastel = 'var(--orange-bg, #FDEFDD)';
+                              iconColor = 'var(--orange-icon, #FEAA00)';
+                              IconComponent = Layers;
+                            }
 
-                    return (
-                      <div
-                        key={job.id}
-                        className="bg-white rounded-[16px] border border-[#EDEFF3] p-4 flex items-center gap-3 shadow-sm"
-                      >
-                        {/* Circle Rank (1, 2, 3) */}
-                        <div className="w-[28px] h-[28px] rounded-full bg-[#DFE9F6] flex items-center justify-center font-extrabold text-[13px] text-[#0A0E2E] flex-shrink-0">
-                          {idx + 1}
-                        </div>
-
-                        {/* Icon square pastel */}
-                        <div
-                          className="w-[44px] h-[44px] rounded-[14px] flex items-center justify-center flex-shrink-0"
-                          style={{ backgroundColor: bgPastel, color: iconColor }}
-                        >
-                          <IconComponent size={22} strokeWidth={2.2} />
-                        </div>
-
-                        {/* Job Title & Progress Bar */}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between">
-                            <span className="text-[15px] font-bold text-[#0A0E2E] truncate">
-                              {job.name}
-                            </span>
-                            <span className="text-[17px] font-extrabold text-[#0A0E2E] ml-2">
-                              {job.matchPercent}%
-                            </span>
-                          </div>
-
-                          <div className="flex items-center justify-between mt-1.5 gap-2">
-                            {/* Horizontal Progress bar */}
-                            <div className="flex-1 h-[6px] rounded-full bg-[#E7EBF4] overflow-hidden">
+                            return (
                               <div
-                                className="h-full rounded-full bg-[#0074FC]"
-                                style={{ width: `${job.matchPercent}%` }}
-                              />
-                            </div>
-                            {/* Cocok green text */}
-                            <span className="text-[12px] font-semibold text-[#31B374]">
-                              Cocok
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
+                                key={job.id}
+                                className="bg-white rounded-[16px] border border-[#EDEFF3] p-4 flex items-center gap-3 shadow-sm"
+                              >
+                                {/* Circle Rank (1, 2, 3) */}
+                                <div className="w-[28px] h-[28px] rounded-full bg-[#DFE9F6] flex items-center justify-center font-extrabold text-[13px] text-[#0A0E2E] flex-shrink-0">
+                                  {idx + 1}
+                                </div>
 
-                {/* Secondary Button: Lihat Penjelasan Lengkap */}
-                <button
-                  type="button"
-                  onClick={() => setIsDetailExplanationOpen(true)}
-                  className="bg-[#EDF4FD] text-[var(--color-ink)] rounded-[20px] px-[18px] py-[15px] flex items-center justify-between font-[700] text-[14.5px] border border-[rgba(0,116,252,0.1)] w-full transition-colors duration-200 hover:bg-[#E2EEFD] hover:border-[rgba(0,116,252,0.2)] mt-3.5"
-                >
-                  <span className="font-bold text-[14.5px] text-[#0A0E2E]">
-                    Lihat Penjelasan Lengkap
-                  </span>
-                  <ChevronRight size={19} className="text-[#0A0E2E]" />
-                </button>
-
-                {/* ── BAGIKAN HASIL TES DENGAN GRAFIS STORY MODERN (3D GLASS SPHERES) ── */}
-                <ShareGraphicCard
-                  params={{
-                    leadName: leadData.name || 'Sobat',
-                    gender: leadData.gender,
-                    personaName: calculatedResult.persona.name,
-                    personaTagline: calculatedResult.persona.tagline,
-                    topMatches: calculatedResult.topMatches.map((m) => ({
-                      id: m.id,
-                      name: m.name,
-                      matchPercent: m.matchPercent,
-                      kategori: m.kategori,
-                    })),
-                  }}
-                  onShareWhatsApp={shareToWhatsApp}
-                />
-              </div>
-
-              {/* ── REKOMENDASI PRODUK BERDASARKAN HASIL TES (Tetap 2 Ebook: Sesuai Hasil + Bimbingan Lengkap) ── */}
-              {(() => {
-                const topJob = calculatedResult.topMatches[0];
-                if (!topJob) return null;
-
-                // 1. Ebook Rekomendasi Sesuai Hasil Mereka
-                const specificEbookFromDb = liveProducts.find(
-                  (p) =>
-                    p.isPublished !== false &&
-                    (
-                      p.sideJob?.toLowerCase() === topJob.name.toLowerCase() ||
-                      p.sideJob?.toLowerCase() === topJob.kategori.toLowerCase() ||
-                      p.title?.toLowerCase().includes(topJob.name.toLowerCase())
-                    )
-                );
-
-                const ebook1: ProductItem = specificEbookFromDb || (topJob.products && topJob.products[0]) || {
-                  title: `Panduan Lengkap Side Job ${topJob.name}`,
-                  desc: `Langkah demi langkah memulai ${topJob.name} dari nol, strategi portofolio, dan cara dapat klien remote pertama.`,
-                  price: 'Rp 79.000',
-                  badge: 'Sesuai Hasilmu',
-                  url: topJob.linkPanduan || 'https://lynk.id/adithdigital',
-                  category: 'Ebook',
-                  sideJob: topJob.name,
-                  type: 'digital',
-                  isPublished: true,
-                };
-
-                // 2. Ebook Bimbingan Lengkap Side Job
-                const bimbinganEbookFromDb = liveProducts.find(
-                  (p) =>
-                    p.isPublished !== false &&
-                    (
-                      p.title?.toLowerCase().includes('bimbingan') ||
-                      p.title?.toLowerCase().includes('bimbingan lengkap') ||
-                      p.sideJob === 'Umum / Semua Profil'
-                    )
-                );
-
-                const ebook2: ProductItem = bimbinganEbookFromDb || {
-                  title: 'Bimbingan Lengkap Side Job',
-                  desc: 'Blueprint komprehensif panduan memulai berbagai side job remote dari nol hingga tembus penghasilan rutin.',
-                  price: 'Rp 99.000',
-                  badge: 'Bimbingan Lengkap',
-                  url: 'https://lynk.id/adithdigital',
-                  category: 'Ebook',
-                  sideJob: 'Umum / Semua Profil',
-                  type: 'digital',
-                  isPublished: true,
-                };
-
-                // Tetap tepat 2 Ebook rekomendasi
-                const productsToShow: ProductItem[] = [ebook1, ebook2];
-
-                return (
-                  <div className="mt-8">
-                    <div className="mb-4">
-                      <span className="text-[13px] font-semibold text-[#98A2B3]">Khusus Untuk Kamu</span>
-                      <h3 className="text-[18px] font-[700] leading-[1.35] text-[var(--color-ink)] tracking-[-0.015em] mt-0.5">
-                        Cobain Side Job {topJob.name} dengan Rekomendasi Panduan Lengkap ini dan Ikuti Step By Stepnya
-                      </h3>
-                      <p className="text-[13px] text-[#98A2B3] mt-1 leading-relaxed">
-                        2 panduan terpilih: rekomendasi spesifik <span className="font-bold text-[#0A0E2E]">{topJob.name}</span> dan bimbingan lengkap side job.
-                      </p>
-                    </div>
-
-                    <div className="flex flex-col gap-3">
-                      {productsToShow.map((prod, pIdx) => {
-                        const directUrl = normalizeLynkUrl(prod.url);
-                        return (
-                          <div
-                            key={prod.id || pIdx}
-                            className="bg-white rounded-[18px] border border-[#EDEFF3] shadow-[0_2px_10px_rgba(10,14,46,0.05)] p-[14px] flex gap-[14px] items-center hover:shadow-[0_6px_18px_rgba(10,14,46,0.09)] hover:border-[#DCE3EE] transition-all duration-200"
-                          >
-                            {/* Thumbnail */}
-                            {prod.imageUrl ? (
-                              <div className="w-[68px] h-[68px] rounded-[14px] overflow-hidden flex-shrink-0 bg-slate-100 border border-slate-200/80 shadow-sm">
-                                <img
-                                  src={prod.imageUrl}
-                                  alt={prod.title}
-                                  className="w-full h-full object-cover"
-                                  loading="lazy"
-                                />
-                              </div>
-                            ) : (
-                              <ProductCover3D type={prod.type || 'digital'} />
-                            )}
-
-                            {/* Info */}
-                            <div className="flex-1 flex flex-col min-w-0">
-                              <span className="bg-[var(--lav-tag)] text-[var(--color-ink-soft)] text-[11px] font-[600] px-[9px] py-[2px] rounded-full inline-block mb-1 w-fit">
-                                {prod.category || 'Ebook'}
-                              </span>
-                              <h4 className="text-[14px] font-bold text-[#0A0E2E] leading-snug line-clamp-2">
-                                {prod.title}
-                              </h4>
-                              {prod.desc && (
-                                <p className="text-[12px] text-[#64748B] mt-0.5 line-clamp-1">
-                                  {prod.desc}
-                                </p>
-                              )}
-                              <div className="flex items-center justify-between w-full mt-2.5">
-                                {prod.badge ? (
-                                  <span className="text-[11.5px] font-bold text-[#0074FC] bg-[#EFF6FF] px-2 py-0.5 rounded-full">
-                                    {prod.badge}
-                                  </span>
-                                ) : (
-                                  <span className="text-[12px] font-bold text-[#0F172A]">{prod.price || 'Panduan'}</span>
-                                )}
-                                <a
-                                  href={directUrl}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="bg-[var(--color-primary)] text-white rounded-full px-[16px] py-[7px] text-[12px] font-[700] transition-colors duration-150 inline-flex items-center gap-1.5 hover:bg-[var(--color-primary-hover)] flex-shrink-0 shadow-xs"
+                                {/* Icon square pastel */}
+                                <div
+                                  className="w-[44px] h-[44px] rounded-[14px] flex items-center justify-center flex-shrink-0"
+                                  style={{ backgroundColor: bgPastel, color: iconColor }}
                                 >
-                                  <span>Buka Panduan</span>
-                                  <ExternalLink size={12} />
-                                </a>
+                                  <IconComponent size={22} strokeWidth={2.2} />
+                                </div>
+
+                                {/* Job Title & Progress Bar */}
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-[15px] font-bold text-[#0A0E2E] truncate">
+                                      {job.name}
+                                    </span>
+                                    <span className="text-[17px] font-extrabold text-[#0A0E2E] ml-2">
+                                      {job.matchPercent}%
+                                    </span>
+                                  </div>
+
+                                  <div className="flex items-center justify-between mt-1.5 gap-2">
+                                    {/* Horizontal Progress bar */}
+                                    <div className="flex-1 h-[6px] rounded-full bg-[#E7EBF4] overflow-hidden">
+                                      <div
+                                        className="h-full rounded-full bg-[#0074FC]"
+                                        style={{ width: `${job.matchPercent}%` }}
+                                      />
+                                    </div>
+                                    {/* Cocok green text */}
+                                    <span className="text-[12px] font-semibold text-[#31B374]">
+                                      Cocok
+                                    </span>
+                                  </div>
+                                </div>
                               </div>
+                            );
+                          })}
+                        </div>
+
+                        {/* Secondary Button: Lihat Penjelasan Lengkap */}
+                        <button
+                          type="button"
+                          onClick={() => setIsDetailExplanationOpen(true)}
+                          className="bg-[#EDF4FD] text-[var(--color-ink)] rounded-[20px] px-[18px] py-[15px] flex items-center justify-between font-[700] text-[14.5px] border border-[rgba(0,116,252,0.1)] w-full transition-colors duration-200 hover:bg-[#E2EEFD] hover:border-[rgba(0,116,252,0.2)] mt-3.5"
+                        >
+                          <span className="font-bold text-[14.5px] text-[#0A0E2E]">
+                            Lihat Penjelasan Lengkap
+                          </span>
+                          <ChevronRight size={19} className="text-[#0A0E2E]" />
+                        </button>
+
+                        {/* ── BAGIKAN HASIL TES DENGAN GRAFIS STORY MODERN (3D GLASS SPHERES) ── */}
+                        <ShareGraphicCard
+                          params={{
+                            leadName: leadData.name || 'Sobat',
+                            gender: leadData.gender,
+                            personaName: calculatedResult.persona.name,
+                            personaTagline: calculatedResult.persona.tagline,
+                            topMatches: calculatedResult.topMatches.map((m) => ({
+                              id: m.id,
+                              name: m.name,
+                              matchPercent: m.matchPercent,
+                              kategori: m.kategori,
+                            })),
+                          }}
+                          onShareWhatsApp={shareToWhatsApp}
+                        />
+                      </div>
+
+                      {/* ── REKOMENDASI PRODUK BERDASARKAN HASIL TES (Tetap 2 Ebook: Sesuai Hasil + Bimbingan Lengkap) ── */}
+                      {(() => {
+                        const topJob = calculatedResult.topMatches[0];
+                        if (!topJob) return null;
+
+                        // 1. Ebook Rekomendasi Sesuai Hasil Mereka
+                        const specificEbookFromDb = liveProducts.find(
+                          (p) =>
+                            p.isPublished !== false &&
+                            (
+                              p.sideJob?.toLowerCase() === topJob.name.toLowerCase() ||
+                              p.sideJob?.toLowerCase() === topJob.kategori.toLowerCase() ||
+                              p.title?.toLowerCase().includes(topJob.name.toLowerCase())
+                            )
+                        );
+
+                        const ebook1: ProductItem = specificEbookFromDb || (topJob.products && topJob.products[0]) || {
+                          title: `Panduan Lengkap Side Job ${topJob.name}`,
+                          desc: `Langkah demi langkah memulai ${topJob.name} dari nol, strategi portofolio, dan cara dapat klien remote pertama.`,
+                          price: 'Rp 79.000',
+                          badge: 'Sesuai Hasilmu',
+                          url: topJob.linkPanduan || 'https://lynk.id/adithdigital',
+                          category: 'Ebook',
+                          sideJob: topJob.name,
+                          type: 'digital',
+                          isPublished: true,
+                        };
+
+                        // 2. Ebook Bimbingan Lengkap Side Job
+                        const bimbinganEbookFromDb = liveProducts.find(
+                          (p) =>
+                            p.isPublished !== false &&
+                            (
+                              p.title?.toLowerCase().includes('bimbingan') ||
+                              p.title?.toLowerCase().includes('bimbingan lengkap') ||
+                              p.sideJob === 'Umum / Semua Profil'
+                            )
+                        );
+
+                        const ebook2: ProductItem = bimbinganEbookFromDb || {
+                          title: 'Bimbingan Lengkap Side Job',
+                          desc: 'Blueprint komprehensif panduan memulai berbagai side job remote dari nol hingga tembus penghasilan rutin.',
+                          price: 'Rp 99.000',
+                          badge: 'Bimbingan Lengkap',
+                          url: 'https://lynk.id/adithdigital',
+                          category: 'Ebook',
+                          sideJob: 'Umum / Semua Profil',
+                          type: 'digital',
+                          isPublished: true,
+                        };
+
+                        // Tetap tepat 2 Ebook rekomendasi
+                        const productsToShow: ProductItem[] = [ebook1, ebook2];
+
+                        return (
+                          <div className="mt-8">
+                            <div className="mb-4">
+                              <span className="text-[13px] font-semibold text-[#98A2B3]">Khusus Untuk Kamu</span>
+                              <h3 className="text-[18px] font-[700] leading-[1.35] text-[var(--color-ink)] tracking-[-0.015em] mt-0.5">
+                                Cobain Side Job {topJob.name} dengan Rekomendasi Panduan Lengkap ini dan Ikuti Step By Stepnya
+                              </h3>
+                              <p className="text-[13px] text-[#98A2B3] mt-1 leading-relaxed">
+                                2 panduan terpilih: rekomendasi spesifik <span className="font-bold text-[#0A0E2E]">{topJob.name}</span> dan bimbingan lengkap side job.
+                              </p>
+                            </div>
+
+                            <div className="flex flex-col gap-3">
+                              {productsToShow.map((prod, pIdx) => {
+                                const directUrl = normalizeLynkUrl(prod.url);
+                                return (
+                                  <div
+                                    key={prod.id || pIdx}
+                                    className="bg-white rounded-[18px] border border-[#EDEFF3] shadow-[0_2px_10px_rgba(10,14,46,0.05)] p-[14px] flex gap-[14px] items-center hover:shadow-[0_6px_18px_rgba(10,14,46,0.09)] hover:border-[#DCE3EE] transition-all duration-200"
+                                  >
+                                    {/* Thumbnail */}
+                                    {prod.imageUrl ? (
+                                      <div className="w-[68px] h-[68px] rounded-[14px] overflow-hidden flex-shrink-0 bg-slate-100 border border-slate-200/80 shadow-sm">
+                                        <img
+                                          src={prod.imageUrl}
+                                          alt={prod.title}
+                                          className="w-full h-full object-cover"
+                                          loading="lazy"
+                                        />
+                                      </div>
+                                    ) : (
+                                      <ProductCover3D type={prod.type || 'digital'} />
+                                    )}
+
+                                    {/* Info */}
+                                    <div className="flex-1 flex flex-col min-w-0">
+                                      <span className="bg-[var(--lav-tag)] text-[var(--color-ink-soft)] text-[11px] font-[600] px-[9px] py-[2px] rounded-full inline-block mb-1 w-fit">
+                                        {prod.category || 'Ebook'}
+                                      </span>
+                                      <h4 className="text-[14px] font-bold text-[#0A0E2E] leading-snug line-clamp-2">
+                                        {prod.title}
+                                      </h4>
+                                      {prod.desc && (
+                                        <p className="text-[12px] text-[#64748B] mt-0.5 line-clamp-1">
+                                          {prod.desc}
+                                        </p>
+                                      )}
+                                      <div className="flex items-center justify-between w-full mt-2.5">
+                                        {prod.badge ? (
+                                          <span className="text-[11.5px] font-bold text-[#0074FC] bg-[#EFF6FF] px-2 py-0.5 rounded-full">
+                                            {prod.badge}
+                                          </span>
+                                        ) : (
+                                          <span className="text-[12px] font-bold text-[#0F172A]">{prod.price || 'Panduan'}</span>
+                                        )}
+                                        <a
+                                          href={directUrl}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="bg-[var(--color-primary)] text-white rounded-full px-[16px] py-[7px] text-[12px] font-[700] transition-colors duration-150 inline-flex items-center gap-1.5 hover:bg-[var(--color-primary-hover)] flex-shrink-0 shadow-xs"
+                                        >
+                                          <span>Buka Panduan</span>
+                                          <ExternalLink size={12} />
+                                        </a>
+                                      </div>
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+
+                            {/* CTA Lanjut ke Rekomendasi Lengkap */}
+                            <div className="mt-5 pt-1">
+                              <button
+                                type="button"
+                                onClick={() => switchTab('rekomendasi')}
+                                className="bg-[var(--color-primary)] text-white rounded-[999px] h-[52px] inline-flex items-center justify-center font-[700] text-[15px] w-full shadow-[0_6px_16px_rgba(0,116,252,0.28)] transition-all duration-200 hover:bg-[var(--color-primary-hover)] hover:-translate-y-[1px] hover:shadow-[0_8px_20px_rgba(0,116,252,0.36)] gap-2"
+                              >
+                                <span>Lihat Semua Rekomendasi &amp; Template →</span>
+                              </button>
                             </div>
                           </div>
                         );
-                      })}
-                    </div>
-
-                    {/* CTA Lanjut ke Rekomendasi Lengkap */}
-                    <div className="mt-5 pt-1">
-                      <button
-                        type="button"
-                        onClick={() => switchTab('rekomendasi')}
-                        className="bg-[var(--color-primary)] text-white rounded-[999px] h-[52px] inline-flex items-center justify-center font-[700] text-[15px] w-full shadow-[0_6px_16px_rgba(0,116,252,0.28)] transition-all duration-200 hover:bg-[var(--color-primary-hover)] hover:-translate-y-[1px] hover:shadow-[0_8px_20px_rgba(0,116,252,0.36)] gap-2"
-                      >
-                        <span>Lihat Semua Rekomendasi &amp; Template →</span>
-                      </button>
+                      })()}
                     </div>
                   </div>
-                );
-              })()}
-            </div>
-          ) : (
-            // Empty State: Prompt user to take quiz
-            <div className="text-center py-12 px-4">
-              <div className="w-[64px] h-[64px] rounded-full bg-[#E1EDFD] text-[#0074FC] flex items-center justify-center mx-auto mb-4">
-                <FileText size={32} />
-              </div>
-              <h2 className="text-[24px] font-[800] leading-[1.3] text-[var(--color-ink)] tracking-[-0.02em]">Belum Ada Hasil Pemetaan</h2>
-              <p className="text-[14.5px] font-[500] leading-[1.55] text-[var(--color-muted)] text-[14px] mt-2 mb-6 max-w-[280px] mx-auto">
-                Mulai tes 3 menit untuk menemukan side job dan produk yang paling cocok dengan skill kamu.
-              </p>
-              <button onClick={startNewQuiz} className="bg-[var(--color-primary)] text-white rounded-[999px] h-[52px] inline-flex items-center justify-center font-[700] text-[15px] w-full shadow-[0_6px_16px_rgba(0,116,252,0.28)] transition-all duration-200 ease-[cubic-bezier(0.2,0.8,0.2,1)] hover:bg-[var(--color-primary-hover)] hover:-translate-y-[1px] hover:shadow-[0_8px_20px_rgba(0,116,252,0.36)] disabled:opacity-55 disabled:cursor-not-allowed disabled:shadow-none">
-                Mulai Tes Sekarang →
-              </button>
-            </div>
+                  ) : (
+                  // Empty State: Prompt user to take quiz
+                    <div className="text-center py-12 px-5">
+                      <div className="w-[64px] h-[64px] rounded-full bg-[#E1EDFD] text-[#0074FC] flex items-center justify-center mx-auto mb-4">
+                        <FileText size={32} />
+                      </div>
+                      <h2 className="text-[24px] font-[800] leading-[1.3] text-[var(--color-ink)] tracking-[-0.02em]">Belum Ada Hasil Pemetaan</h2>
+                      <p className="text-[14.5px] font-[500] leading-[1.55] text-[var(--color-muted)] text-[14px] mt-2 mb-6 max-w-[280px] mx-auto">
+                        Mulai tes 3 menit untuk menemukan side job dan produk yang paling cocok dengan skill kamu.
+                      </p>
+                      <button onClick={startNewQuiz} className="bg-[var(--color-primary)] text-white rounded-[999px] h-[52px] inline-flex items-center justify-center font-[700] text-[15px] w-full shadow-[0_6px_16px_rgba(0,116,252,0.28)] transition-all duration-200 ease-[cubic-bezier(0.2,0.8,0.2,1)] hover:bg-[var(--color-primary-hover)] hover:-translate-y-[1px] hover:shadow-[0_8px_20px_rgba(0,116,252,0.36)] disabled:opacity-55 disabled:cursor-not-allowed disabled:shadow-none">
+                        Mulai Tes Sekarang →
+                      </button>
+                    </div>
           )}
-        </main>
+                  </main>
       )}
 
-      {/* ── SCREEN 5: REKOMENDASI PRODUK ── */}
-      {currentTab === 'rekomendasi' && (
-        <main className="flex-1 flex flex-col w-full px-5 pt-6 pb-28 animate-fadeIn flex-1">
-          {/* Header */}
-          <div className="mb-2">
-            <span className="text-[13px] font-semibold text-[#98A2B3]">
-              Rekomendasi Untuk Kamu
-            </span>
-            <h1 className="text-[24px] font-[800] leading-[1.3] text-[var(--color-ink)] tracking-[-0.02em] mt-0.5">
-              Tingkatkan Skill,<br />
-              Mulai Side Job Sekarang
-            </h1>
-            <p className="text-[14.5px] font-[500] leading-[1.55] text-[var(--color-muted)] text-[13.5px] mt-1 leading-relaxed">
-              Berikut beberapa produk digital yang sesuai dengan hasil kamu sebagai{' '}
-              <span className="font-bold text-[#0A0E2E]">
-                “{calculatedResult ? calculatedResult.persona.name : 'Talenta Remote'}”
-              </span>
-              .
-            </p>
-          </div>
+                  {/* ── SCREEN 5: REKOMENDASI PRODUK ── */}
+                  {currentTab === 'rekomendasi' && (
+                    <main className="flex-1 flex flex-col w-full px-5 pt-6 pb-28 animate-fadeIn flex-1">
+                      {/* Header */}
+                      <div className="mb-2">
+                        <span className="text-[13px] font-semibold text-[#98A2B3]">
+                          Rekomendasi Untuk Kamu
+                        </span>
+                        <h1 className="text-[24px] font-[800] leading-[1.3] text-[var(--color-ink)] tracking-[-0.02em] mt-0.5">
+                          Tingkatkan Skill,<br />
+                          Mulai Side Job Sekarang
+                        </h1>
+                        <p className="text-[14.5px] font-[500] leading-[1.55] text-[var(--color-muted)] text-[13.5px] mt-1 leading-relaxed">
+                          Berikut beberapa produk digital yang sesuai dengan hasil kamu sebagai{' '}
+                          <span className="font-bold text-[#0A0E2E]">
+                            “{calculatedResult ? calculatedResult.persona.name : 'Talenta Remote'}”
+                          </span>
+                          .
+                        </p>
+                      </div>
 
-          {/* Filter Tabs (Semua, Ebook, Template, Kursus, Tools) */}
-          <div className="flex gap-[8px] overflow-x-auto pb-[4px] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] my-5">
-            {(['Semua', 'Ebook', 'Template', 'Kursus', 'Tools'] as const).map((cat) => (
-              <button
-                key={cat}
-                type="button"
-                onClick={() => setProductCategoryFilter(cat)}
-                className={`px-[16px] py-[8px] rounded-full text-[13px] font-[600] whitespace-nowrap transition-colors duration-[180ms] select-none ${productCategoryFilter === cat ? 'bg-[var(--color-primary)] text-white' : 'bg-[var(--color-surface-sunken)] text-[var(--color-ink-soft)] hover:bg-[#E5E9F0]'}`}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
+                      {/* Filter Tabs (Semua, Ebook, Template, Kursus, Tools) */}
+                      <div className="flex gap-[8px] overflow-x-auto pb-[4px] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] my-5">
+                        {(['Semua', 'Ebook', 'Template', 'Kursus', 'Tools'] as const).map((cat) => (
+                          <button
+                            key={cat}
+                            type="button"
+                            onClick={() => setProductCategoryFilter(cat)}
+                            className={`px-[16px] py-[8px] rounded-full text-[13px] font-[600] whitespace-nowrap transition-colors duration-[180ms] select-none ${productCategoryFilter === cat ? 'bg-[var(--color-primary)] text-white' : 'bg-[var(--color-surface-sunken)] text-[var(--color-ink-soft)] hover:bg-[#E5E9F0]'}`}
+                          >
+                            {cat}
+                          </button>
+                        ))}
+                      </div>
 
-          {/* Product Cards List */}
-          <div className="flex flex-col gap-4 mt-2">
-            {filteredProducts.length === 0 ? (
-              <div className="bg-[var(--color-surface)] rounded-[20px] border border-dashed border-[var(--color-border-soft)] p-8 text-center flex flex-col items-center justify-center my-4">
-                <div className="w-12 h-12 rounded-2xl bg-blue-50 text-[#0074FC] flex items-center justify-center mb-3">
-                  <ShoppingBag size={24} />
-                </div>
-                <h4 className="text-[15px] font-bold text-[#0A0E2E]">Belum Ada Produk</h4>
-                <p className="text-[12.5px] text-[#98A2B3] mt-1 max-w-[280px]">
-                  Produk rekomendasi untuk kategori ini akan segera hadir.
-                </p>
-              </div>
-            ) : (
-              filteredProducts.map((prod) => (
-                <div key={prod.id} className="bg-[var(--color-surface)] rounded-[20px] border border-[var(--color-border-soft)] shadow-[0_2px_10px_rgba(10,14,46,0.05)] p-[15px] flex gap-[14px] items-center transition-all duration-200 hover:shadow-[0_6px_18px_rgba(10,14,46,0.08)] hover:border-[#DCE3EE]">
-                  {/* Thumbnail / 3D Product Mockup */}
-                  {prod.imageUrl ? (
-                    <div className="w-[68px] h-[68px] sm:w-[76px] sm:h-[76px] rounded-[14px] overflow-hidden flex-shrink-0 bg-slate-100 border border-slate-200/80 shadow-sm relative">
-                      <img
-                        src={prod.imageUrl}
-                        alt={prod.title}
-                        className="w-full h-full object-cover"
-                        loading="lazy"
-                      />
-                    </div>
-                  ) : (
-                    <ProductCover3D type={prod.type || 'digital'} />
+                      {/* Product Cards List */}
+                      <div className="flex flex-col gap-4 mt-2">
+                        {filteredProducts.length === 0 ? (
+                          <div className="bg-[var(--color-surface)] rounded-[20px] border border-dashed border-[var(--color-border-soft)] p-8 text-center flex flex-col items-center justify-center my-4">
+                            <div className="w-12 h-12 rounded-2xl bg-blue-50 text-[#0074FC] flex items-center justify-center mb-3">
+                              <ShoppingBag size={24} />
+                            </div>
+                            <h4 className="text-[15px] font-bold text-[#0A0E2E]">Belum Ada Produk</h4>
+                            <p className="text-[12.5px] text-[#98A2B3] mt-1 max-w-[280px]">
+                              Produk rekomendasi untuk kategori ini akan segera hadir.
+                            </p>
+                          </div>
+                        ) : (
+                          filteredProducts.map((prod) => (
+                            <div key={prod.id} className="bg-[var(--color-surface)] rounded-[20px] border border-[var(--color-border-soft)] shadow-[0_2px_10px_rgba(10,14,46,0.05)] p-[15px] flex gap-[14px] items-center transition-all duration-200 hover:shadow-[0_6px_18px_rgba(10,14,46,0.08)] hover:border-[#DCE3EE]">
+                              {/* Thumbnail / 3D Product Mockup */}
+                              {prod.imageUrl ? (
+                                <div className="w-[68px] h-[68px] sm:w-[76px] sm:h-[76px] rounded-[14px] overflow-hidden flex-shrink-0 bg-slate-100 border border-slate-200/80 shadow-sm relative">
+                                  <img
+                                    src={prod.imageUrl}
+                                    alt={prod.title}
+                                    className="w-full h-full object-cover"
+                                    loading="lazy"
+                                  />
+                                </div>
+                              ) : (
+                                <ProductCover3D type={prod.type || 'digital'} />
+                              )}
+
+                              {/* Product Info */}
+                              <div className="flex-1 flex flex-col items-start min-w-0">
+                                <span className="bg-[var(--lav-tag)] text-[var(--color-ink-soft)] text-[11.5px] font-[600] px-[10px] py-[3px] rounded-full inline-block mb-1.5">{prod.category}</span>
+                                <h4 className="text-[15px] font-bold text-[#0A0E2E] leading-snug line-clamp-2">
+                                  {prod.title}
+                                </h4>
+                                {prod.desc ? (
+                                  <p className="text-[12.5px] font-medium text-[#98A2B3] mt-1 line-clamp-2 leading-relaxed">
+                                    {prod.desc}
+                                  </p>
+                                ) : null}
+                                <div className="flex items-center justify-between w-full mt-3">
+                                  <span className="text-[12px] font-bold text-[#0074FC] bg-[#EFF6FF] px-2.5 py-1 rounded-full">
+                                    {prod.badge || 'Panduan Rekomendasi'}
+                                  </span>
+                                  <div className="flex items-center gap-1.5">
+                                    <button
+                                      type="button"
+                                      onClick={() => setSelectedProductDetail(prod)}
+                                      className="bg-[#EFF6FF] text-[#0074FC] hover:bg-[#DBEAFE] rounded-full px-3 py-1.5 text-[11.5px] font-bold transition-colors"
+                                    >
+                                      Detail
+                                    </button>
+                                    <a
+                                      href={normalizeLynkUrl(prod.url)}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="bg-[var(--color-primary)] text-white rounded-full px-3.5 py-1.5 text-[11.5px] font-bold transition-colors duration-150 inline-flex items-center gap-1 hover:bg-[var(--color-primary-hover)] shadow-xs"
+                                    >
+                                      <span>Buka</span>
+                                      <ExternalLink size={11} />
+                                    </a>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </main>
                   )}
 
-                  {/* Product Info */}
-                  <div className="flex-1 flex flex-col items-start min-w-0">
-                    <span className="bg-[var(--lav-tag)] text-[var(--color-ink-soft)] text-[11.5px] font-[600] px-[10px] py-[3px] rounded-full inline-block mb-1.5">{prod.category}</span>
-                    <h4 className="text-[15px] font-bold text-[#0A0E2E] leading-snug line-clamp-2">
-                      {prod.title}
-                    </h4>
-                    {prod.desc ? (
-                      <p className="text-[12.5px] font-medium text-[#98A2B3] mt-1 line-clamp-2 leading-relaxed">
-                        {prod.desc}
-                      </p>
-                    ) : null}
-                    <div className="flex items-center justify-between w-full mt-3">
-                      <span className="text-[12px] font-bold text-[#0074FC] bg-[#EFF6FF] px-2.5 py-1 rounded-full">
-                        {prod.badge || 'Panduan Rekomendasi'}
-                      </span>
-                      <div className="flex items-center gap-1.5">
+                  {/* ── SCREEN 5.1: AKUN / PROFIL ── */}
+                  {currentTab === 'akun' && (
+                    <main className="flex-1 flex flex-col w-full px-5 pt-6 pb-28 animate-fadeIn flex-1">
+                      {/* User Profile Card */}
+                      <div className="flex flex-col items-center justify-center my-3">
+                        <div className="relative">
+                          <div className="w-[88px] h-[88px] rounded-full bg-[#E1EDFD] flex items-center justify-center text-[#0074FC]">
+                            <User size={44} />
+                          </div>
+                          <div className="absolute bottom-0 right-0 w-7 h-7 rounded-full bg-white border-2 border-[#E1EDFD] flex items-center justify-center shadow-sm">
+                            <Sparkles size={14} className="text-[#0074FC]" />
+                          </div>
+                        </div>
+                        <h3 className="text-[18px] font-bold text-[#0A0E2E] mt-3">
+                          {leadData.name || 'Pengguna Baru'}
+                        </h3>
+                        <span className="text-[13px] font-medium text-[#98A2B3]">
+                          {leadData.wa || 'Belum mengisi nomor WhatsApp'}
+                        </span>
+                      </div>
+
+                      {/* Section: Hasil Tes Kamu */}
+                      <div className="mt-4">
+                        <div className="text-[12px] font-bold uppercase tracking-wider text-[#98A2B3] mb-2 px-1">
+                          Hasil Tes Kamu
+                        </div>
+                        <div className="bg-white rounded-[16px] border border-[#EDEFF3] overflow-hidden">
+                          <button
+                            onClick={() => {
+                              if (calculatedResult) switchTab('hasil');
+                              else startNewQuiz();
+                            }}
+                            className="w-full p-4 flex items-center justify-between hover:bg-[#F8FAFD] transition-colors border-b border-[#EDEFF3]"
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className="w-9 h-9 rounded-xl bg-[#DEF6F2] text-[#00A55E] flex items-center justify-center">
+                                <FileText size={18} />
+                              </div>
+                              <div className="text-left">
+                                <div className="text-[14.5px] font-bold text-[#0A0E2E]">
+                                  {calculatedResult ? `“${calculatedResult.persona.name}”` : 'Belum Ada Hasil'}
+                                </div>
+                                <div className="text-[12px] text-[#98A2B3]">
+                                  {calculatedResult ? 'Dilihat baru saja' : 'Klik untuk mulai tes'}
+                                </div>
+                              </div>
+                            </div>
+                            <ChevronRight size={18} className="text-[#98A2B3]" />
+                          </button>
+
+                          <button
+                            onClick={startNewQuiz}
+                            className="w-full p-4 flex items-center justify-between hover:bg-[#F8FAFD] transition-colors"
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className="w-9 h-9 rounded-xl bg-[#E1EDFD] text-[#0074FC] flex items-center justify-center">
+                                <RotateCcw size={18} />
+                              </div>
+                              <div className="text-left">
+                                <div className="text-[14.5px] font-bold text-[#0A0E2E]">
+                                  Tes Ulang Skill
+                                </div>
+                                <div className="text-[12px] text-[#98A2B3]">
+                                  Update preferensi dan skor kecocokan
+                                </div>
+                              </div>
+                            </div>
+                            <ChevronRight size={18} className="text-[#98A2B3]" />
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Section: Pengaturan & Bantuan */}
+                      <div className="mt-6">
+                        <div className="text-[12px] font-bold uppercase tracking-wider text-[#98A2B3] mb-2 px-1">
+                          Pengaturan & Bantuan
+                        </div>
+                        <div className="bg-white rounded-[16px] border border-[#EDEFF3] overflow-hidden">
+                          <a
+                            href="https://wa.me/6281234567890?text=Halo%20Admin%20CariSideJob"
+                            target="_blank"
+                            rel="noreferrer"
+                            className="w-full p-4 flex items-center justify-between hover:bg-[#F8FAFD] transition-colors border-b border-[#EDEFF3]"
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className="w-9 h-9 rounded-xl bg-[#DDF8EF] text-[#00AE66] flex items-center justify-center">
+                                <MessageSquare size={18} />
+                              </div>
+                              <div className="text-left">
+                                <div className="text-[14.5px] font-bold text-[#0A0E2E]">
+                                  Hubungi Kami (WhatsApp)
+                                </div>
+                                <div className="text-[12px] text-[#98A2B3]">
+                                  Konsultasi dan tanya jawab
+                                </div>
+                              </div>
+                            </div>
+                            <ChevronRight size={18} className="text-[#98A2B3]" />
+                          </a>
+
+                          <Link
+                            href="/admin"
+                            className="w-full p-4 flex items-center justify-between hover:bg-[#F8FAFD] transition-colors"
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className="w-9 h-9 rounded-xl bg-[#EDEDFD] text-[#3E37F9] flex items-center justify-center">
+                                <Settings size={18} />
+                              </div>
+                              <div className="text-left">
+                                <div className="text-[14.5px] font-bold text-[#0A0E2E]">
+                                  Dashboard Admin Owner
+                                </div>
+                                <div className="text-[12px] text-[#98A2B3]">
+                                  Kelola leads dan statistik konversi
+                                </div>
+                              </div>
+                            </div>
+                            <ChevronRight size={18} className="text-[#98A2B3]" />
+                          </Link>
+                        </div>
+                      </div>
+
+                      {/* Tombol Keluar (Destructive action token: #FDE9EC bg, #E5484D text) */}
+                      <div className="mt-6">
                         <button
-                          type="button"
-                          onClick={() => setSelectedProductDetail(prod)}
-                          className="bg-[#EFF6FF] text-[#0074FC] hover:bg-[#DBEAFE] rounded-full px-3 py-1.5 text-[11.5px] font-bold transition-colors"
+                          onClick={() => {
+                            if (confirm('Yakin ingin mereset sesi dan keluar?')) {
+                              localStorage.removeItem('arah_user_result');
+                              setCalculatedResult(null);
+                              setLeadData({ name: '', wa: '', email: '', gender: '', charImage: '' });
+                              switchTab('beranda');
+                            }
+                          }}
+                          className="w-full py-3.5 rounded-full font-bold text-[14px] transition-colors"
+                          style={{
+                            backgroundColor: '#FDE9EC',
+                            color: '#E5484D',
+                            border: 'none',
+                          }}
                         >
-                          Detail
+                          Keluar
                         </button>
+                      </div>
+                    </main>
+                  )}
+
+                  {/* ── MODAL: LOWONGAN KERJA REMOTE (REDESIGNED ULTRA PREMIUM) ── */}
+                  <RemoteJobsModal
+                    isOpen={isRemoteJobsOpen}
+                    onClose={() => setIsRemoteJobsOpen(false)}
+                    jobs={remoteJobs}
+                  />
+
+                  {/* ── MODAL: PENJELASAN LENGKAP HASIL (Detail Explanation & Roadmap) ── */}
+                  {isDetailExplanationOpen && calculatedResult && (
+                    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 animate-fadeIn">
+                      <div className="w-full max-w-[440px] bg-white rounded-t-[28px] sm:rounded-[28px] max-h-[88vh] flex flex-col overflow-hidden shadow-2xl">
+                        {/* Header */}
+                        <div className="p-4 border-b border-[#EDEFF3] flex items-center justify-between bg-white sticky top-0 z-10">
+                          <div>
+                            <h3 className="text-[17px] font-bold text-[#0A0E2E]">Detail Pemetaan Lengkap</h3>
+                            <span className="text-[12px] text-[#98A2B3]">Persona: “{calculatedResult.persona.name}”</span>
+                          </div>
+                          <button
+                            onClick={() => setIsDetailExplanationOpen(false)}
+                            className="w-8 h-8 rounded-full bg-[#F1F3F7] flex items-center justify-center text-[#0A0E2E]"
+                          >
+                            <X size={18} />
+                          </button>
+                        </div>
+
+                        {/* Scrollable details */}
+                        <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4">
+                          {/* Readiness Score Card */}
+                          <div className="p-4 rounded-2xl bg-gradient-to-br from-[#0074FC] to-[#0B4EC8] text-white">
+                            <div className="flex items-center justify-between">
+                              <span className="text-[13px] font-semibold text-white/80">Skor Kesiapan Kerja</span>
+                              <span className="text-[26px] font-extrabold">{calculatedResult.readinessScore}%</span>
+                            </div>
+                            <div className="w-full h-2 bg-white/20 rounded-full mt-2 overflow-hidden">
+                              <div
+                                className="h-full bg-white rounded-full"
+                                style={{ width: `${calculatedResult.readinessScore}%` }}
+                              />
+                            </div>
+                            <p className="text-[12px] text-white/80 mt-2">
+                              Kamu memiliki fondasi yang kuat untuk memulai side job ini dalam 1-2 minggu ke depan.
+                            </p>
+                          </div>
+
+                          {/* Strengths & Gaps */}
+                          <div className="grid grid-cols-2 gap-3">
+                            <div className="p-3.5 rounded-2xl bg-[#DEF6F2] border border-[#BFF0E7]">
+                              <span className="text-[12px] font-bold text-[#00A55E]">Kekuatan Kamu</span>
+                              <ul className="text-[12px] text-[#0A0E2E] mt-1.5 space-y-1">
+                                {calculatedResult.strengths.map((s, i) => (
+                                  <li key={i}>• {toTitleCase(s)}</li>
+                                ))}
+                              </ul>
+                            </div>
+                            <div className="p-3.5 rounded-2xl bg-[#FDF3E5] border border-[#FBE3BF]">
+                              <span className="text-[12px] font-bold text-[#FB9F05]">Area Perlu Dilatih</span>
+                              <ul className="text-[12px] text-[#0A0E2E] mt-1.5 space-y-1">
+                                {calculatedResult.gaps.map((g, i) => (
+                                  <li key={i}>• {toTitleCase(g)}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          </div>
+
+                          {/* Top 1 Job Roadmap */}
+                          <div>
+                            <h4 className="text-[15px] font-bold text-[#0A0E2E] mb-2">
+                              Roadmap Langkah Memulai ({calculatedResult.topMatches[0].name})
+                            </h4>
+                            <div className="space-y-2.5">
+                              {calculatedResult.topMatches[0].roadmap?.map((r) => (
+                                <div key={r.step} className="p-3 rounded-xl bg-[#F8FAFD] border border-[#EDEFF3]">
+                                  <span className="text-[11.5px] font-bold text-[#0074FC]">Langkah {r.step}: {r.title}</span>
+                                  <p className="text-[12px] text-[#3A4160] mt-0.5">{r.desc}</p>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Panduan Rekomendasi CTA */}
+                          <div className="p-4 rounded-2xl bg-[#EFF6FF] border border-[#BFDBFE] mt-1">
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-[11.5px] font-bold text-[#1D64EC] uppercase tracking-wider">Mulai Melangkah</span>
+                              <span className="text-[11px] font-bold text-[#059669] bg-[#ECFDF5] px-2 py-0.5 rounded-full">Panduan Resmi</span>
+                            </div>
+                            <h4 className="text-[14.5px] font-bold text-[#0A0E2E]">
+                              Panduan Lengkap Side Job {calculatedResult.topMatches[0].name}
+                            </h4>
+                            <p className="text-[12px] text-[#475569] mt-1 mb-3">
+                              Dapatkan blueprint langkah kerja, template proposal klien, dan cara mulai menghasilkan dari rumah.
+                            </p>
+                            <a
+                              href={normalizeLynkUrl(calculatedResult.topMatches[0].linkPanduan)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="w-full py-2.5 rounded-xl bg-[#0074FC] hover:bg-[#0060D1] text-white text-[13px] font-bold inline-flex items-center justify-center gap-1.5 transition-colors shadow-xs"
+                            >
+                              <span>Buka Panduan</span>
+                              <ExternalLink size={14} />
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* ── MODAL: PRODUCT DETAIL ── */}
+                  {selectedProductDetail && (
+                    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 animate-fadeIn">
+                      <div className="w-full max-w-[440px] bg-white rounded-t-[28px] sm:rounded-[28px] p-5 flex flex-col shadow-2xl">
+                        <div className="flex items-center justify-between pb-3 border-b border-[#EDEFF3]">
+                          <span className="bg-[var(--lav-tag)] text-[var(--color-ink-soft)] text-[11.5px] font-[600] px-[10px] py-[3px] rounded-full inline-block">{selectedProductDetail.category}</span>
+                          <button
+                            onClick={() => setSelectedProductDetail(null)}
+                            className="w-8 h-8 rounded-full bg-[#F1F3F7] flex items-center justify-center text-[#0A0E2E]"
+                          >
+                            <X size={18} />
+                          </button>
+                        </div>
+
+                        <div className="my-4 flex items-center gap-4">
+                          {selectedProductDetail.imageUrl ? (
+                            <div className="w-[80px] h-[80px] rounded-[16px] overflow-hidden flex-shrink-0 bg-slate-100 border border-slate-200 shadow-sm">
+                              <img
+                                src={selectedProductDetail.imageUrl}
+                                alt={selectedProductDetail.title}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                          ) : (
+                            <ProductCover3D type={selectedProductDetail.type || 'digital'} />
+                          )}
+                          <div>
+                            <h3 className="text-[16px] font-bold text-[#0A0E2E] leading-snug">
+                              {selectedProductDetail.title}
+                            </h3>
+                            {selectedProductDetail.badge && (
+                              <span className="text-[12px] font-bold text-[#0074FC] bg-[#EFF6FF] px-2.5 py-0.5 rounded-full inline-block mt-2">
+                                {selectedProductDetail.badge}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {selectedProductDetail.desc ? (
+                          <p className="text-[13.5px] text-[#3A4160] leading-relaxed mb-5">
+                            {selectedProductDetail.desc}
+                          </p>
+                        ) : null}
+
                         <a
-                          href={normalizeLynkUrl(prod.url)}
+                          href={normalizeLynkUrl(selectedProductDetail.url)}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="bg-[var(--color-primary)] text-white rounded-full px-3.5 py-1.5 text-[11.5px] font-bold transition-colors duration-150 inline-flex items-center gap-1 hover:bg-[var(--color-primary-hover)] shadow-xs"
+                          className="bg-[var(--color-primary)] text-white rounded-[999px] h-[52px] inline-flex items-center justify-center font-[700] text-[15px] w-full shadow-[0_6px_16px_rgba(0,116,252,0.28)] transition-all duration-200 ease-[cubic-bezier(0.2,0.8,0.2,1)] hover:bg-[var(--color-primary-hover)] hover:-translate-y-[1px] hover:shadow-[0_8px_20px_rgba(0,116,252,0.36)] disabled:opacity-55 disabled:cursor-not-allowed disabled:shadow-none text-[14.5px] gap-2"
                         >
-                          <span>Buka</span>
-                          <ExternalLink size={11} />
+                          <span>Buka Panduan</span>
+                          <ExternalLink size={16} />
                         </a>
                       </div>
                     </div>
-                  </div>
+                  )}
+
+                  {/* ── BOTTOM NAVIGATION (Fixed 4 tabs) ── */}
+                  <nav
+                    className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] h-[64px] bg-white border-t border-[var(--color-border-soft)] flex items-center justify-around px-[8px] py-[2px] pb-[calc(2px+env(safe-area-inset-bottom))] z-[100]"
+                    style={{ zIndex: 100 }}
+                  >
+                    {/* Tab 1: Beranda */}
+                    <button
+                      type="button"
+                      onClick={() => switchTab('beranda')}
+                      className={`flex flex-col items-center justify-center gap-[3px] px-[12px] py-[6px] transition-colors duration-[180ms] min-w-[60px] ${currentTab === 'beranda' ? 'text-[var(--color-primary)]' : 'text-[var(--nav-inactive)]'}`}
+                    >
+                      <Home
+                        size={22}
+                        strokeWidth={currentTab === 'beranda' ? 2.5 : 2}
+                        fill={currentTab === 'beranda' ? '#0074FC' : 'none'}
+                      />
+                      <span className="text-[11px] font-[600] leading-none">Beranda</span>
+                    </button>
+
+                    {/* Tab 2: Hasil */}
+                    <button
+                      type="button"
+                      onClick={() => switchTab('hasil')}
+                      className={`flex flex-col items-center justify-center gap-[3px] px-[12px] py-[6px] transition-colors duration-[180ms] min-w-[60px] ${currentTab === 'hasil' ? 'text-[var(--color-primary)]' : 'text-[var(--nav-inactive)]'}`}
+                    >
+                      <FileText
+                        size={22}
+                        strokeWidth={currentTab === 'hasil' ? 2.5 : 2}
+                        fill={currentTab === 'hasil' ? '#0074FC' : 'none'}
+                      />
+                      <span className="text-[11px] font-[600] leading-none">Hasil</span>
+                    </button>
+
+                    {/* Tab 3: Rekomendasi */}
+                    <button
+                      type="button"
+                      onClick={() => switchTab('rekomendasi')}
+                      className={`flex flex-col items-center justify-center gap-[3px] px-[12px] py-[6px] transition-colors duration-[180ms] min-w-[60px] ${currentTab === 'rekomendasi' ? 'text-[var(--color-primary)]' : 'text-[var(--nav-inactive)]'}`}
+                    >
+                      <ShoppingBag
+                        size={22}
+                        strokeWidth={currentTab === 'rekomendasi' ? 2.5 : 2}
+                        fill={currentTab === 'rekomendasi' ? '#0074FC' : 'none'}
+                      />
+                      <span className="text-[11px] font-[600] leading-none">Rekomendasi</span>
+                    </button>
+
+                    {/* Tab 4: Akun */}
+                    <button
+                      type="button"
+                      onClick={() => switchTab('akun')}
+                      className={`flex flex-col items-center justify-center gap-[3px] px-[12px] py-[6px] transition-colors duration-[180ms] min-w-[60px] ${currentTab === 'akun' ? 'text-[var(--color-primary)]' : 'text-[var(--nav-inactive)]'}`}
+                    >
+                      <User
+                        size={22}
+                        strokeWidth={currentTab === 'akun' ? 2.5 : 2}
+                        fill={currentTab === 'akun' ? '#0074FC' : 'none'}
+                      />
+                      <span className="text-[11px] font-[600] leading-none">Akun</span>
+                    </button>
+                  </nav>
                 </div>
-              ))
-            )}
-          </div>
-        </main>
-      )}
-
-      {/* ── SCREEN 5.1: AKUN / PROFIL ── */}
-      {currentTab === 'akun' && (
-        <main className="flex-1 flex flex-col w-full px-5 pt-6 pb-28 animate-fadeIn flex-1">
-          {/* User Profile Card */}
-          <div className="flex flex-col items-center justify-center my-3">
-            <div className="relative">
-              <div className="w-[88px] h-[88px] rounded-full bg-[#E1EDFD] flex items-center justify-center text-[#0074FC]">
-                <User size={44} />
-              </div>
-              <div className="absolute bottom-0 right-0 w-7 h-7 rounded-full bg-white border-2 border-[#E1EDFD] flex items-center justify-center shadow-sm">
-                <Sparkles size={14} className="text-[#0074FC]" />
-              </div>
-            </div>
-            <h3 className="text-[18px] font-bold text-[#0A0E2E] mt-3">
-              {leadData.name || 'Pengguna Baru'}
-            </h3>
-            <span className="text-[13px] font-medium text-[#98A2B3]">
-              {leadData.wa || 'Belum mengisi nomor WhatsApp'}
-            </span>
-          </div>
-
-          {/* Section: Hasil Tes Kamu */}
-          <div className="mt-4">
-            <div className="text-[12px] font-bold uppercase tracking-wider text-[#98A2B3] mb-2 px-1">
-              Hasil Tes Kamu
-            </div>
-            <div className="bg-white rounded-[16px] border border-[#EDEFF3] overflow-hidden">
-              <button
-                onClick={() => {
-                  if (calculatedResult) switchTab('hasil');
-                  else startNewQuiz();
-                }}
-                className="w-full p-4 flex items-center justify-between hover:bg-[#F8FAFD] transition-colors border-b border-[#EDEFF3]"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-[#DEF6F2] text-[#00A55E] flex items-center justify-center">
-                    <FileText size={18} />
-                  </div>
-                  <div className="text-left">
-                    <div className="text-[14.5px] font-bold text-[#0A0E2E]">
-                      {calculatedResult ? `“${calculatedResult.persona.name}”` : 'Belum Ada Hasil'}
-                    </div>
-                    <div className="text-[12px] text-[#98A2B3]">
-                      {calculatedResult ? 'Dilihat baru saja' : 'Klik untuk mulai tes'}
-                    </div>
-                  </div>
-                </div>
-                <ChevronRight size={18} className="text-[#98A2B3]" />
-              </button>
-
-              <button
-                onClick={startNewQuiz}
-                className="w-full p-4 flex items-center justify-between hover:bg-[#F8FAFD] transition-colors"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-[#E1EDFD] text-[#0074FC] flex items-center justify-center">
-                    <RotateCcw size={18} />
-                  </div>
-                  <div className="text-left">
-                    <div className="text-[14.5px] font-bold text-[#0A0E2E]">
-                      Tes Ulang Skill
-                    </div>
-                    <div className="text-[12px] text-[#98A2B3]">
-                      Update preferensi dan skor kecocokan
-                    </div>
-                  </div>
-                </div>
-                <ChevronRight size={18} className="text-[#98A2B3]" />
-              </button>
-            </div>
-          </div>
-
-          {/* Section: Pengaturan & Bantuan */}
-          <div className="mt-6">
-            <div className="text-[12px] font-bold uppercase tracking-wider text-[#98A2B3] mb-2 px-1">
-              Pengaturan & Bantuan
-            </div>
-            <div className="bg-white rounded-[16px] border border-[#EDEFF3] overflow-hidden">
-              <a
-                href="https://wa.me/6281234567890?text=Halo%20Admin%20CariSideJob"
-                target="_blank"
-                rel="noreferrer"
-                className="w-full p-4 flex items-center justify-between hover:bg-[#F8FAFD] transition-colors border-b border-[#EDEFF3]"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-[#DDF8EF] text-[#00AE66] flex items-center justify-center">
-                    <MessageSquare size={18} />
-                  </div>
-                  <div className="text-left">
-                    <div className="text-[14.5px] font-bold text-[#0A0E2E]">
-                      Hubungi Kami (WhatsApp)
-                    </div>
-                    <div className="text-[12px] text-[#98A2B3]">
-                      Konsultasi dan tanya jawab
-                    </div>
-                  </div>
-                </div>
-                <ChevronRight size={18} className="text-[#98A2B3]" />
-              </a>
-
-              <Link
-                href="/admin"
-                className="w-full p-4 flex items-center justify-between hover:bg-[#F8FAFD] transition-colors"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-[#EDEDFD] text-[#3E37F9] flex items-center justify-center">
-                    <Settings size={18} />
-                  </div>
-                  <div className="text-left">
-                    <div className="text-[14.5px] font-bold text-[#0A0E2E]">
-                      Dashboard Admin Owner
-                    </div>
-                    <div className="text-[12px] text-[#98A2B3]">
-                      Kelola leads dan statistik konversi
-                    </div>
-                  </div>
-                </div>
-                <ChevronRight size={18} className="text-[#98A2B3]" />
-              </Link>
-            </div>
-          </div>
-
-          {/* Tombol Keluar (Destructive action token: #FDE9EC bg, #E5484D text) */}
-          <div className="mt-6">
-            <button
-              onClick={() => {
-                if (confirm('Yakin ingin mereset sesi dan keluar?')) {
-                  localStorage.removeItem('arah_user_result');
-                  setCalculatedResult(null);
-                  setLeadData({ name: '', wa: '', email: '', gender: '', charImage: '' });
-                  switchTab('beranda');
-                }
-              }}
-              className="w-full py-3.5 rounded-full font-bold text-[14px] transition-colors"
-              style={{
-                backgroundColor: '#FDE9EC',
-                color: '#E5484D',
-                border: 'none',
-              }}
-            >
-              Keluar
-            </button>
-          </div>
-        </main>
-      )}
-
-      {/* ── MODAL: LOWONGAN KERJA REMOTE (REDESIGNED ULTRA PREMIUM) ── */}
-      <RemoteJobsModal
-        isOpen={isRemoteJobsOpen}
-        onClose={() => setIsRemoteJobsOpen(false)}
-        jobs={remoteJobs}
-      />
-
-      {/* ── MODAL: PENJELASAN LENGKAP HASIL (Detail Explanation & Roadmap) ── */}
-      {isDetailExplanationOpen && calculatedResult && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 animate-fadeIn">
-          <div className="w-full max-w-[440px] bg-white rounded-t-[28px] sm:rounded-[28px] max-h-[88vh] flex flex-col overflow-hidden shadow-2xl">
-            {/* Header */}
-            <div className="p-4 border-b border-[#EDEFF3] flex items-center justify-between bg-white sticky top-0 z-10">
-              <div>
-                <h3 className="text-[17px] font-bold text-[#0A0E2E]">Detail Pemetaan Lengkap</h3>
-                <span className="text-[12px] text-[#98A2B3]">Persona: “{calculatedResult.persona.name}”</span>
-              </div>
-              <button
-                onClick={() => setIsDetailExplanationOpen(false)}
-                className="w-8 h-8 rounded-full bg-[#F1F3F7] flex items-center justify-center text-[#0A0E2E]"
-              >
-                <X size={18} />
-              </button>
-            </div>
-
-            {/* Scrollable details */}
-            <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4">
-              {/* Readiness Score Card */}
-              <div className="p-4 rounded-2xl bg-gradient-to-br from-[#0074FC] to-[#0B4EC8] text-white">
-                <div className="flex items-center justify-between">
-                  <span className="text-[13px] font-semibold text-white/80">Skor Kesiapan Kerja</span>
-                  <span className="text-[26px] font-extrabold">{calculatedResult.readinessScore}%</span>
-                </div>
-                <div className="w-full h-2 bg-white/20 rounded-full mt-2 overflow-hidden">
-                  <div
-                    className="h-full bg-white rounded-full"
-                    style={{ width: `${calculatedResult.readinessScore}%` }}
-                  />
-                </div>
-                <p className="text-[12px] text-white/80 mt-2">
-                  Kamu memiliki fondasi yang kuat untuk memulai side job ini dalam 1-2 minggu ke depan.
-                </p>
-              </div>
-
-              {/* Strengths & Gaps */}
-              <div className="grid grid-cols-2 gap-3">
-                <div className="p-3.5 rounded-2xl bg-[#DEF6F2] border border-[#BFF0E7]">
-                  <span className="text-[12px] font-bold text-[#00A55E]">Kekuatan Kamu</span>
-                  <ul className="text-[12px] text-[#0A0E2E] mt-1.5 space-y-1">
-                    {calculatedResult.strengths.map((s, i) => (
-                      <li key={i}>• {toTitleCase(s)}</li>
-                    ))}
-                  </ul>
-                </div>
-                <div className="p-3.5 rounded-2xl bg-[#FDF3E5] border border-[#FBE3BF]">
-                  <span className="text-[12px] font-bold text-[#FB9F05]">Area Perlu Dilatih</span>
-                  <ul className="text-[12px] text-[#0A0E2E] mt-1.5 space-y-1">
-                    {calculatedResult.gaps.map((g, i) => (
-                      <li key={i}>• {toTitleCase(g)}</li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-
-              {/* Top 1 Job Roadmap */}
-              <div>
-                <h4 className="text-[15px] font-bold text-[#0A0E2E] mb-2">
-                  Roadmap Langkah Memulai ({calculatedResult.topMatches[0].name})
-                </h4>
-                <div className="space-y-2.5">
-                  {calculatedResult.topMatches[0].roadmap?.map((r) => (
-                    <div key={r.step} className="p-3 rounded-xl bg-[#F8FAFD] border border-[#EDEFF3]">
-                      <span className="text-[11.5px] font-bold text-[#0074FC]">Langkah {r.step}: {r.title}</span>
-                      <p className="text-[12px] text-[#3A4160] mt-0.5">{r.desc}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Panduan Rekomendasi CTA */}
-              <div className="p-4 rounded-2xl bg-[#EFF6FF] border border-[#BFDBFE] mt-1">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-[11.5px] font-bold text-[#1D64EC] uppercase tracking-wider">Mulai Melangkah</span>
-                  <span className="text-[11px] font-bold text-[#059669] bg-[#ECFDF5] px-2 py-0.5 rounded-full">Panduan Resmi</span>
-                </div>
-                <h4 className="text-[14.5px] font-bold text-[#0A0E2E]">
-                  Panduan Lengkap Side Job {calculatedResult.topMatches[0].name}
-                </h4>
-                <p className="text-[12px] text-[#475569] mt-1 mb-3">
-                  Dapatkan blueprint langkah kerja, template proposal klien, dan cara mulai menghasilkan dari rumah.
-                </p>
-                <a
-                  href={normalizeLynkUrl(calculatedResult.topMatches[0].linkPanduan)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full py-2.5 rounded-xl bg-[#0074FC] hover:bg-[#0060D1] text-white text-[13px] font-bold inline-flex items-center justify-center gap-1.5 transition-colors shadow-xs"
-                >
-                  <span>Buka Panduan</span>
-                  <ExternalLink size={14} />
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── MODAL: PRODUCT DETAIL ── */}
-      {selectedProductDetail && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 animate-fadeIn">
-          <div className="w-full max-w-[440px] bg-white rounded-t-[28px] sm:rounded-[28px] p-5 flex flex-col shadow-2xl">
-            <div className="flex items-center justify-between pb-3 border-b border-[#EDEFF3]">
-              <span className="bg-[var(--lav-tag)] text-[var(--color-ink-soft)] text-[11.5px] font-[600] px-[10px] py-[3px] rounded-full inline-block">{selectedProductDetail.category}</span>
-              <button
-                onClick={() => setSelectedProductDetail(null)}
-                className="w-8 h-8 rounded-full bg-[#F1F3F7] flex items-center justify-center text-[#0A0E2E]"
-              >
-                <X size={18} />
-              </button>
-            </div>
-
-            <div className="my-4 flex items-center gap-4">
-              {selectedProductDetail.imageUrl ? (
-                <div className="w-[80px] h-[80px] rounded-[16px] overflow-hidden flex-shrink-0 bg-slate-100 border border-slate-200 shadow-sm">
-                  <img
-                    src={selectedProductDetail.imageUrl}
-                    alt={selectedProductDetail.title}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              ) : (
-                <ProductCover3D type={selectedProductDetail.type || 'digital'} />
-              )}
-              <div>
-                <h3 className="text-[16px] font-bold text-[#0A0E2E] leading-snug">
-                  {selectedProductDetail.title}
-                </h3>
-                {selectedProductDetail.badge && (
-                  <span className="text-[12px] font-bold text-[#0074FC] bg-[#EFF6FF] px-2.5 py-0.5 rounded-full inline-block mt-2">
-                    {selectedProductDetail.badge}
-                  </span>
-                )}
-              </div>
-            </div>
-
-            {selectedProductDetail.desc ? (
-              <p className="text-[13.5px] text-[#3A4160] leading-relaxed mb-5">
-                {selectedProductDetail.desc}
-              </p>
-            ) : null}
-
-            <a
-              href={normalizeLynkUrl(selectedProductDetail.url)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-[var(--color-primary)] text-white rounded-[999px] h-[52px] inline-flex items-center justify-center font-[700] text-[15px] w-full shadow-[0_6px_16px_rgba(0,116,252,0.28)] transition-all duration-200 ease-[cubic-bezier(0.2,0.8,0.2,1)] hover:bg-[var(--color-primary-hover)] hover:-translate-y-[1px] hover:shadow-[0_8px_20px_rgba(0,116,252,0.36)] disabled:opacity-55 disabled:cursor-not-allowed disabled:shadow-none text-[14.5px] gap-2"
-            >
-              <span>Buka Panduan</span>
-              <ExternalLink size={16} />
-            </a>
-          </div>
-        </div>
-      )}
-
-      {/* ── BOTTOM NAVIGATION (Fixed 4 tabs) ── */}
-      <nav
-        className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] h-[64px] bg-white border-t border-[var(--color-border-soft)] flex items-center justify-around px-[8px] py-[2px] pb-[calc(2px+env(safe-area-inset-bottom))] z-[100]"
-        style={{ zIndex: 100 }}
-      >
-        {/* Tab 1: Beranda */}
-        <button
-          type="button"
-          onClick={() => switchTab('beranda')}
-          className={`flex flex-col items-center justify-center gap-[3px] px-[12px] py-[6px] transition-colors duration-[180ms] min-w-[60px] ${currentTab === 'beranda' ? 'text-[var(--color-primary)]' : 'text-[var(--nav-inactive)]'}`}
-        >
-          <Home
-            size={22}
-            strokeWidth={currentTab === 'beranda' ? 2.5 : 2}
-            fill={currentTab === 'beranda' ? '#0074FC' : 'none'}
-          />
-          <span className="text-[11px] font-[600] leading-none">Beranda</span>
-        </button>
-
-        {/* Tab 2: Hasil */}
-        <button
-          type="button"
-          onClick={() => switchTab('hasil')}
-          className={`flex flex-col items-center justify-center gap-[3px] px-[12px] py-[6px] transition-colors duration-[180ms] min-w-[60px] ${currentTab === 'hasil' ? 'text-[var(--color-primary)]' : 'text-[var(--nav-inactive)]'}`}
-        >
-          <FileText
-            size={22}
-            strokeWidth={currentTab === 'hasil' ? 2.5 : 2}
-            fill={currentTab === 'hasil' ? '#0074FC' : 'none'}
-          />
-          <span className="text-[11px] font-[600] leading-none">Hasil</span>
-        </button>
-
-        {/* Tab 3: Rekomendasi */}
-        <button
-          type="button"
-          onClick={() => switchTab('rekomendasi')}
-          className={`flex flex-col items-center justify-center gap-[3px] px-[12px] py-[6px] transition-colors duration-[180ms] min-w-[60px] ${currentTab === 'rekomendasi' ? 'text-[var(--color-primary)]' : 'text-[var(--nav-inactive)]'}`}
-        >
-          <ShoppingBag
-            size={22}
-            strokeWidth={currentTab === 'rekomendasi' ? 2.5 : 2}
-            fill={currentTab === 'rekomendasi' ? '#0074FC' : 'none'}
-          />
-          <span className="text-[11px] font-[600] leading-none">Rekomendasi</span>
-        </button>
-
-        {/* Tab 4: Akun */}
-        <button
-          type="button"
-          onClick={() => switchTab('akun')}
-          className={`flex flex-col items-center justify-center gap-[3px] px-[12px] py-[6px] transition-colors duration-[180ms] min-w-[60px] ${currentTab === 'akun' ? 'text-[var(--color-primary)]' : 'text-[var(--nav-inactive)]'}`}
-        >
-          <User
-            size={22}
-            strokeWidth={currentTab === 'akun' ? 2.5 : 2}
-            fill={currentTab === 'akun' ? '#0074FC' : 'none'}
-          />
-          <span className="text-[11px] font-[600] leading-none">Akun</span>
-        </button>
-      </nav>
-    </div>
-  );
+                );
 }

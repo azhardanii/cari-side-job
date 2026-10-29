@@ -6,7 +6,7 @@ import {
   ShareGraphicParams,
   renderStoryGraphicCanvas,
   downloadStoryGraphic,
-  getJobIllustrationSvg,
+  getSideJobGraphicUrl,
 } from '@/lib/shareGraphic';
 
 interface ShareGraphicCardProps {
@@ -19,6 +19,11 @@ export function ShareGraphicCard({ params, onShareWhatsApp }: ShareGraphicCardPr
   const [isFullscreenOpen, setIsFullscreenOpen] = useState(false);
   const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
   const [hasCopiedToast, setHasCopiedToast] = useState(false);
+
+  // Invalidate cached preview when lead/matches change
+  React.useEffect(() => {
+    setPreviewImageUrl(null);
+  }, [params.leadName, params.gender, params.personaName, params.topMatches]);
 
   // Lazy render the high-res canvas when opening fullscreen or sharing
   const handleOpenFullscreen = async () => {
@@ -154,15 +159,16 @@ export function ShareGraphicCard({ params, onShareWhatsApp }: ShareGraphicCardPr
           {/* Match 1 */}
           <div className="flex items-center gap-2">
             {/* 3D Sphere 1 */}
-            <div className="w-[52px] h-[52px] rounded-full relative flex-shrink-0 flex items-center justify-center p-1 shadow-sm overflow-hidden border border-white/90"
+            <div className="w-[54px] h-[54px] rounded-full relative flex-shrink-0 flex items-center justify-center p-1 shadow-sm overflow-hidden border border-white/90"
               style={{
                 background: 'radial-gradient(circle at 30% 30%, #FFFFFF 0%, #EDF5FF 45%, #D4E7FE 90%, #BED8FC 100%)',
                 boxShadow: '0 4px 10px rgba(10, 30, 80, 0.12)',
               }}
             >
-              <div
-                className="w-full h-full"
-                dangerouslySetInnerHTML={{ __html: getJobIllustrationSvg(m1.id, m1.name) }}
+              <img
+                src={getSideJobGraphicUrl(m1.id || m1.name, params.gender)}
+                alt={m1.name}
+                className="w-full h-full object-contain pointer-events-none drop-shadow-xs"
               />
               {/* Glass sheen highlight */}
               <div className="absolute top-0.5 left-1 w-6 h-3 rounded-full bg-white/70 -rotate-45 pointer-events-none blur-[0.5px]" />
@@ -190,15 +196,16 @@ export function ShareGraphicCard({ params, onShareWhatsApp }: ShareGraphicCardPr
               </div>
             </div>
             {/* 3D Sphere 2 */}
-            <div className="w-[46px] h-[46px] rounded-full relative flex-shrink-0 flex items-center justify-center p-1 shadow-sm overflow-hidden border border-white/90"
+            <div className="w-[48px] h-[48px] rounded-full relative flex-shrink-0 flex items-center justify-center p-1 shadow-sm overflow-hidden border border-white/90"
               style={{
                 background: 'radial-gradient(circle at 30% 30%, #FFFFFF 0%, #EDF5FF 45%, #D4E7FE 90%, #BED8FC 100%)',
                 boxShadow: '0 4px 10px rgba(10, 30, 80, 0.12)',
               }}
             >
-              <div
-                className="w-full h-full"
-                dangerouslySetInnerHTML={{ __html: getJobIllustrationSvg(m2.id, m2.name) }}
+              <img
+                src={getSideJobGraphicUrl(m2.id || m2.name, params.gender)}
+                alt={m2.name}
+                className="w-full h-full object-contain pointer-events-none drop-shadow-xs"
               />
               <div className="absolute top-0.5 left-1 w-5 h-2.5 rounded-full bg-white/70 -rotate-45 pointer-events-none blur-[0.5px]" />
             </div>
@@ -207,15 +214,16 @@ export function ShareGraphicCard({ params, onShareWhatsApp }: ShareGraphicCardPr
           {/* Match 3 (Zig-zag left) */}
           <div className="flex items-center gap-2">
             {/* 3D Sphere 3 */}
-            <div className="w-[38px] h-[38px] rounded-full relative flex-shrink-0 flex items-center justify-center p-0.5 shadow-sm overflow-hidden border border-white/90"
+            <div className="w-[42px] h-[42px] rounded-full relative flex-shrink-0 flex items-center justify-center p-0.5 shadow-sm overflow-hidden border border-white/90"
               style={{
                 background: 'radial-gradient(circle at 30% 30%, #FFFFFF 0%, #EDF5FF 45%, #D4E7FE 90%, #BED8FC 100%)',
                 boxShadow: '0 4px 10px rgba(10, 30, 80, 0.12)',
               }}
             >
-              <div
-                className="w-full h-full"
-                dangerouslySetInnerHTML={{ __html: getJobIllustrationSvg(m3.id, m3.name) }}
+              <img
+                src={getSideJobGraphicUrl(m3.id || m3.name, params.gender)}
+                alt={m3.name}
+                className="w-full h-full object-contain pointer-events-none drop-shadow-xs"
               />
               <div className="absolute top-0.5 left-0.5 w-4 h-2 rounded-full bg-white/70 -rotate-45 pointer-events-none blur-[0.5px]" />
             </div>

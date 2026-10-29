@@ -11,6 +11,7 @@
 
 export interface ShareGraphicParams {
   leadName: string;
+  gender?: string;
   personaName: string;
   personaTagline: string;
   topMatches: Array<{
@@ -19,6 +20,79 @@ export interface ShareGraphicParams {
     matchPercent: number;
     kategori?: string;
   }>;
+}
+
+/**
+ * Maps sidejob ID or name and gender to the graphic asset file path in /assets/sidejobs/
+ */
+export function getSideJobGraphicUrl(jobIdOrName: string, gender?: string): string {
+  const isCewek = (gender || '').toLowerCase() === 'cewek';
+  const cleanKey = (jobIdOrName || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '');
+
+  if (cleanKey.includes('admin') && !cleanKey.includes('data')) {
+    return isCewek ? '/assets/sidejobs/admin-cewek.webp' : '/assets/sidejobs/admin-cowok.webp';
+  }
+  if (cleanKey.includes('apptest')) {
+    return isCewek ? '/assets/sidejobs/apptester-cewek.webp' : '/assets/sidejobs/apptester-cowok.webp';
+  }
+  if (cleanKey.includes('webtest')) {
+    return isCewek ? '/assets/sidejobs/webtester-cewek.webp' : '/assets/sidejobs/webtester-cowok.webp';
+  }
+  if (cleanKey.includes('copywrit')) {
+    return isCewek ? '/assets/sidejobs/copywriter-cewek.webp' : '/assets/sidejobs/copywriter-cowok.webp';
+  }
+  if (cleanKey.includes('custom') || cleanKey.includes('cs') || cleanKey.includes('support')) {
+    return isCewek ? '/assets/sidejobs/cs-cewek.webp' : '/assets/sidejobs/cs-cowok.webp';
+  }
+  if (cleanKey.includes('dataentry') || cleanKey.includes('data') || cleanKey.includes('entry')) {
+    return isCewek ? '/assets/sidejobs/dataentry-cewek.webp' : '/assets/sidejobs/dataentry-cowok.webp';
+  }
+  if (cleanKey.includes('email')) {
+    return isCewek ? '/assets/sidejobs/emailmarketer-cewek.webp' : '/assets/sidejobs/emailmarketer-cowok.webp';
+  }
+  if (cleanKey.includes('graphic') || cleanKey.includes('desain') || cleanKey.includes('design')) {
+    return isCewek ? '/assets/sidejobs/graphicdesigner-cewek.webp' : '/assets/sidejobs/graphicdesigner-cowok.webp';
+  }
+  if (cleanKey.includes('influencer') || cleanKey.includes('outreach') || cleanKey.includes('kol')) {
+    return isCewek ? '/assets/sidejobs/influenceroutreach-cewek.webp' : '/assets/sidejobs/influenceroutreach-cowok.webp';
+  }
+  if (cleanKey.includes('jasaketik') || cleanKey.includes('ketik')) {
+    return isCewek ? '/assets/sidejobs/jasaketik-cewek.webp' : '/assets/sidejobs/jasaketik-cowok.webp';
+  }
+  if (cleanKey.includes('micro') || cleanKey.includes('task')) {
+    return isCewek ? '/assets/sidejobs/microtask-cewek.webp' : '/assets/sidejobs/microtask-cowok.webp';
+  }
+  if (cleanKey.includes('buku') || cleanKey.includes('book') || cleanKey.includes('reviewbuku')) {
+    return isCewek ? '/assets/sidejobs/reviewbuku-cewek.webp' : '/assets/sidejobs/reviewbuku-cowok.webp';
+  }
+  if (cleanKey.includes('seo')) {
+    return isCewek ? '/assets/sidejobs/seo-cewek.webp' : '/assets/sidejobs/seo-cowok.webp';
+  }
+  if (cleanKey.includes('social') || cleanKey.includes('sosial') || cleanKey.includes('medsos')) {
+    return isCewek ? '/assets/sidejobs/sosialmedia-cewek.webp' : '/assets/sidejobs/socialmedia-cowok.webp';
+  }
+  if (cleanKey.includes('transcription') || cleanKey.includes('transkrip')) {
+    return isCewek ? '/assets/sidejobs/transcription-cewek.webp' : '/assets/sidejobs/transcription-cowok.webp';
+  }
+  if (cleanKey.includes('translat') || cleanKey.includes('terjemah')) {
+    return isCewek ? '/assets/sidejobs/translator-cewek.webp' : '/assets/sidejobs/translator-cowok.webp';
+  }
+  if (cleanKey.includes('tutor') || cleanKey.includes('guru') || cleanKey.includes('ajar')) {
+    return isCewek ? '/assets/sidejobs/tutor-cewek.webp' : '/assets/sidejobs/tutor-cowok.webp';
+  }
+  if (cleanKey.includes('video') || cleanKey.includes('vidwo') || cleanKey.includes('edit')) {
+    return isCewek ? '/assets/sidejobs/vidwoeditor-cewek.webp' : '/assets/sidejobs/videoeditor-cowok.webp';
+  }
+  if (cleanKey.includes('voice') || cleanKey.includes('vo') || cleanKey.includes('suara')) {
+    return isCewek ? '/assets/sidejobs/vo-cewek.webp' : '/assets/sidejobs/vo-cowok.webp';
+  }
+  if (cleanKey.includes('va') || cleanKey.includes('virtual')) {
+    return isCewek ? '/assets/sidejobs/va-cewek.webp' : '/assets/sidejobs/va-cowok.webp';
+  }
+
+  return isCewek ? '/assets/sidejobs/va-cewek.webp' : '/assets/sidejobs/va-cowok.webp';
 }
 
 /**
@@ -437,9 +511,11 @@ export function drawGlassSphere(
   if (artworkImg) {
     ctx.save();
     ctx.beginPath();
-    ctx.arc(cx, cy, r * 0.88, 0, Math.PI * 2);
+    // Clip cleanly inside the glass sphere rim
+    ctx.arc(cx, cy, r * 0.92, 0, Math.PI * 2);
     ctx.clip();
-    const artSize = r * 1.76;
+    // Size proportionally to fit the bubble area with ~85% visible character diameter
+    const artSize = r * 1.88;
     ctx.drawImage(artworkImg, cx - artSize / 2, cy - artSize / 2, artSize, artSize);
     ctx.restore();
   }
@@ -692,11 +768,19 @@ export async function renderStoryGraphicCanvas(params: ShareGraphicParams): Prom
   const m2 = matches[1] || { id: 'videoeditor', name: 'Video Editor', matchPercent: 82 };
   const m3 = matches[2] || { id: 'copywriter', name: 'Copywriter', matchPercent: 75 };
 
-  // Pre-load artworks as SVG images in parallel
+  const userGender = params.gender || 'cowok';
+  const url1 = getSideJobGraphicUrl(m1.id || m1.name, userGender);
+  const url2 = getSideJobGraphicUrl(m2.id || m2.name, userGender);
+  const url3 = getSideJobGraphicUrl(m3.id || m3.name, userGender);
+
+  const fallbackSvg = (id: string, name: string) =>
+    loadImage('data:image/svg+xml;charset=utf-8,' + encodeURIComponent(getJobIllustrationSvg(id, name))).catch(() => null);
+
+  // Pre-load artworks as WebP graphic images with SVG fallback in parallel
   const [art1, art2, art3] = await Promise.all([
-    loadImage('data:image/svg+xml;charset=utf-8,' + encodeURIComponent(getJobIllustrationSvg(m1.id, m1.name))).catch(() => null),
-    loadImage('data:image/svg+xml;charset=utf-8,' + encodeURIComponent(getJobIllustrationSvg(m2.id, m2.name))).catch(() => null),
-    loadImage('data:image/svg+xml;charset=utf-8,' + encodeURIComponent(getJobIllustrationSvg(m3.id, m3.name))).catch(() => null),
+    loadImage(url1).catch(() => fallbackSvg(m1.id, m1.name)),
+    loadImage(url2).catch(() => fallbackSvg(m2.id, m2.name)),
+    loadImage(url3).catch(() => fallbackSvg(m3.id, m3.name)),
   ]);
 
   // ── SPHERE 1 (TOP MATCH): Left side, Large

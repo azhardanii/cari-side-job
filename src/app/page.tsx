@@ -403,6 +403,7 @@ export default function HomePage() {
     try {
       const canvas = await renderStoryGraphicCanvas({
         leadName: leadData.name || 'Sobat',
+        gender: leadData.gender,
         personaName: calculatedResult.persona.name,
         personaTagline: calculatedResult.persona.tagline,
         topMatches: calculatedResult.topMatches.map((m) => ({
@@ -1372,6 +1373,7 @@ export default function HomePage() {
                 <ShareGraphicCard
                   params={{
                     leadName: leadData.name || 'Sobat',
+                    gender: leadData.gender,
                     personaName: calculatedResult.persona.name,
                     personaTagline: calculatedResult.persona.tagline,
                     topMatches: calculatedResult.topMatches.map((m) => ({

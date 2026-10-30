@@ -2104,7 +2104,7 @@ export const REMOTE_JOBS_DB: RemoteJobItem[] = [
       "Admin"
     ],
     "description": "Membantu verifikasi dan input data merchant ke spreadsheet. Fleksibel, butuh ketelitian tinggi dan kemampuan formula dasar Excel.",
-    "applyUrl": "https://wa.me/628123456789?text=Halo%20saya%20tertarik%20melamar%20posisi%20Data%20Entry%20Remote"
+    "applyUrl": "https://wa.me/6287892660836?text=Halo%20saya%20tertarik%20melamar%20posisi%20Data%20Entry%20Remote"
   },
   {
     "id": "job-2",
@@ -2122,7 +2122,7 @@ export const REMOTE_JOBS_DB: RemoteJobItem[] = [
       "English"
     ],
     "description": "Mendampingi founder dalam mengelola jadwal meeting, koordinasi email klien, riset tren produk, dan administrasi ringan. Waktu kerja 4 jam per hari.",
-    "applyUrl": "https://wa.me/628123456789?text=Halo%20saya%20tertarik%20melamar%20posisi%20Virtual%20Assistant%20Remote"
+    "applyUrl": "https://wa.me/6287892660836?text=Halo%20saya%20tertarik%20melamar%20posisi%20Virtual%20Assistant%20Remote"
   },
   {
     "id": "job-3",
@@ -2140,7 +2140,7 @@ export const REMOTE_JOBS_DB: RemoteJobItem[] = [
       "Premiere"
     ],
     "description": "Dibutuhkan video editor kreatif untuk mengolah rekaman podcast dan edukasi bisnis menjadi 20-30 video pendek viral setiap bulan dengan sound effects dan subtitle dinamis.",
-    "applyUrl": "https://wa.me/628123456789?text=Halo%20saya%20tertarik%20melamar%20posisi%20Video%20Editor%20Remote"
+    "applyUrl": "https://wa.me/6287892660836?text=Halo%20saya%20tertarik%20melamar%20posisi%20Video%20Editor%20Remote"
   },
   {
     "id": "job-4",
@@ -2158,7 +2158,7 @@ export const REMOTE_JOBS_DB: RemoteJobItem[] = [
       "Instagram"
     ],
     "description": "Menyusun content calendar bulanan, membuat brief desain grafis di Canva, dan menulis caption menarik untuk 2 brand consumer goods lokal.",
-    "applyUrl": "https://wa.me/628123456789?text=Halo%20saya%20tertarik%20melamar%20posisi%20Social%20Media%20Remote"
+    "applyUrl": "https://wa.me/6287892660836?text=Halo%20saya%20tertarik%20melamar%20posisi%20Social%20Media%20Remote"
   },
   {
     "id": "job-5",
@@ -2176,7 +2176,7 @@ export const REMOTE_JOBS_DB: RemoteJobItem[] = [
       "Content Writing"
     ],
     "description": "Menulis naskah video iklan promosi TikTok, email broadcast, dan artikel ulasan produk edukasi. Fleksibel, bisa disesuaikan dengan jadwal perkuliahan.",
-    "applyUrl": "https://wa.me/628123456789?text=Halo%20saya%20tertarik%20melamar%20posisi%20Copywriter%20Remote"
+    "applyUrl": "https://wa.me/6287892660836?text=Halo%20saya%20tertarik%20melamar%20posisi%20Copywriter%20Remote"
   },
   {
     "id": "job-6",
@@ -2194,7 +2194,7 @@ export const REMOTE_JOBS_DB: RemoteJobItem[] = [
       "Live Chat"
     ],
     "description": "Melayani chat pertanyaan pengguna aplikasi, membantu aktivasi akun, dan mencatat feedback sistem. Diberikan training lengkap sebelum onboarding.",
-    "applyUrl": "https://wa.me/628123456789?text=Halo%20saya%20tertarik%20melamar%20posisi%20Customer%20Support%20Remote"
+    "applyUrl": "https://wa.me/6287892660836?text=Halo%20saya%20tertarik%20melamar%20posisi%20Customer%20Support%20Remote"
   },
   {
     "id": "job-7",
@@ -2212,7 +2212,7 @@ export const REMOTE_JOBS_DB: RemoteJobItem[] = [
       "WhatsApp"
     ],
     "description": "Merekap orderan marketplace harian, koordinasi nomor resi pengiriman, dan mengecek ketersediaan stok barang melalui spreadsheet bersama tim gudang.",
-    "applyUrl": "https://wa.me/628123456789?text=Halo%20saya%20tertarik%20melamar%20posisi%20Admin%20Online%20Remote"
+    "applyUrl": "https://wa.me/6287892660836?text=Halo%20saya%20tertarik%20melamar%20posisi%20Admin%20Online%20Remote"
   },
   {
     "id": "job-8",
@@ -2230,7 +2230,7 @@ export const REMOTE_JOBS_DB: RemoteJobItem[] = [
       "Branding"
     ],
     "description": "Membuat template feed carousel dan banner promosi mingguan untuk klien F&B dan fashion. Disediakan asset foto dan brand guidelines lengkap.",
-    "applyUrl": "https://wa.me/628123456789?text=Halo%20saya%20tertarik%20melamar%20posisi%20Graphic%20Designer%20Remote"
+    "applyUrl": "https://wa.me/6287892660836?text=Halo%20saya%20tertarik%20melamar%20posisi%20Graphic%20Designer%20Remote"
   },
   {
     "id": "job-9",
@@ -2248,7 +2248,7 @@ export const REMOTE_JOBS_DB: RemoteJobItem[] = [
       "Audio"
     ],
     "description": "Mendengarkan rekaman wawancara dan menyusun naskah transkrip rapi sesuai standar clean verbatim. Bebas ambil proyek sesuai kuota waktu luang.",
-    "applyUrl": "https://wa.me/628123456789?text=Halo%20saya%20tertarik%20melamar%20posisi%20Transkripsi%20Remote"
+    "applyUrl": "https://wa.me/6287892660836?text=Halo%20saya%20tertarik%20melamar%20posisi%20Transkripsi%20Remote"
   },
   {
     "id": "job-10",
@@ -2266,7 +2266,7 @@ export const REMOTE_JOBS_DB: RemoteJobItem[] = [
       "iOS"
     ],
     "description": "Mencoba fitur baru pada aplikasi belanja dan fintech sebelum rilis. Menuliskan laporan langkah demi langkah jika menemukan kendala error atau tampilan janggal.",
-    "applyUrl": "https://wa.me/628123456789?text=Halo%20saya%20tertarik%20melamar%20posisi%20App%20Tester%20Remote"
+    "applyUrl": "https://wa.me/6287892660836?text=Halo%20saya%20tertarik%20melamar%20posisi%20App%20Tester%20Remote"
   },
   {
     "id": "job-11",
@@ -2284,7 +2284,7 @@ export const REMOTE_JOBS_DB: RemoteJobItem[] = [
       "Storytelling"
     ],
     "description": "Membacakan naskah edukasi perbankan dan konten iklan digital berdurasi 1-3 menit dengan artikulasi ramah, jelas, dan kualitas audio bebas noise.",
-    "applyUrl": "https://wa.me/628123456789?text=Halo%20saya%20tertarik%20melamar%20posisi%20Voice%20Over%20Remote"
+    "applyUrl": "https://wa.me/6287892660836?text=Halo%20saya%20tertarik%20melamar%20posisi%20Voice%20Over%20Remote"
   },
   {
     "id": "job-12",
@@ -2302,7 +2302,7 @@ export const REMOTE_JOBS_DB: RemoteJobItem[] = [
       "Google Docs"
     ],
     "description": "Melakukan riset keyword dan optimasi artikel blog agar menduduki peringkat satu di Google. Laporan bulanan traffic dan backlink.",
-    "applyUrl": "https://wa.me/628123456789?text=Halo%20saya%20tertarik%20melamar%20posisi%20SEO%20Remote"
+    "applyUrl": "https://wa.me/6287892660836?text=Halo%20saya%20tertarik%20melamar%20posisi%20SEO%20Remote"
   }
 ];
 

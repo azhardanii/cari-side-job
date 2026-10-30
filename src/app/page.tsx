@@ -55,7 +55,6 @@ import {
   Bell,
   RotateCcw,
   Layers,
-  Settings,
   LogOut,
   X,
   FileCheck,
@@ -622,12 +621,6 @@ export default function HomePage() {
             </button>
             <h2 className="text-[18px] font-[700] leading-[1.35] text-[var(--color-ink)] tracking-[-0.015em]">Akun Saya</h2>
           </div>
-          <Link
-            href="/admin"
-            className="text-[12px] font-bold text-[#0074FC] bg-[#E1EDFD] px-3 py-1.5 rounded-full"
-          >
-            Admin ⚙️
-          </Link>
         </header>
       ) : (
         // Standard Header (Wordmark Logo + Avatar Button)
@@ -1727,10 +1720,10 @@ export default function HomePage() {
                         </div>
                         <div className="bg-white rounded-[16px] border border-[#EDEFF3] overflow-hidden">
                           <a
-                            href="https://wa.me/6281234567890?text=Halo%20Admin%20CariSideJob"
+                            href="https://wa.me/6287892660836?text=Halo%20Admin%20CariSideJob"
                             target="_blank"
                             rel="noreferrer"
-                            className="w-full p-4 flex items-center justify-between hover:bg-[#F8FAFD] transition-colors border-b border-[#EDEFF3]"
+                            className="w-full p-4 flex items-center justify-between hover:bg-[#F8FAFD] transition-colors"
                           >
                             <div className="flex items-center gap-3">
                               <div className="w-9 h-9 rounded-xl bg-[#DDF8EF] text-[#00AE66] flex items-center justify-center">
@@ -1747,26 +1740,6 @@ export default function HomePage() {
                             </div>
                             <ChevronRight size={18} className="text-[#98A2B3]" />
                           </a>
-
-                          <Link
-                            href="/admin"
-                            className="w-full p-4 flex items-center justify-between hover:bg-[#F8FAFD] transition-colors"
-                          >
-                            <div className="flex items-center gap-3">
-                              <div className="w-9 h-9 rounded-xl bg-[#EDEDFD] text-[#3E37F9] flex items-center justify-center">
-                                <Settings size={18} />
-                              </div>
-                              <div className="text-left">
-                                <div className="text-[14.5px] font-bold text-[#0A0E2E]">
-                                  Dashboard Admin Owner
-                                </div>
-                                <div className="text-[12px] text-[#98A2B3]">
-                                  Kelola leads dan statistik konversi
-                                </div>
-                              </div>
-                            </div>
-                            <ChevronRight size={18} className="text-[#98A2B3]" />
-                          </Link>
                         </div>
                       </div>
 

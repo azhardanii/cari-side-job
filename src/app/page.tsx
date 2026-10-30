@@ -470,7 +470,7 @@ export default function HomePage() {
 
   // Curated skills from 10 skills per side job in All Data.html
   const allMasterSkills = Array.from(new Set(MASTER_SKILLS_LIST.map((s) => toTitleCase(s.name))));
-  const defaultTools = MASTER_TOOLS_LIST.map((t) => t.name);
+  const defaultTools = Array.from(new Set(MASTER_TOOLS_LIST.map((t) => toTitleCase(t.name))));
 
   // Work styles
   const workStylesList = [
@@ -557,11 +557,12 @@ export default function HomePage() {
     });
   };
 
-  const toggleTool = (tool: string) => {
+  const toggleTool = (rawTool: string) => {
+    const tool = toTitleCase(rawTool);
     setUserAnswers((prev) => {
-      const exists = prev.tools.includes(tool);
+      const exists = prev.tools.some((t) => t.toLowerCase() === tool.toLowerCase());
       if (exists) {
-        return { ...prev, tools: prev.tools.filter((t) => t !== tool) };
+        return { ...prev, tools: prev.tools.filter((t) => t.toLowerCase() !== tool.toLowerCase()) };
       } else {
         if (prev.tools.length >= 10) return prev;
         return { ...prev, tools: [...prev.tools, tool] };

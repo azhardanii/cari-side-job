@@ -130,9 +130,11 @@ export function toTitleCase(str: string): string {
     .map((word) => {
       if (!word) return '';
       const upper = word.toUpperCase();
-      if (['SEO', 'UI', 'UX', 'UI/UX', 'AI', 'HTML', 'CSS', 'WPM', 'SOP', 'CRM', 'ROI', 'KOL', 'CAT', 'OCR', 'QA'].includes(upper)) {
+      if (['SEO', 'UI', 'UX', 'UI/UX', 'AI', 'HTML', 'CSS', 'WPM', 'SOP', 'CRM', 'ROI', 'KOL', 'CAT', 'OCR', 'QA', 'A/B'].includes(upper)) {
         return upper;
       }
+      if (word.toLowerCase() === 'android/ios') return 'Android/iOS';
+      if (word.toLowerCase() === 'otter.ai') return 'Otter.ai';
       if (word.includes('-')) {
         return word
           .split('-')
@@ -163,12 +165,12 @@ export const SIDE_JOBS_DB: Record<string, SideJob> = {
     tingkatKesulitan: "Menengah",
     keperluanEnglish: 4,
     deskripsi: "Membantu pekerjaan administratif, riset, komunikasi, dan operasional bisnis secara remote.",
-    skills: ["Administrasi", "komunikasi", "manajemen waktu", "riset", "data entry", "customer service", "organisasi", "problem solving", "Google Workspace", "attention to detail"],
-    skillWeights: {"Administrasi": 5, "komunikasi": 5, "manajemen waktu": 5, "riset": 4, "data entry": 4, "customer service": 4, "organisasi": 5, "problem solving": 4, "Google Workspace": 5, "attention to detail": 5},
+    skills: ["Administration", "communication", "time management", "research", "data entry", "customer service", "organization", "problem solving", "Google Workspace", "attention to detail"],
+    skillWeights: {"Administration": 5, "communication": 5, "time management": 5, "research": 4, "data entry": 4, "customer service": 4, "organization": 5, "problem solving": 4, "Google Workspace": 5, "attention to detail": 5},
     tools: ["Google Workspace", "Microsoft Office", "Notion", "Slack", "Trello", "Zoom"],
     linkPanduan: "https://lynk.id/adithdigital/rwx8jwnp9gev",
     potentialProducts: ["Template VA", "eBook VA", "Template Notion", "Spreadsheet Template", "Kursus VA"],
-    why: ["Karakter dan gayamu sangat selaras dengan ritme kerja Virtual Assistant.", "Skill esensial seperti Administrasi, komunikasi, manajemen waktu sangat dicari di industri saat ini.", "Peluang kerja remote dan fleksibilitas jam kerja terbuka luas untuk bidang ini."],
+    why: ["Karakter dan gayamu sangat selaras dengan ritme kerja Virtual Assistant.", "Skill esensial seperti Administration, communication, time management sangat dicari di industri saat ini.", "Peluang kerja remote dan fleksibilitas jam kerja terbuka luas untuk bidang ini."],
     roadmap: [{"step": 1, "title": "Pilih Niche VA", "desc": "Tentukan spesialisasi: General Admin VA, Social Media VA, atau Customer Support VA."}, {"step": 2, "title": "Susun Notion Portofolio", "desc": "Buat rangkuman skill tools dan contoh pengorganisasian tugas di halaman Notion publik."}, {"step": 3, "title": "Kuasai Tools Kolaborasi", "desc": "Latih penggunaan Google Calendar, Slack, Trello, dan komunikasi asinkron via Loom."}, {"step": 4, "title": "Lamar Klien Pertama", "desc": "Apply di platform freelance atau tawarkan bantuan administratif ke pebisnis online."}],
     products: [{"title": "Panduan Lengkap Side Job Virtual Assistant", "desc": "Langkah demi langkah memulai Virtual Assistant dari nol, trik closing klien, dan template kerja siap pakai.", "price": "Rp 79.000", "badge": "Panduan Resmi", "url": "https://lynk.id/adithdigital/rwx8jwnp9gev", "category": "Ebook", "sideJob": "Virtual Assistant", "isPublished": true}]
   },
@@ -450,7 +452,7 @@ export const SIDE_JOBS_DB: Record<string, SideJob> = {
     deskripsi: "Menawarkan jasa mengetik ulang dokumen, catatan, PDF, gambar, atau tulisan menjadi dokumen digital.",
     skills: ["Typing", "accuracy", "formatting", "proofreading", "attention to detail", "document management", "grammar", "time management", "organization", "computer skills"],
     skillWeights: {"Typing": 5, "accuracy": 5, "formatting": 5, "proofreading": 4, "attention to detail": 5, "document management": 4, "grammar": 3, "time management": 4, "organization": 4, "computer skills": 5},
-    tools: ["Microsoft Word", "Google Docs", "OCR tools", "Canva"],
+    tools: ["Microsoft Word", "Google Docs", "OCR Tools", "Canva"],
     linkPanduan: "https://lynk.id/adithdigital/opg1112xqr61",
     potentialProducts: ["Template Dokumen", "Formatting Template", "Typing Guide", "Productivity Template"],
     why: ["Karakter dan gayamu sangat selaras dengan ritme kerja Jasa Ketik.", "Skill esensial seperti Typing, accuracy, formatting sangat dicari di industri saat ini.", "Peluang kerja remote dan fleksibilitas jam kerja terbuka luas untuk bidang ini."],
@@ -469,7 +471,7 @@ export const SIDE_JOBS_DB: Record<string, SideJob> = {
     deskripsi: "Menyelesaikan pekerjaan kecil secara online seperti data labeling, categorization, research, survey, atau verification.",
     skills: ["Attention to detail", "accuracy", "data entry", "research", "typing", "categorization", "following instructions", "time management", "basic computer skills", "consistency"],
     skillWeights: {"Attention to detail": 5, "accuracy": 5, "data entry": 4, "research": 3, "typing": 4, "categorization": 5, "following instructions": 5, "time management": 4, "basic computer skills": 4, "consistency": 5},
-    tools: ["Browser", "Google Sheets", "Excel", "platform microtask", "AI tools"],
+    tools: ["Browser", "Google Sheets", "Excel", "Platform Microtask", "AI Tools"],
     linkPanduan: "https://lynk.id/adithdigital/oq1k7lq963kx",
     potentialProducts: ["Microtask Guide", "Website List", "Productivity Template", "eBook Side Job"],
     why: ["Karakter dan gayamu sangat selaras dengan ritme kerja Micro Task.", "Skill esensial seperti Attention to detail, accuracy, data entry sangat dicari di industri saat ini.", "Peluang kerja remote dan fleksibilitas jam kerja terbuka luas untuk bidang ini."],
@@ -507,7 +509,7 @@ export const SIDE_JOBS_DB: Record<string, SideJob> = {
     deskripsi: "Mengisi suara untuk video, iklan, audiobook, podcast, e-learning, dan berbagai kebutuhan audio.",
     skills: ["Voice control", "pronunciation", "articulation", "acting", "storytelling", "script reading", "audio recording", "emotion", "consistency", "communication"],
     skillWeights: {"Voice control": 5, "pronunciation": 5, "articulation": 5, "acting": 4, "storytelling": 4, "script reading": 5, "audio recording": 4, "emotion": 5, "consistency": 4, "communication": 4},
-    tools: ["Audacity", "Adobe Audition", "CapCut", "microphone", "headphones", "audio interface"],
+    tools: ["Audacity", "Adobe Audition", "CapCut", "Microphone", "Headphones", "Audio Interface"],
     linkPanduan: "https://lynk.id/adithdigital/n53m4qr5d1n5",
     potentialProducts: ["Voice Over Guide", "Script Template", "Audio Preset", "Recording Checklist"],
     why: ["Karakter dan gayamu sangat selaras dengan ritme kerja Voice Over Talent.", "Skill esensial seperti Voice control, pronunciation, articulation sangat dicari di industri saat ini.", "Peluang kerja remote dan fleksibilitas jam kerja terbuka luas untuk bidang ini."],
@@ -548,7 +550,6 @@ export const SKILL_CATEGORY_GROUPS: SkillCategoryGroup[] = [
       "Data Entry",
       "Typing",
       "Spreadsheet",
-      "Administrasi",
       "Administration",
       "Data Organization",
       "Data Validation",
@@ -559,10 +560,10 @@ export const SKILL_CATEGORY_GROUPS: SkillCategoryGroup[] = [
       "Basic Computer Skills",
       "Scheduling",
       "Time Management",
-      "Organisasi",
       "Organization",
       "Following Instructions",
-      "Categorization"
+      "Categorization",
+      "Research"
     ]
   },
   {
@@ -637,7 +638,6 @@ export const SKILL_CATEGORY_GROUPS: SkillCategoryGroup[] = [
     "name": "Komunikasi & Support",
     "icon": "🎧",
     "skills": [
-      "Komunikasi",
       "Communication",
       "Customer Service",
       "Empathy",
@@ -690,26 +690,48 @@ export const SKILL_CATEGORY_GROUPS: SkillCategoryGroup[] = [
 
 export const MASTER_SKILLS_LIST: MasterSkill[] = [
   {
-    "name": "Administrasi",
+    "name": "Administration",
     "sideJobs": [
+      "admin",
       "va"
     ]
   },
   {
-    "name": "komunikasi",
+    "name": "communication",
     "sideJobs": [
+      "admin",
+      "apptester",
+      "customersupport",
+      "influenceroutreach",
+      "reviewbuku",
+      "socialmedia",
+      "tutor",
+      "va",
+      "voiceover",
+      "websitetester"
+    ]
+  },
+  {
+    "name": "time management",
+    "sideJobs": [
+      "admin",
+      "dataentry",
+      "jasaketik",
+      "microtask",
+      "transcription",
       "va"
     ]
   },
   {
-    "name": "manajemen waktu",
+    "name": "research",
     "sideJobs": [
-      "va"
-    ]
-  },
-  {
-    "name": "riset",
-    "sideJobs": [
+      "copywriter",
+      "dataentry",
+      "influenceroutreach",
+      "microtask",
+      "socialmedia",
+      "transcription",
+      "translator",
       "va"
     ]
   },
@@ -729,8 +751,12 @@ export const MASTER_SKILLS_LIST: MasterSkill[] = [
     ]
   },
   {
-    "name": "organisasi",
+    "name": "organization",
     "sideJobs": [
+      "admin",
+      "customersupport",
+      "influenceroutreach",
+      "jasaketik",
       "va"
     ]
   },
@@ -756,6 +782,7 @@ export const MASTER_SKILLS_LIST: MasterSkill[] = [
       "dataentry",
       "graphicdesigner",
       "jasaketik",
+      "microtask",
       "transcription",
       "translator",
       "va",
@@ -833,6 +860,7 @@ export const MASTER_SKILLS_LIST: MasterSkill[] = [
   {
     "name": "copywriting",
     "sideJobs": [
+      "emailmarketer",
       "influenceroutreach",
       "seo",
       "socialmedia"
@@ -850,30 +878,6 @@ export const MASTER_SKILLS_LIST: MasterSkill[] = [
       "emailmarketer",
       "seo",
       "socialmedia"
-    ]
-  },
-  {
-    "name": "communication",
-    "sideJobs": [
-      "admin",
-      "apptester",
-      "reviewbuku",
-      "socialmedia",
-      "tutor",
-      "voiceover",
-      "websitetester"
-    ]
-  },
-  {
-    "name": "research",
-    "sideJobs": [
-      "copywriter",
-      "dataentry",
-      "influenceroutreach",
-      "microtask",
-      "socialmedia",
-      "transcription",
-      "translator"
     ]
   },
   {
@@ -946,8 +950,11 @@ export const MASTER_SKILLS_LIST: MasterSkill[] = [
   {
     "name": "Typing",
     "sideJobs": [
+      "customersupport",
       "dataentry",
-      "jasaketik"
+      "jasaketik",
+      "microtask",
+      "transcription"
     ]
   },
   {
@@ -980,16 +987,6 @@ export const MASTER_SKILLS_LIST: MasterSkill[] = [
     ]
   },
   {
-    "name": "time management",
-    "sideJobs": [
-      "admin",
-      "dataentry",
-      "jasaketik",
-      "microtask",
-      "transcription"
-    ]
-  },
-  {
     "name": "file management",
     "sideJobs": [
       "dataentry"
@@ -1005,7 +1002,9 @@ export const MASTER_SKILLS_LIST: MasterSkill[] = [
   {
     "name": "Writing",
     "sideJobs": [
-      "copywriter"
+      "copywriter",
+      "reviewbuku",
+      "translator"
     ]
   },
   {
@@ -1046,13 +1045,6 @@ export const MASTER_SKILLS_LIST: MasterSkill[] = [
     ]
   },
   {
-    "name": "Communication",
-    "sideJobs": [
-      "customersupport",
-      "influenceroutreach"
-    ]
-  },
-  {
     "name": "empathy",
     "sideJobs": [
       "customersupport",
@@ -1073,14 +1065,6 @@ export const MASTER_SKILLS_LIST: MasterSkill[] = [
     ]
   },
   {
-    "name": "typing",
-    "sideJobs": [
-      "customersupport",
-      "microtask",
-      "transcription"
-    ]
-  },
-  {
     "name": "active listening",
     "sideJobs": [
       "customersupport"
@@ -1090,15 +1074,6 @@ export const MASTER_SKILLS_LIST: MasterSkill[] = [
     "name": "conflict resolution",
     "sideJobs": [
       "customersupport"
-    ]
-  },
-  {
-    "name": "organization",
-    "sideJobs": [
-      "admin",
-      "customersupport",
-      "influenceroutreach",
-      "jasaketik"
     ]
   },
   {
@@ -1147,12 +1122,6 @@ export const MASTER_SKILLS_LIST: MasterSkill[] = [
     "name": "data analysis",
     "sideJobs": [
       "seo"
-    ]
-  },
-  {
-    "name": "Copywriting",
-    "sideJobs": [
-      "emailmarketer"
     ]
   },
   {
@@ -1250,13 +1219,6 @@ export const MASTER_SKILLS_LIST: MasterSkill[] = [
   {
     "name": "vocabulary",
     "sideJobs": [
-      "translator"
-    ]
-  },
-  {
-    "name": "writing",
-    "sideJobs": [
-      "reviewbuku",
       "translator"
     ]
   },
@@ -1365,7 +1327,8 @@ export const MASTER_SKILLS_LIST: MasterSkill[] = [
   {
     "name": "usability testing",
     "sideJobs": [
-      "apptester"
+      "apptester",
+      "websitetester"
     ]
   },
   {
@@ -1386,12 +1349,6 @@ export const MASTER_SKILLS_LIST: MasterSkill[] = [
     "name": "analytical thinking",
     "sideJobs": [
       "apptester",
-      "websitetester"
-    ]
-  },
-  {
-    "name": "Usability testing",
-    "sideJobs": [
       "websitetester"
     ]
   },
@@ -1432,12 +1389,6 @@ export const MASTER_SKILLS_LIST: MasterSkill[] = [
     ]
   },
   {
-    "name": "Attention to detail",
-    "sideJobs": [
-      "microtask"
-    ]
-  },
-  {
     "name": "categorization",
     "sideJobs": [
       "microtask"
@@ -1454,12 +1405,6 @@ export const MASTER_SKILLS_LIST: MasterSkill[] = [
     "sideJobs": [
       "microtask",
       "voiceover"
-    ]
-  },
-  {
-    "name": "Administration",
-    "sideJobs": [
-      "admin"
     ]
   },
   {
@@ -1875,7 +1820,8 @@ export const MASTER_TOOLS_LIST: MasterTool[] = [
   {
     "name": "Headphones",
     "sideJobs": [
-      "transcription"
+      "transcription",
+      "voiceover"
     ]
   },
   {
@@ -1927,7 +1873,7 @@ export const MASTER_TOOLS_LIST: MasterTool[] = [
     ]
   },
   {
-    "name": "OCR tools",
+    "name": "OCR Tools",
     "sideJobs": [
       "jasaketik"
     ]
@@ -1939,13 +1885,13 @@ export const MASTER_TOOLS_LIST: MasterTool[] = [
     ]
   },
   {
-    "name": "platform microtask",
+    "name": "Platform Microtask",
     "sideJobs": [
       "microtask"
     ]
   },
   {
-    "name": "AI tools",
+    "name": "AI Tools",
     "sideJobs": [
       "microtask"
     ]
@@ -1963,19 +1909,13 @@ export const MASTER_TOOLS_LIST: MasterTool[] = [
     ]
   },
   {
-    "name": "microphone",
+    "name": "Microphone",
     "sideJobs": [
       "voiceover"
     ]
   },
   {
-    "name": "headphones",
-    "sideJobs": [
-      "voiceover"
-    ]
-  },
-  {
-    "name": "audio interface",
+    "name": "Audio Interface",
     "sideJobs": [
       "voiceover"
     ]

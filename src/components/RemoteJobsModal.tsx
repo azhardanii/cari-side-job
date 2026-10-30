@@ -84,9 +84,13 @@ export function RemoteJobsModal({ isOpen, onClose, jobs }: RemoteJobsModalProps)
                   Lowongan Kerja Remote
                 </h3>
                 <div className="flex items-center gap-1.5 mt-0.5">
-                  <span className="w-2 h-2 rounded-full bg-[#10B981] animate-pulse" />
+                  <span
+                    className={`w-2 h-2 rounded-full ${
+                      jobs.length > 0 ? 'bg-[#10B981] animate-pulse' : 'bg-slate-300'
+                    }`}
+                  />
                   <span className="text-[11.5px] font-semibold text-[#64748B]">
-                    {jobs.length} Lowongan Terverifikasi
+                    {jobs.length > 0 ? `${jobs.length} Lowongan Terverifikasi` : '0 Lowongan Tersedia'}
                   </span>
                 </div>
               </div>
@@ -150,7 +154,17 @@ export function RemoteJobsModal({ isOpen, onClose, jobs }: RemoteJobsModalProps)
 
         {/* ── JOB CARDS LIST ── */}
         <div className="flex-1 overflow-y-auto px-4 py-3 flex flex-col gap-3 bg-[#F8FAFC]">
-          {filteredJobs.length === 0 ? (
+          {jobs.length === 0 ? (
+            <div className="py-14 text-center px-4">
+              <div className="w-14 h-14 rounded-2xl bg-[#EFF6FF] border border-blue-100 flex items-center justify-center mx-auto mb-3 text-2xl shadow-sm">
+                💼
+              </div>
+              <h4 className="text-[15px] font-bold text-[#0A0E2E]">Belum Ada Lowongan Aktif</h4>
+              <p className="text-[12.5px] text-[#64748B] mt-1 max-w-[280px] mx-auto leading-relaxed">
+                Lowongan kerja remote sedang diperbarui oleh tim admin. Silakan cek kembali beberapa saat lagi!
+              </p>
+            </div>
+          ) : filteredJobs.length === 0 ? (
             <div className="py-14 text-center px-4">
               <div className="w-14 h-14 rounded-2xl bg-[#EFF6FF] border border-blue-100 flex items-center justify-center mx-auto mb-3 text-2xl shadow-sm">
                 🔍

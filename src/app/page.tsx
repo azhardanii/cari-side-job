@@ -5,7 +5,6 @@ import Link from 'next/link';
 import confetti from 'canvas-confetti';
 import {
   SIDE_JOBS_DB,
-  REMOTE_JOBS_DB,
   MASTER_SKILLS_LIST,
   MASTER_TOOLS_LIST,
   SKILL_CATEGORY_GROUPS,
@@ -108,7 +107,7 @@ export default function HomePage() {
   });
 
   const [calculatedResult, setCalculatedResult] = useState<CalculatedResult | null>(null);
-  const [remoteJobs, setRemoteJobs] = useState<RemoteJobItem[]>(REMOTE_JOBS_DB);
+  const [remoteJobs, setRemoteJobs] = useState<RemoteJobItem[]>([]);
   const [isSubmittingLead, setIsSubmittingLead] = useState(false);
 
   // Search & Filter States
@@ -146,11 +145,11 @@ export default function HomePage() {
     fetch('/api/jobs')
       .then((res) => res.json())
       .then((data) => {
-        if (data.success && Array.isArray(data.jobs) && data.jobs.length > 0) {
+        if (data.success && Array.isArray(data.jobs)) {
           setRemoteJobs(data.jobs);
         }
       })
-      .catch((err) => console.warn('Using static remote jobs:', err));
+      .catch((err) => console.warn('Gagal memuat lowongan remote:', err));
 
     // Fetch live products from database
     fetch('/api/products')

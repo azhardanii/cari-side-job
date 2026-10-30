@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { REMOTE_JOBS_DB, JOB_CATEGORIES } from '@/lib/data';
+import { JOB_CATEGORIES } from '@/lib/data';
 import { verifyAdminSession, ADMIN_COOKIE_NAME } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
@@ -33,14 +33,10 @@ export async function GET(req: NextRequest) {
       orderBy: [{ order: 'asc' }, { createdAt: 'desc' }],
     });
 
-    if (!jobs || jobs.length === 0) {
-      return NextResponse.json({ success: true, jobs: admin ? [] : REMOTE_JOBS_DB });
-    }
-
-    return NextResponse.json({ success: true, jobs });
+    return NextResponse.json({ success: true, jobs: jobs || [] });
   } catch (error: any) {
     console.error('Error fetching remote jobs:', error);
-    return NextResponse.json({ success: true, jobs: REMOTE_JOBS_DB });
+    return NextResponse.json({ success: true, jobs: [] });
   }
 }
 

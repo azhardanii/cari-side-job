@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { REMOTE_JOBS_DB, JOB_CATEGORIES } from '@/lib/data';
+import { verifyAdminSession, ADMIN_COOKIE_NAME } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -9,6 +10,18 @@ export const revalidate = 0;
 export async function GET(req: NextRequest) {
   try {
     const admin = req.nextUrl.searchParams.get('admin') === 'true';
+
+    // If requesting unpublished jobs or admin mode, verify session
+    if (admin) {
+      const token = req.cookies.get(ADMIN_COOKIE_NAME)?.value;
+      const isAuthed = await verifyAdminSession(token);
+      if (!isAuthed) {
+        return NextResponse.json(
+          { error: 'Akses ditolak. Sesi admin diperlukan.' },
+          { status: 401 }
+        );
+      }
+    }
 
     const where: any = {};
     if (!admin) {
@@ -31,9 +44,18 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// POST create a new remote job
+// POST create a new remote job (Admin only)
 export async function POST(req: NextRequest) {
   try {
+    const token = req.cookies.get(ADMIN_COOKIE_NAME)?.value;
+    const isAuthed = await verifyAdminSession(token);
+    if (!isAuthed) {
+      return NextResponse.json(
+        { error: 'Akses ditolak. Sesi admin diperlukan.' },
+        { status: 401 }
+      );
+    }
+
     const body = await req.json();
     const {
       title,
@@ -88,9 +110,18 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// PUT update an existing remote job
+// PUT update an existing remote job (Admin only)
 export async function PUT(req: NextRequest) {
   try {
+    const token = req.cookies.get(ADMIN_COOKIE_NAME)?.value;
+    const isAuthed = await verifyAdminSession(token);
+    if (!isAuthed) {
+      return NextResponse.json(
+        { error: 'Akses ditolak. Sesi admin diperlukan.' },
+        { status: 401 }
+      );
+    }
+
     const body = await req.json();
     const {
       id,
@@ -146,9 +177,18 @@ export async function PUT(req: NextRequest) {
   }
 }
 
-// DELETE a remote job
+// DELETE a remote job (Admin only)
 export async function DELETE(req: NextRequest) {
   try {
+    const token = req.cookies.get(ADMIN_COOKIE_NAME)?.value;
+    const isAuthed = await verifyAdminSession(token);
+    if (!isAuthed) {
+      return NextResponse.json(
+        { error: 'Akses ditolak. Sesi admin diperlukan.' },
+        { status: 401 }
+      );
+    }
+
     let id = req.nextUrl.searchParams.get('id');
 
     if (!id) {

@@ -210,6 +210,10 @@ export default function AdminPage() {
   const fetchProducts = async () => {
     try {
       const res = await fetch('/api/products?admin=true');
+      if (res.status === 401) {
+        window.location.href = '/login';
+        return;
+      }
       const data = await res.json();
       if (data.success && Array.isArray(data.products)) {
         setProducts(data.products);
@@ -326,6 +330,10 @@ export default function AdminPage() {
     setIsLoading(true);
     try {
       const res = await fetch(`/api/leads${q ? `?q=${encodeURIComponent(q)}` : ''}`);
+      if (res.status === 401) {
+        window.location.href = '/login';
+        return;
+      }
       const data = await res.json();
       if (data.success) { setLeads(data.leads || []); if (data.stats) setStats(data.stats); }
     } catch (e) { console.error(e); }
@@ -337,6 +345,10 @@ export default function AdminPage() {
       const res = await fetch(`/api/jobs?admin=true&t=${Date.now()}`, {
         cache: 'no-store',
       });
+      if (res.status === 401) {
+        window.location.href = '/login';
+        return;
+      }
       const data = await res.json();
       if (data.success && Array.isArray(data.jobs)) setJobs(data.jobs);
     } catch (e) { console.error(e); }
@@ -487,6 +499,28 @@ export default function AdminPage() {
           <Link href="/" style={S.btnOutline}>← Lihat Website</Link>
           <button style={S.btnPrimary} onClick={exportCsv}>Export CSV ({leads.length})</button>
           <button style={S.btnRed} onClick={resetAll}>Reset Data</button>
+          <button
+            style={{
+              ...S.btnOutline,
+              borderColor: '#FECACA',
+              color: '#DC2626',
+              background: '#FEF2F2',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+            }}
+            onClick={async () => {
+              if (!confirm('Yakin ingin keluar dari panel admin?')) return;
+              try {
+                await fetch('/api/admin/logout', { method: 'POST' });
+              } finally {
+                window.location.href = '/login';
+              }
+            }}
+            title="Keluar dari Panel Admin"
+          >
+            🔒 Keluar
+          </button>
         </div>
       </header>
 

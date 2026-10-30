@@ -1,13 +1,36 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { verifyAdminSession, ADMIN_COOKIE_NAME } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
+
+function cleanLynkUrl(rawUrl: string): string {
+  let url = (rawUrl || '').trim();
+  if (!url) return '';
+  url = url.split('?')[0].replace(/\/+$/, '');
+  if (!url.startsWith('http://') && !url.startsWith('https://')) {
+    url = `https://${url}`;
+  }
+  return url;
+}
 
 // GET all products
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const isAdmin = searchParams.get('admin') === 'true';
+
+    // If requesting admin-only unpublished products, verify session
+    if (isAdmin) {
+      const token = req.cookies.get(ADMIN_COOKIE_NAME)?.value;
+      const isAuthed = await verifyAdminSession(token);
+      if (!isAuthed) {
+        return NextResponse.json(
+          { error: 'Akses ditolak. Sesi admin diperlukan.' },
+          { status: 401 }
+        );
+      }
+    }
 
     const whereClause = isAdmin ? {} : { isPublished: true };
 
@@ -26,19 +49,18 @@ export async function GET(req: NextRequest) {
   }
 }
 
-function cleanLynkUrl(rawUrl: string): string {
-  let url = (rawUrl || '').trim();
-  if (!url) return '';
-  url = url.split('?')[0].replace(/\/+$/, '');
-  if (!url.startsWith('http://') && !url.startsWith('https://')) {
-    url = `https://${url}`;
-  }
-  return url;
-}
-
-// POST create a new product
+// POST create a new product (Admin only)
 export async function POST(req: NextRequest) {
   try {
+    const token = req.cookies.get(ADMIN_COOKIE_NAME)?.value;
+    const isAuthed = await verifyAdminSession(token);
+    if (!isAuthed) {
+      return NextResponse.json(
+        { error: 'Akses ditolak. Sesi admin diperlukan.' },
+        { status: 401 }
+      );
+    }
+
     const body = await req.json();
     const {
       title,
@@ -89,9 +111,18 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// PUT update an existing product
+// PUT update an existing product (Admin only)
 export async function PUT(req: NextRequest) {
   try {
+    const token = req.cookies.get(ADMIN_COOKIE_NAME)?.value;
+    const isAuthed = await verifyAdminSession(token);
+    if (!isAuthed) {
+      return NextResponse.json(
+        { error: 'Akses ditolak. Sesi admin diperlukan.' },
+        { status: 401 }
+      );
+    }
+
     const body = await req.json();
     const {
       id,
@@ -140,9 +171,18 @@ export async function PUT(req: NextRequest) {
   }
 }
 
-// DELETE a product
+// DELETE a product (Admin only)
 export async function DELETE(req: NextRequest) {
   try {
+    const token = req.cookies.get(ADMIN_COOKIE_NAME)?.value;
+    const isAuthed = await verifyAdminSession(token);
+    if (!isAuthed) {
+      return NextResponse.json(
+        { error: 'Akses ditolak. Sesi admin diperlukan.' },
+        { status: 401 }
+      );
+    }
+
     const { searchParams } = new URL(req.url);
     let id = searchParams.get('id');
 

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { verifyAdminSession, ADMIN_COOKIE_NAME } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -73,6 +74,16 @@ export async function POST(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
   try {
+    // Admin session check for reading private lead contacts
+    const token = req.cookies.get(ADMIN_COOKIE_NAME)?.value;
+    const isAuthed = await verifyAdminSession(token);
+    if (!isAuthed) {
+      return NextResponse.json(
+        { error: 'Akses ditolak. Sesi admin diperlukan.' },
+        { status: 401 }
+      );
+    }
+
     const searchParams = req.nextUrl.searchParams;
     const query = searchParams.get('q')?.toLowerCase() || '';
 
@@ -148,6 +159,16 @@ export async function GET(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   try {
+    // Admin session check for deleting leads
+    const token = req.cookies.get(ADMIN_COOKIE_NAME)?.value;
+    const isAuthed = await verifyAdminSession(token);
+    if (!isAuthed) {
+      return NextResponse.json(
+        { error: 'Akses ditolak. Sesi admin diperlukan.' },
+        { status: 401 }
+      );
+    }
+
     const searchParams = req.nextUrl.searchParams;
     const leadId = searchParams.get('id');
     const isReset = searchParams.get('reset') === 'true';

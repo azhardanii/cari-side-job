@@ -117,6 +117,8 @@ export default function AdminPage() {
   const [editingJob, setEditingJob] = useState<JobItem | null>(null);
   const [jobSearch, setJobSearch] = useState('');
   const [jobTypeFilter, setJobTypeFilter] = useState('ALL');
+  const [isLokerFull, setIsLokerFull] = useState(false);
+  const [isTogglingFull, setIsTogglingFull] = useState(false);
   const [jobForm, setJobForm] = useState({
     title: '',
     company: '',
@@ -351,7 +353,33 @@ export default function AdminPage() {
       }
       const data = await res.json();
       if (data.success && Array.isArray(data.jobs)) setJobs(data.jobs);
+      if (data.success && typeof data.isLokerFull === 'boolean') {
+        setIsLokerFull(data.isLokerFull);
+      }
     } catch (e) { console.error(e); }
+  };
+
+  const toggleLokerFull = async () => {
+    const nextState = !isLokerFull;
+    setIsTogglingFull(true);
+    try {
+      const res = await fetch('/api/jobs', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isLokerFull: nextState }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setIsLokerFull(data.isLokerFull);
+      } else {
+        alert(data.error || 'Gagal mengubah status lowongan');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Terjadi kesalahan saat mengubah status.');
+    } finally {
+      setIsTogglingFull(false);
+    }
   };
 
   const openAddJobModal = () => {
@@ -611,6 +639,109 @@ export default function AdminPage() {
               <MetricCard title="Total Lowongan" value={jobs.length} sub="Semua loker terdaftar" accent="blue" />
               <MetricCard title="Kategori Loker" value={new Set(jobs.map(j => getJobCategory(j))).size} sub="Variasi bidang side job" accent="gold" />
               <MetricCard title="Gaji Transparan" value={jobs.filter(j => j.salary && !j.salary.toLowerCase().includes('kompetitif')).length} sub="Rentang nominal tertera" accent="emerald" />
+            </div>
+
+            {/* TOGGLE BANNER: FITUR POP-UP STATUS LOWONGAN PENUH */}
+            <div
+              style={{
+                background: isLokerFull ? '#FFFBEB' : 'white',
+                border: `1.5px solid ${isLokerFull ? '#F59E0B' : '#E2E8F0'}`,
+                borderRadius: 18,
+                padding: '16px 20px',
+                marginBottom: 20,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: 16,
+                flexWrap: 'wrap',
+                boxShadow: isLokerFull ? '0 4px 14px rgba(245, 158, 11, 0.12)' : '0 1px 4px rgba(0,0,0,0.04)',
+                transition: 'all 0.2s',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 14, minWidth: 280, flex: 1 }}>
+                <div
+                  style={{
+                    width: 44,
+                    height: 44,
+                    borderRadius: 14,
+                    background: isLokerFull ? '#FEF3C7' : '#F1F5F9',
+                    border: `1px solid ${isLokerFull ? '#FDE68A' : '#E2E8F0'}`,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 22,
+                    flexShrink: 0,
+                  }}
+                >
+                  {isLokerFull ? '📢' : '💼'}
+                </div>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                    <h3 style={{ fontSize: 15, fontWeight: 800, margin: 0, color: '#0F172A' }}>
+                      Fitur Pop-Up: Lowongan Kerja Sedang Penuh
+                    </h3>
+                    <span
+                      style={S.pill(
+                        isLokerFull ? '#FEF2F2' : '#F0FDF4',
+                        isLokerFull ? '#DC2626' : '#16A34A',
+                        isLokerFull ? '#FECACA' : '#BBF7D0'
+                      )}
+                    >
+                      {isLokerFull ? '● MODE PENUH AKTIF (POP-UP ON)' : '○ MODE NORMAL (POP-UP OFF)'}
+                    </span>
+                  </div>
+                  <p style={{ fontSize: 12.5, color: '#64748B', margin: '4px 0 0', lineHeight: 1.4 }}>
+                    {isLokerFull ? (
+                      <span style={{ color: '#B45309', fontWeight: 600 }}>
+                        Pop-up aktif: &ldquo;Mohon Maaf, Saat Ini Lowongan Kerja Remote Sedang Penuh. Informasi Lowongan Terbaru Akan Segera Kami Update.&rdquo;
+                      </span>
+                    ) : (
+                      'Lowongan kerja tampil normal sesuai database. Aktifkan tombol jika lowongan kerja sedang penuh atau kosong.'
+                    )}
+                  </p>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <button
+                  type="button"
+                  onClick={toggleLokerFull}
+                  disabled={isTogglingFull}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    background: isLokerFull ? 'linear-gradient(135deg, #DC2626, #B91C1C)' : '#F1F5F9',
+                    color: isLokerFull ? 'white' : '#475569',
+                    border: `1.5px solid ${isLokerFull ? '#DC2626' : '#CBD5E1'}`,
+                    padding: '9px 18px',
+                    borderRadius: 9999,
+                    fontSize: 13,
+                    fontWeight: 800,
+                    cursor: isTogglingFull ? 'not-allowed' : 'pointer',
+                    fontFamily: 'inherit',
+                    transition: 'all 0.15s',
+                    boxShadow: isLokerFull ? '0 2px 8px rgba(220, 38, 38, 0.25)' : 'none',
+                  }}
+                >
+                  <span
+                    style={{
+                      width: 10,
+                      height: 10,
+                      borderRadius: '50%',
+                      background: isLokerFull ? '#FEF2F2' : '#94A3B8',
+                      display: 'inline-block',
+                    }}
+                  />
+                  <span>
+                    {isTogglingFull
+                      ? 'Menyimpan...'
+                      : isLokerFull
+                      ? 'Pop-up ON (Klik untuk Matikan)'
+                      : 'Pop-up OFF (Klik untuk Aktifkan)'}
+                  </span>
+                </button>
+              </div>
             </div>
 
             {/* PANEL */}

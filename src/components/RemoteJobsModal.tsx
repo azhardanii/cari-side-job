@@ -21,9 +21,10 @@ interface RemoteJobsModalProps {
   isOpen: boolean;
   onClose: () => void;
   jobs: RemoteJobItem[];
+  isLokerFull?: boolean;
 }
 
-export function RemoteJobsModal({ isOpen, onClose, jobs }: RemoteJobsModalProps) {
+export function RemoteJobsModal({ isOpen, onClose, jobs, isLokerFull }: RemoteJobsModalProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('Semua');
 
@@ -58,6 +59,59 @@ export function RemoteJobsModal({ isOpen, onClose, jobs }: RemoteJobsModalProps)
   }, [jobs, searchQuery, selectedCategory]);
 
   if (!isOpen) return null;
+
+  // POP-UP MODE: JIKA ADMIN MENGAKTIFKAN TOGGLE "LOWONGAN PENUH"
+  if (isLokerFull) {
+    return (
+      <div
+        onClick={onClose}
+        className="fixed inset-0 z-50 bg-[#0A0E2E]/65 backdrop-blur-[6px] flex items-center justify-center p-4 animate-fadeIn"
+        style={{ zIndex: 100 }}
+      >
+        <div
+          onClick={(e) => e.stopPropagation()}
+          className="w-full max-w-[420px] bg-white rounded-[28px] overflow-hidden shadow-2xl border border-[#EDEFF3] p-6 text-center animate-slideUp relative"
+        >
+          {/* Close button */}
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 w-8 h-8 rounded-full bg-[#F1F5F9] text-[#64748B] hover:bg-[#E2E8F0] hover:text-[#0A0E2E] flex items-center justify-center transition-colors"
+            aria-label="Tutup"
+          >
+            <X size={17} />
+          </button>
+
+          {/* Icon */}
+          <div className="w-16 h-16 rounded-2xl bg-amber-50 border border-amber-200 text-amber-500 flex items-center justify-center mx-auto mb-4 text-3xl shadow-xs">
+            📢
+          </div>
+
+          <div className="inline-block px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-[11px] font-extrabold uppercase tracking-wider mb-2.5">
+            Pemberitahuan Lowongan
+          </div>
+
+          <h3 className="text-[17px] font-[800] text-[#0A0E2E] leading-snug tracking-tight mb-3">
+            Lowongan Kerja Remote
+          </h3>
+
+          {/* User's Exact Requested Text */}
+          <div className="bg-[#F8FAFC] border border-[#E2E8F0] p-4 rounded-2xl mb-6 text-center">
+            <p className="text-[13.5px] font-semibold text-[#1E293B] leading-relaxed">
+              Mohon Maaf, Saat Ini Lowongan Kerja Remote Sedang Penuh. Informasi Lowongan Terbaru Akan Segera Kami Update.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={onClose}
+            className="w-full py-3 px-6 rounded-full bg-[#0074FC] hover:bg-blue-600 text-white font-[800] text-[13.5px] shadow-[0_4px_14px_rgba(0,116,252,0.3)] transition-all active:scale-[0.98]"
+          >
+            Tutup
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div

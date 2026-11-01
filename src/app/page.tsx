@@ -108,6 +108,7 @@ export default function HomePage() {
 
   const [calculatedResult, setCalculatedResult] = useState<CalculatedResult | null>(null);
   const [remoteJobs, setRemoteJobs] = useState<RemoteJobItem[]>([]);
+  const [isLokerFull, setIsLokerFull] = useState(false);
   const [isSubmittingLead, setIsSubmittingLead] = useState(false);
 
   // Search & Filter States
@@ -147,6 +148,9 @@ export default function HomePage() {
       .then((data) => {
         if (data.success && Array.isArray(data.jobs)) {
           setRemoteJobs(data.jobs);
+        }
+        if (data.success && typeof data.isLokerFull === 'boolean') {
+          setIsLokerFull(data.isLokerFull);
         }
       })
       .catch((err) => console.warn('Gagal memuat lowongan remote:', err));
@@ -1771,6 +1775,7 @@ export default function HomePage() {
                     isOpen={isRemoteJobsOpen}
                     onClose={() => setIsRemoteJobsOpen(false)}
                     jobs={remoteJobs}
+                    isLokerFull={isLokerFull}
                   />
 
                   {/* ── MODAL: PENJELASAN LENGKAP HASIL (Detail Explanation & Roadmap) ── */}

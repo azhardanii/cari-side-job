@@ -6,7 +6,10 @@ import { verifyAdminSession, ADMIN_COOKIE_NAME } from '@/lib/auth';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-// GET all remote jobs
+export const FULL_LOKER_NOTICE =
+  'Mohon Maaf, Saat Ini Lowongan Kerja Remote Sedang Penuh. Informasi Lowongan Terbaru Akan Segera Kami Update.';
+
+// GET all remote jobs & full status
 export async function GET(req: NextRequest) {
   try {
     const admin = req.nextUrl.searchParams.get('admin') === 'true';
@@ -33,10 +36,76 @@ export async function GET(req: NextRequest) {
       orderBy: [{ order: 'asc' }, { createdAt: 'desc' }],
     });
 
-    return NextResponse.json({ success: true, jobs: jobs || [] });
+    // Check if admin toggled the "Lowongan Penuh" mode
+    let isLokerFull = false;
+    try {
+      const setting = await prisma.analyticMetric.findFirst({
+        where: { eventType: 'SETTING_LOKER_FULL' },
+        orderBy: { createdAt: 'desc' },
+      });
+      if (setting) {
+        isLokerFull = setting.label === 'true';
+      }
+    } catch (e) {
+      console.warn('Could not read SETTING_LOKER_FULL from DB:', e);
+    }
+
+    return NextResponse.json({
+      success: true,
+      jobs: jobs || [],
+      isLokerFull,
+      fullNoticeText: FULL_LOKER_NOTICE,
+    });
   } catch (error: any) {
     console.error('Error fetching remote jobs:', error);
-    return NextResponse.json({ success: true, jobs: [] });
+    return NextResponse.json({
+      success: true,
+      jobs: [],
+      isLokerFull: false,
+      fullNoticeText: FULL_LOKER_NOTICE,
+    });
+  }
+}
+
+// PATCH toggle loker full status (Admin only)
+export async function PATCH(req: NextRequest) {
+  try {
+    const token = req.cookies.get(ADMIN_COOKIE_NAME)?.value;
+    const isAuthed = await verifyAdminSession(token);
+    if (!isAuthed) {
+      return NextResponse.json(
+        { error: 'Akses ditolak. Sesi admin diperlukan.' },
+        { status: 401 }
+      );
+    }
+
+    const body = await req.json();
+    const isLokerFull = Boolean(body?.isLokerFull);
+
+    await prisma.analyticMetric.create({
+      data: {
+        eventType: 'SETTING_LOKER_FULL',
+        label: isLokerFull ? 'true' : 'false',
+        metadata: {
+          updatedAt: new Date().toISOString(),
+        },
+      },
+    });
+
+    return NextResponse.json({
+      success: true,
+      isLokerFull,
+      fullNoticeText: FULL_LOKER_NOTICE,
+      message: isLokerFull
+        ? 'Mode lowongan penuh diaktifkan (pop-up tayang di halaman user).'
+        : 'Mode lowongan penuh dinonaktifkan (loker tayang normal).',
+    });
+  } catch (error: any) {
+    console.error('Error toggling loker full status:', error);
+    return NextResponse.json(
+      { error: error?.message || 'Gagal mengubah status lowongan' },
+      { status: 500 }
+    );
   }
 }
 

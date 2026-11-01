@@ -91,15 +91,50 @@ export async function GET(req: NextRequest) {
       orderBy: { createdAt: 'desc' },
     });
 
-    const totalStartsCount = await prisma.analyticMetric.count({
-      where: { eventType: 'QUIZ_START' },
-    });
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+
+    const [uniqueVisitorsGroup, todayVisitorsGroup, totalPageViewsCount, totalStartsCount] =
+      await Promise.all([
+        prisma.analyticMetric.groupBy({
+          by: ['label'],
+          where: {
+            eventType: 'PAGE_VIEW',
+            label: { not: null },
+          },
+        }),
+        prisma.analyticMetric.groupBy({
+          by: ['label'],
+          where: {
+            eventType: 'PAGE_VIEW',
+            label: { not: null },
+            createdAt: { gte: startOfToday },
+          },
+        }),
+        prisma.analyticMetric.count({
+          where: { eventType: 'PAGE_VIEW' },
+        }),
+        prisma.analyticMetric.count({
+          where: { eventType: 'QUIZ_START' },
+        }),
+      ]);
 
     const totalLeads = leads.length;
+    const recordedUniqueVisitors = uniqueVisitorsGroup.length;
+    // Total unique visitors: at least totalLeads so historical leads aren't displayed with 0 visitors
+    const totalUniqueVisitors = Math.max(recordedUniqueVisitors, totalLeads);
+    const todayUniqueVisitors = todayVisitorsGroup.length;
+    const totalVisits = Math.max(totalPageViewsCount, totalUniqueVisitors);
+
     const totalStarts = Math.max(totalStartsCount, totalLeads);
 
     const conversionRate =
       totalStarts > 0 ? ((totalLeads / totalStarts) * 100).toFixed(1) + '%' : '0%';
+
+    const visitorToLeadRate =
+      totalUniqueVisitors > 0
+        ? ((totalLeads / totalUniqueVisitors) * 100).toFixed(1) + '%'
+        : '0%';
 
     const avgReadiness =
       totalLeads > 0
@@ -141,6 +176,10 @@ export async function GET(req: NextRequest) {
       success: true,
       leads: filteredLeads,
       stats: {
+        totalUniqueVisitors,
+        todayUniqueVisitors,
+        totalVisits,
+        visitorToLeadRate,
         totalStarts,
         totalLeads,
         conversionRate,

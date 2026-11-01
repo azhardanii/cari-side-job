@@ -164,6 +164,29 @@ export default function HomePage() {
         }
       })
       .catch((err) => console.warn('Gagal memuat produk dari database:', err));
+
+    // Track unique visitor / click link (Anti-spam & anti-refresh gaming)
+    try {
+      const now = Date.now();
+      const lastTracked = sessionStorage.getItem('csj_visit_tracked');
+      if (!lastTracked || now - Number(lastTracked) > 15 * 60 * 1000) {
+        sessionStorage.setItem('csj_visit_tracked', String(now));
+        fetch('/api/analytics', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            eventType: 'PAGE_VIEW',
+            metadata: {
+              path: window.location.pathname,
+              referrer: document.referrer || '',
+              url: window.location.href,
+            },
+          }),
+        }).catch(() => {});
+      }
+    } catch {
+      // ignore
+    }
   }, []);
 
   const switchTab = (tab: 'beranda' | 'quiz' | 'lead' | 'hasil' | 'rekomendasi' | 'akun') => {

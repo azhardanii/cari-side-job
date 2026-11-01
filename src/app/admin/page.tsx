@@ -16,8 +16,23 @@ interface JobItem {
   description: string; applyUrl: string;
 }
 interface StatsData {
-  totalStarts: number; totalLeads: number; conversionRate: string;
-  avgReadiness: string; popularJob: string;
+  totalStarts: number;
+  totalLeads: number;
+  conversionRate: string;
+  avgReadiness: string;
+  popularJob: string;
+  totalUniqueVisitors?: number;
+  todayUniqueVisitors?: number;
+  totalVisits?: number;
+  visitorToLeadRate?: string;
+}
+
+interface RecentVisitorItem {
+  id: string;
+  maskedIp: string;
+  path: string;
+  referrer: string;
+  createdAt: string;
 }
 interface ProductItem {
   id: string;
@@ -105,7 +120,18 @@ function TabBtn({ label, active, onClick }: { label: string; active: boolean; on
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState<'leads' | 'loker' | 'produk'>('leads');
   const [leads, setLeads] = useState<LeadItem[]>([]);
-  const [stats, setStats] = useState<StatsData>({ totalStarts: 0, totalLeads: 0, conversionRate: '0%', avgReadiness: '0%', popularJob: '-' });
+  const [stats, setStats] = useState<StatsData>({
+    totalStarts: 0,
+    totalLeads: 0,
+    conversionRate: '0%',
+    avgReadiness: '0%',
+    popularJob: '-',
+    totalUniqueVisitors: 0,
+    todayUniqueVisitors: 0,
+    totalVisits: 0,
+    visitorToLeadRate: '0%',
+  });
+  const [recentVisitors, setRecentVisitors] = useState<RecentVisitorItem[]>([]);
   const [jobs, setJobs] = useState<JobItem[]>([]);
   const [products, setProducts] = useState<ProductItem[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -163,6 +189,7 @@ export default function AdminPage() {
     fetchLeads();
     fetchJobs();
     fetchProducts();
+    fetchAnalytics();
 
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
@@ -325,6 +352,29 @@ export default function AdminPage() {
       fetchProducts();
     } catch (e) {
       console.error(e);
+    }
+  };
+
+  const fetchAnalytics = async () => {
+    try {
+      const res = await fetch('/api/analytics');
+      if (res.status === 401) return;
+      const data = await res.json();
+      if (data.success) {
+        if (Array.isArray(data.recentVisitors)) {
+          setRecentVisitors(data.recentVisitors);
+        }
+        if (data.stats) {
+          setStats(prev => ({
+            ...prev,
+            totalUniqueVisitors: data.stats.totalUniqueVisitors || prev.totalUniqueVisitors || 0,
+            todayUniqueVisitors: data.stats.todayUniqueVisitors || prev.todayUniqueVisitors || 0,
+            totalVisits: data.stats.totalPageViews || prev.totalVisits || 0,
+          }));
+        }
+      }
+    } catch (e) {
+      console.warn('Gagal memuat analitik:', e);
     }
   };
 
@@ -565,11 +615,89 @@ export default function AdminPage() {
           <div>
             {/* Metric Cards */}
             <div style={S.metGrid}>
-              <MetricCard title="Mulai Asesmen" value={stats.totalStarts} sub="Pengunjung mulai kuis" />
+              <MetricCard title="Pengunjung Unik" value={stats.totalUniqueVisitors || stats.totalStarts || 0} sub="Unique IP website (All-time)" accent="blue" />
+              <MetricCard title="Visitor Hari Ini" value={stats.todayUniqueVisitors || 0} sub="Unique IP hari ini (Anti-spam)" accent="emerald" />
+              <MetricCard title="Total Kunjungan" value={stats.totalVisits || stats.totalUniqueVisitors || 0} sub="Sesi browsing terverifikasi" />
+              <MetricCard title="Mulai Asesmen" value={stats.totalStarts} sub="Pengunjung mulai kuis" accent="gold" />
               <MetricCard title="Leads Masuk" value={stats.totalLeads} sub="Kontak tersimpan" accent="blue" />
               <MetricCard title="Tingkat Konversi" value={stats.conversionRate} sub="Penyelesaian asesmen" accent="gold" />
               <MetricCard title="Rata-rata Kesiapan" value={stats.avgReadiness} sub="Skor kesiapan peserta" accent="emerald" />
               <MetricCard title="Rekomendasi Teratas" value={stats.popularJob} sub="Paling sering cocok" />
+            </div>
+
+            {/* TRAFIK & VISITOR MONITORING BANNER */}
+            <div
+              style={{
+                background: 'white',
+                border: '1px solid #E2E8F0',
+                borderRadius: 18,
+                padding: '16px 20px',
+                marginBottom: 20,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: 16,
+                flexWrap: 'wrap',
+                boxShadow: '0 1px 4px rgba(0,0,0,0.03)',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div
+                  style={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: 12,
+                    background: '#EFF6FF',
+                    color: '#1D64EC',
+                    border: '1px solid #BFDBFE',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 20,
+                    flexShrink: 0,
+                  }}
+                >
+                  🌐
+                </div>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                    <h3 style={{ fontSize: 14.5, fontWeight: 800, margin: 0, color: '#0F172A' }}>
+                      Monitoring Visitor & Click Link (Unique IP Protected)
+                    </h3>
+                    <span style={S.pill('#ECFDF5', '#059669', '#A7F3D0')}>
+                      ● Anti-Spam Refresh Aktif
+                    </span>
+                  </div>
+                  <p style={{ fontSize: 12, color: '#64748B', margin: '3px 0 0' }}>
+                    Akurasi terjaga: Dihitung per IP Unik & sesi browsing 30 menit. Spam refresh atau klik berkali-kali tidak menambah angka visitor.
+                  </p>
+                </div>
+              </div>
+
+              {recentVisitors.length > 0 && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: '#64748B', textTransform: 'uppercase' }}>
+                    Aktivitas Terbaru:
+                  </span>
+                  {recentVisitors.slice(0, 3).map((v) => (
+                    <span
+                      key={v.id}
+                      style={{
+                        background: '#F8FAFC',
+                        border: '1px solid #E2E8F0',
+                        padding: '3px 9px',
+                        borderRadius: 8,
+                        fontSize: 11,
+                        color: '#334155',
+                        fontWeight: 600,
+                      }}
+                      title={`Halaman: ${v.path} | Ref: ${v.referrer} | Waktu: ${fmtDate(v.createdAt)}`}
+                    >
+                      📡 {v.maskedIp} ({fmtDate(v.createdAt).split(' ')[1] || 'Baru'})
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Table */}

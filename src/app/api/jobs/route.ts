@@ -6,7 +6,7 @@ import { verifyAdminSession, ADMIN_COOKIE_NAME } from '@/lib/auth';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-export const FULL_LOKER_NOTICE =
+const FULL_LOKER_NOTICE =
   'Mohon Maaf, Saat Ini Lowongan Kerja Remote Sedang Penuh. Informasi Lowongan Terbaru Akan Segera Kami Update.';
 
 // GET all remote jobs & full status

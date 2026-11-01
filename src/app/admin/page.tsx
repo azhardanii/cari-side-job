@@ -1,20 +1,80 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import { JOB_CATEGORIES, SIDE_JOBS_DB, getJobCategory, toTitleCase, getCompanyAvatarStyle, getCompanyMonogram } from '@/lib/data';
+import {
+  Users,
+  Briefcase,
+  ShoppingBag,
+  Eye,
+  TrendingUp,
+  Download,
+  RotateCcw,
+  LogOut,
+  Search,
+  Plus,
+  ExternalLink,
+  Trash2,
+  Edit3,
+  X,
+  CheckCircle2,
+  AlertCircle,
+  Globe,
+  Clock,
+  ArrowUpRight,
+  Filter,
+  Check,
+  ChevronDown,
+  ChevronUp,
+  Activity,
+  Layers,
+  Sparkles,
+  Phone,
+  Mail,
+  ShieldCheck,
+  Smartphone,
+  Flame,
+  Award,
+} from 'lucide-react';
+import {
+  JOB_CATEGORIES,
+  SIDE_JOBS_DB,
+  getJobCategory,
+  toTitleCase,
+  getCompanyAvatarStyle,
+  getCompanyMonogram,
+} from '@/lib/data';
 
 interface LeadItem {
-  id: string; name: string; wa: string; email: string; profesi: string;
-  topMatch: string; topMatchScore: number; readinessScore: number;
-  personaName: string; skills: string[]; tools: string[]; gaps: string[];
+  id: string;
+  name: string;
+  wa: string;
+  email: string;
+  profesi: string;
+  topMatch: string;
+  topMatchScore: number;
+  readinessScore: number;
+  personaName: string;
+  skills: string[];
+  tools: string[];
+  gaps: string[];
   createdAt: string;
 }
+
 interface JobItem {
-  id: string; title: string; company: string; location: string; salary: string;
-  type: string; posted: string; primarySideJob: string; tags: string[];
-  description: string; applyUrl: string;
+  id: string;
+  title: string;
+  company: string;
+  location: string;
+  salary: string;
+  type: string;
+  posted: string;
+  primarySideJob: string;
+  tags: string[];
+  description: string;
+  applyUrl: string;
 }
+
 interface StatsData {
   totalStarts: number;
   totalLeads: number;
@@ -34,6 +94,7 @@ interface RecentVisitorItem {
   referrer: string;
   createdAt: string;
 }
+
 interface ProductItem {
   id: string;
   title: string;
@@ -65,58 +126,6 @@ const BADGE_OPTIONS = [
   { value: 'Baru / New', label: '✨ Baru / New' },
 ];
 
-const S = {
-  page: { minHeight: '100vh', background: '#F1F5F9', fontFamily: "'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif", color: '#0F172A' },
-  header: { background: 'white', borderBottom: '1px solid #E2E8F0', padding: '14px 28px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' as const, gap: '12px', position: 'sticky' as const, top: 0, zIndex: 30, boxShadow: '0 1px 6px rgba(0,0,0,0.06)' },
-  logo: { display: 'flex', alignItems: 'center', gap: '12px', textDecoration: 'none', color: 'inherit' },
-  logoIcon: { width: 42, height: 42, borderRadius: 12, background: 'linear-gradient(135deg,#1D64EC,#0F3BA0)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, color: 'white', boxShadow: '0 4px 12px rgba(29,100,236,0.3)', flexShrink: 0 },
-  h1: { fontSize: 18, fontWeight: 800, color: '#0F172A', display: 'flex', alignItems: 'center', gap: 8, margin: 0, lineHeight: 1.2 },
-  badge: { background: '#1D64EC', color: 'white', fontSize: 11, padding: '2px 7px', borderRadius: 6, fontWeight: 800 },
-  sub: { fontSize: 12, color: '#64748B', marginTop: 2, fontWeight: 500 },
-  hBtns: { display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' as const },
-  body: { maxWidth: 1360, margin: '0 auto', padding: '28px 24px 60px' },
-  tabRow: { display: 'flex', gap: 0, borderBottom: '2px solid #E2E8F0', marginBottom: 28 },
-  metGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(200px,1fr))', gap: 16, marginBottom: 28 },
-  panel: { background: 'white', borderRadius: 20, border: '1px solid #E2E8F0', boxShadow: '0 1px 6px rgba(0,0,0,0.04)', overflow: 'hidden' },
-  panelHdr: { padding: '20px 24px', borderBottom: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' as const, gap: 12 },
-  th: { padding: '12px 16px', fontSize: 11, fontWeight: 700, color: '#64748B', textTransform: 'uppercase' as const, letterSpacing: '0.6px', background: '#F8FAFC', borderBottom: '1px solid #E2E8F0', whiteSpace: 'nowrap' as const },
-  td: { padding: '14px 16px', fontSize: 13, borderBottom: '1px solid #F1F5F9', verticalAlign: 'middle' as const },
-  pill: (bg: string, color: string, border?: string): React.CSSProperties => ({ background: bg, color, border: border ? `1px solid ${border}` : undefined, padding: '3px 10px', borderRadius: 9999, fontSize: 11, fontWeight: 700, display: 'inline-block', whiteSpace: 'nowrap' as const }),
-  jobCard: { border: '1px solid #E2E8F0', borderRadius: 16, padding: 20, background: '#F8FAFC', display: 'flex', flexDirection: 'column' as const, gap: 14 },
-  label: { display: 'block', fontSize: 11, fontWeight: 700, color: '#64748B', marginBottom: 4, textTransform: 'uppercase' as const, letterSpacing: '0.4px' },
-  input: { width: '100%', padding: '9px 12px', background: 'white', border: '1.5px solid #E2E8F0', borderRadius: 10, fontSize: 13, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' as const, transition: 'border-color 0.2s' },
-  textarea: { width: '100%', padding: '9px 12px', background: 'white', border: '1.5px solid #E2E8F0', borderRadius: 10, fontSize: 12, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' as const, resize: 'vertical' as const, transition: 'border-color 0.2s' },
-  btnPrimary: { display: 'inline-flex', alignItems: 'center', gap: 6, background: 'linear-gradient(135deg,#1D64EC,#0F3BA0)', color: 'white', border: 'none', padding: '9px 18px', borderRadius: 9999, fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' },
-  btnOutline: { display: 'inline-flex', alignItems: 'center', gap: 6, background: 'transparent', color: '#334155', border: '1.5px solid #CBD5E1', padding: '8px 16px', borderRadius: 9999, fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' },
-  btnGold: { display: 'inline-flex', alignItems: 'center', gap: 6, background: 'linear-gradient(135deg,#F59E0B,#D97706)', color: 'white', border: 'none', padding: '9px 18px', borderRadius: 9999, fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' },
-  btnRed: { display: 'inline-flex', alignItems: 'center', gap: 6, background: '#FEE2E2', color: '#991B1B', border: '1px solid #FECACA', padding: '9px 18px', borderRadius: 9999, fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' },
-  btnSec: { display: 'inline-flex', alignItems: 'center', gap: 6, background: '#EFF6FF', color: '#1D64EC', border: '1px solid #BFDBFE', padding: '9px 18px', borderRadius: 9999, fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', width: '100%', justifyContent: 'center' as const },
-  overlay: { position: 'fixed' as const, inset: 0, background: 'rgba(15,23,42,0.65)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: 24 },
-  modal: { background: 'white', borderRadius: 24, width: '100%', maxWidth: 560, maxHeight: '88vh', overflowY: 'auto' as const, boxShadow: '0 20px 60px rgba(0,0,0,0.2)', position: 'relative' as const },
-  modalPad: { padding: '28px 24px 24px' },
-  closeBtn: { position: 'absolute' as const, top: 16, right: 16, width: 34, height: 34, background: '#F1F5F9', border: '1px solid #E2E8F0', borderRadius: '50%', fontSize: 14, color: '#64748B', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'inherit' },
-};
-
-function MetricCard({ title, value, sub, accent }: { title: string; value: string | number; sub: string; accent?: string }) {
-  const accentMap: Record<string, string> = { blue: 'linear-gradient(145deg,#EFF6FF,white)', gold: 'linear-gradient(145deg,#FEF3C7,white)', emerald: 'linear-gradient(145deg,#ECFDF5,white)' };
-  const colorMap: Record<string, string> = { blue: '#1D64EC', gold: '#D97706', emerald: '#10B981' };
-  return (
-    <div style={{ background: accent ? accentMap[accent] : 'white', border: `1px solid ${accent === 'blue' ? '#BFDBFE' : accent === 'gold' ? '#FDE68A' : accent === 'emerald' ? '#A7F3D0' : '#E2E8F0'}`, borderRadius: 16, padding: '20px 18px', boxShadow: '0 1px 4px rgba(15,23,42,0.05)' }}>
-      <div style={{ fontSize: 11, fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: 8 }}>{title}</div>
-      <div style={{ fontSize: 28, fontWeight: 900, color: accent ? colorMap[accent] : '#0F172A', lineHeight: 1, letterSpacing: '-0.02em', marginBottom: 4 }}>{value}</div>
-      <div style={{ fontSize: 11.5, color: '#94A3B8', fontWeight: 600 }}>{sub}</div>
-    </div>
-  );
-}
-
-function TabBtn({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
-  return (
-    <button onClick={onClick} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'transparent', border: 'none', borderBottom: active ? '3px solid #1D64EC' : '3px solid transparent', padding: '10px 20px', fontSize: 14, fontWeight: 700, color: active ? '#1D64EC' : '#64748B', cursor: 'pointer', fontFamily: 'inherit', marginBottom: -2, transition: 'color 0.15s,border-color 0.15s' }}>
-      {label}
-    </button>
-  );
-}
-
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState<'leads' | 'loker' | 'produk'>('leads');
   const [leads, setLeads] = useState<LeadItem[]>([]);
@@ -132,17 +141,26 @@ export default function AdminPage() {
     visitorToLeadRate: '0%',
   });
   const [recentVisitors, setRecentVisitors] = useState<RecentVisitorItem[]>([]);
+  const [showVisitorLog, setShowVisitorLog] = useState(false);
+
   const [jobs, setJobs] = useState<JobItem[]>([]);
   const [products, setProducts] = useState<ProductItem[]>([]);
+
+  // Search & Filter States
   const [searchQuery, setSearchQuery] = useState('');
+  const [leadTierFilter, setLeadTierFilter] = useState<'ALL' | 'HIGH' | 'MID' | 'LOW'>('ALL');
   const [productSearch, setProductSearch] = useState('');
+  const [jobSearch, setJobSearch] = useState('');
+  const [jobTypeFilter, setJobTypeFilter] = useState('ALL');
+
+  // Modals & Selection
   const [selectedLead, setSelectedLead] = useState<LeadItem | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+
+  // Job Modal
   const [isJobModalOpen, setIsJobModalOpen] = useState(false);
   const [editingJob, setEditingJob] = useState<JobItem | null>(null);
-  const [jobSearch, setJobSearch] = useState('');
-  const [jobTypeFilter, setJobTypeFilter] = useState('ALL');
   const [isLokerFull, setIsLokerFull] = useState(false);
   const [isTogglingFull, setIsTogglingFull] = useState(false);
   const [jobForm, setJobForm] = useState({
@@ -157,10 +175,10 @@ export default function AdminPage() {
     applyUrl: '',
   });
 
+  // Product Modal
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<ProductItem | null>(null);
   const [importNotification, setImportNotification] = useState<string | null>(null);
-
   const [productForm, setProductForm] = useState<ProductFormData>({
     title: '',
     category: 'Ebook',
@@ -230,7 +248,7 @@ export default function AdminPage() {
         });
         setEditingProduct(null);
         setIsProductModalOpen(true);
-        setImportNotification('Data produk berhasil dimuat ke formulir.');
+        setImportNotification('Data produk dari Lynk.id berhasil dimuat ke formulir.');
         window.history.replaceState({}, '', '/admin');
       }
     }
@@ -252,6 +270,178 @@ export default function AdminPage() {
     }
   };
 
+  const fetchAnalytics = async () => {
+    try {
+      const res = await fetch('/api/analytics');
+      if (res.status === 401) return;
+      const data = await res.json();
+      if (data.success) {
+        if (Array.isArray(data.recentVisitors)) {
+          setRecentVisitors(data.recentVisitors);
+        }
+        if (data.stats) {
+          setStats(prev => ({
+            ...prev,
+            totalUniqueVisitors: data.stats.totalUniqueVisitors || prev.totalUniqueVisitors || 0,
+            todayUniqueVisitors: data.stats.todayUniqueVisitors || prev.todayUniqueVisitors || 0,
+            totalVisits: data.stats.totalPageViews || prev.totalVisits || 0,
+          }));
+        }
+      }
+    } catch (e) {
+      console.warn('Gagal memuat analitik:', e);
+    }
+  };
+
+  const fetchLeads = async (q = '') => {
+    setIsLoading(true);
+    try {
+      const res = await fetch(`/api/leads${q ? `?q=${encodeURIComponent(q)}` : ''}`);
+      if (res.status === 401) {
+        window.location.href = '/login';
+        return;
+      }
+      const data = await res.json();
+      if (data.success) {
+        setLeads(data.leads || []);
+        if (data.stats) setStats(data.stats);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchJobs = async () => {
+    try {
+      const res = await fetch(`/api/jobs?admin=true&t=${Date.now()}`, { cache: 'no-store' });
+      if (res.status === 401) {
+        window.location.href = '/login';
+        return;
+      }
+      const data = await res.json();
+      if (data.success && Array.isArray(data.jobs)) setJobs(data.jobs);
+      if (data.success && typeof data.isLokerFull === 'boolean') {
+        setIsLokerFull(data.isLokerFull);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const toggleLokerFull = async () => {
+    const nextState = !isLokerFull;
+    setIsTogglingFull(true);
+    try {
+      const res = await fetch('/api/jobs', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isLokerFull: nextState }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setIsLokerFull(data.isLokerFull);
+      } else {
+        alert(data.error || 'Gagal mengubah status lowongan');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Terjadi kesalahan saat mengubah status.');
+    } finally {
+      setIsTogglingFull(false);
+    }
+  };
+
+  // Job Actions
+  const openAddJobModal = () => {
+    setEditingJob(null);
+    setJobForm({
+      title: '',
+      company: '',
+      location: 'WFH / Remote Indonesia',
+      salary: 'Rp 4.500.000 - Rp 6.500.000 / bln',
+      type: 'Full-time Remote',
+      category: 'Remote Job',
+      tags: '',
+      description: '',
+      applyUrl: '',
+    });
+    setIsJobModalOpen(true);
+  };
+
+  const openEditJobModal = (job: JobItem) => {
+    setEditingJob(job);
+    setJobForm({
+      title: job.title || '',
+      company: job.company || '',
+      location: job.location || 'WFH / Remote Indonesia',
+      salary: job.salary || '',
+      type: job.type || 'Full-time Remote',
+      category: job.primarySideJob || 'Remote Job',
+      tags: Array.isArray(job.tags) ? job.tags.join(', ') : (job.tags || ''),
+      description: job.description || '',
+      applyUrl: job.applyUrl || '',
+    });
+    setIsJobModalOpen(true);
+  };
+
+  const saveJob = async () => {
+    if (!jobForm.title.trim() || !jobForm.company.trim()) {
+      alert('Judul lowongan dan nama perusahaan wajib diisi.');
+      return;
+    }
+    setIsSaving(true);
+    try {
+      const isEdit = Boolean(editingJob?.id);
+      const url = '/api/jobs';
+      const method = isEdit ? 'PUT' : 'POST';
+      const payload = {
+        ...(isEdit ? { id: editingJob!.id } : {}),
+        ...jobForm,
+      };
+
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setIsJobModalOpen(false);
+        setEditingJob(null);
+        fetchJobs();
+      } else {
+        alert('Gagal menyimpan: ' + (data.error || 'Terjadi kesalahan'));
+      }
+    } catch (e: any) {
+      alert('Error: ' + e?.message);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const deleteJob = async (id: string, title: string) => {
+    if (!confirm(`Hapus lowongan "${title}"?`)) return;
+    try {
+      const res = await fetch(`/api/jobs?id=${encodeURIComponent(id)}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setJobs(prev => prev.filter(j => j.id !== id));
+        fetchJobs();
+      } else {
+        alert('Gagal menghapus: ' + (data.error || 'Terjadi kesalahan'));
+      }
+    } catch (e: any) {
+      alert('Gagal menghapus lowongan: ' + (e?.message || 'Terjadi kesalahan'));
+    }
+  };
+
+  // Product Actions
   const openAddProductModal = () => {
     setEditingProduct(null);
     setProductForm({
@@ -316,7 +506,6 @@ export default function AdminPage() {
         setIsProductModalOpen(false);
         setEditingProduct(null);
         fetchProducts();
-        alert(isEdit ? 'Produk berhasil diperbarui.' : 'Produk berhasil ditambahkan.');
       } else {
         alert('Gagal menyimpan: ' + (data.error || 'Terjadi kesalahan'));
       }
@@ -355,191 +544,33 @@ export default function AdminPage() {
     }
   };
 
-  const fetchAnalytics = async () => {
-    try {
-      const res = await fetch('/api/analytics');
-      if (res.status === 401) return;
-      const data = await res.json();
-      if (data.success) {
-        if (Array.isArray(data.recentVisitors)) {
-          setRecentVisitors(data.recentVisitors);
-        }
-        if (data.stats) {
-          setStats(prev => ({
-            ...prev,
-            totalUniqueVisitors: data.stats.totalUniqueVisitors || prev.totalUniqueVisitors || 0,
-            todayUniqueVisitors: data.stats.todayUniqueVisitors || prev.todayUniqueVisitors || 0,
-            totalVisits: data.stats.totalPageViews || prev.totalVisits || 0,
-          }));
-        }
-      }
-    } catch (e) {
-      console.warn('Gagal memuat analitik:', e);
-    }
-  };
-
-  const fetchLeads = async (q = '') => {
-    setIsLoading(true);
-    try {
-      const res = await fetch(`/api/leads${q ? `?q=${encodeURIComponent(q)}` : ''}`);
-      if (res.status === 401) {
-        window.location.href = '/login';
-        return;
-      }
-      const data = await res.json();
-      if (data.success) { setLeads(data.leads || []); if (data.stats) setStats(data.stats); }
-    } catch (e) { console.error(e); }
-    finally { setIsLoading(false); }
-  };
-
-  const fetchJobs = async () => {
-    try {
-      const res = await fetch(`/api/jobs?admin=true&t=${Date.now()}`, {
-        cache: 'no-store',
-      });
-      if (res.status === 401) {
-        window.location.href = '/login';
-        return;
-      }
-      const data = await res.json();
-      if (data.success && Array.isArray(data.jobs)) setJobs(data.jobs);
-      if (data.success && typeof data.isLokerFull === 'boolean') {
-        setIsLokerFull(data.isLokerFull);
-      }
-    } catch (e) { console.error(e); }
-  };
-
-  const toggleLokerFull = async () => {
-    const nextState = !isLokerFull;
-    setIsTogglingFull(true);
-    try {
-      const res = await fetch('/api/jobs', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ isLokerFull: nextState }),
-      });
-      const data = await res.json();
-      if (data.success) {
-        setIsLokerFull(data.isLokerFull);
-      } else {
-        alert(data.error || 'Gagal mengubah status lowongan');
-      }
-    } catch (err) {
-      console.error(err);
-      alert('Terjadi kesalahan saat mengubah status.');
-    } finally {
-      setIsTogglingFull(false);
-    }
-  };
-
-  const openAddJobModal = () => {
-    setEditingJob(null);
-    setJobForm({
-      title: '',
-      company: '',
-      location: 'WFH / Remote Indonesia',
-      salary: 'Rp 4.500.000 - Rp 6.500.000 / bln',
-      type: 'Full-time Remote',
-      category: 'Remote Job',
-      tags: '',
-      description: '',
-      applyUrl: '',
-    });
-    setIsJobModalOpen(true);
-  };
-
-  const openEditJobModal = (job: JobItem) => {
-    setEditingJob(job);
-    setJobForm({
-      title: job.title || '',
-      company: job.company || '',
-      location: job.location || 'WFH / Remote Indonesia',
-      salary: job.salary || '',
-      type: job.type || 'Full-time Remote',
-      category: job.primarySideJob || 'Remote Job',
-      tags: Array.isArray(job.tags) ? job.tags.join(', ') : (job.tags || ''),
-      description: job.description || '',
-      applyUrl: job.applyUrl || '',
-    });
-    setIsJobModalOpen(true);
-  };
-
-  const saveJob = async () => {
-    if (!jobForm.title.trim() || !jobForm.company.trim()) {
-      alert('Judul lowongan dan nama perusahaan wajib diisi.');
-      return;
-    }
-    setIsSaving(true);
-    try {
-      const isEdit = Boolean(editingJob?.id);
-      const url = '/api/jobs';
-      const method = isEdit ? 'PUT' : 'POST';
-      const payload = {
-        ...(isEdit ? { id: editingJob!.id } : {}),
-        ...jobForm,
-      };
-
-      const res = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-      const data = await res.json();
-      if (data.success) {
-        setIsJobModalOpen(false);
-        setEditingJob(null);
-        fetchJobs();
-        alert(isEdit ? `Lowongan "${jobForm.title}" berhasil diperbarui.` : `Lowongan "${jobForm.title}" berhasil ditambahkan.`);
-      } else {
-        alert('Gagal menyimpan: ' + (data.error || 'Terjadi kesalahan'));
-      }
-    } catch (e: any) {
-      alert('Error: ' + e?.message);
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const deleteJob = async (id: string, title: string) => {
-    if (!confirm(`Hapus lowongan "${title}"? Tindakan ini tidak dapat dibatalkan.`)) return;
-    try {
-      const res = await fetch(`/api/jobs?id=${encodeURIComponent(id)}`, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id }),
-      });
-      const data = await res.json();
-      if (data.success) {
-        setJobs(prev => prev.filter(j => j.id !== id));
-        fetchJobs();
-        alert('Lowongan berhasil dihapus.');
-      } else {
-        alert('Gagal menghapus: ' + (data.error || 'Terjadi kesalahan'));
-      }
-    } catch (e: any) {
-      alert('Gagal menghapus lowongan: ' + (e?.message || 'Terjadi kesalahan jaringan'));
-    }
-  };
-
+  // Lead Actions
   const deleteLead = async (id: string) => {
-    if (!confirm('Yakin hapus lead ini?')) return;
+    if (!confirm('Yakin hapus lead ini? Data tidak dapat dipulihkan.')) return;
     try {
       const res = await fetch(`/api/leads?id=${id}`, { method: 'DELETE' });
       const data = await res.json();
-      if (data.success) { setSelectedLead(null); fetchLeads(searchQuery); }
-    } catch { alert('Gagal menghapus lead.'); }
+      if (data.success) {
+        setSelectedLead(null);
+        fetchLeads(searchQuery);
+      }
+    } catch {
+      alert('Gagal menghapus lead.');
+    }
   };
 
   const resetAll = async () => {
-    if (!confirm('PERINGATAN: Reset SEMUA data leads dan metrik?')) return;
+    if (!confirm('PERINGATAN: Yakin reset SEMUA data leads dan metrik asesmen?')) return;
     try {
       await fetch('/api/leads?reset=true', { method: 'DELETE' });
       fetchLeads();
-    } catch { alert('Gagal reset.'); }
+    } catch {
+      alert('Gagal reset data.');
+    }
   };
 
   const exportCsv = () => {
-    if (!leads.length) return alert('Belum ada data leads.');
+    if (!leads.length) return alert('Belum ada data leads untuk diekspor.');
     let csv = 'ID,Tanggal,Nama,WhatsApp,Email,Profesi,Top Match,Kesiapan,Gaps,Skills,Tools\n';
     leads.forEach(l => {
       csv += `"${l.id}","${l.createdAt}","${l.name}","${l.wa}","${l.email}","${l.profesi}","${l.topMatch}","${l.readinessScore}%","${(l.gaps || []).join('; ')}","${(l.skills || []).join(', ')}","${(l.tools || []).join(', ')}"\n`;
@@ -552,7 +583,14 @@ export default function AdminPage() {
 
   const fmtDate = (iso: string) => {
     const d = new Date(iso);
-    return isNaN(d.getTime()) ? '-' : d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+    return isNaN(d.getTime())
+      ? '-'
+      : d.toLocaleDateString('id-ID', {
+          day: 'numeric',
+          month: 'short',
+          hour: '2-digit',
+          minute: '2-digit',
+        });
   };
 
   const fmtWa = (wa: string) => {
@@ -560,1096 +598,1728 @@ export default function AdminPage() {
     return clean.startsWith('0') ? '62' + clean.slice(1) : clean;
   };
 
+  // Filtered Leads
+  const filteredLeads = useMemo(() => {
+    return leads.filter(l => {
+      const q = searchQuery.toLowerCase().trim();
+      const matchesQ =
+        !q ||
+        l.name.toLowerCase().includes(q) ||
+        l.wa.toLowerCase().includes(q) ||
+        l.email.toLowerCase().includes(q) ||
+        l.topMatch.toLowerCase().includes(q) ||
+        l.profesi.toLowerCase().includes(q);
+
+      let matchesTier = true;
+      if (leadTierFilter === 'HIGH') matchesTier = l.readinessScore >= 80;
+      else if (leadTierFilter === 'MID') matchesTier = l.readinessScore >= 60 && l.readinessScore < 80;
+      else if (leadTierFilter === 'LOW') matchesTier = l.readinessScore < 60;
+
+      return matchesQ && matchesTier;
+    });
+  }, [leads, searchQuery, leadTierFilter]);
+
+  // Derived Analytics & Funnel Calculations
+  const analyticsData = useMemo(() => {
+    const totalVisitors = stats.totalUniqueVisitors || Math.max(stats.totalStarts, leads.length, 1);
+    const starts = stats.totalStarts || 0;
+    const leadsCount = leads.length;
+
+    const startsPct = Math.min(100, Math.round((starts / Math.max(totalVisitors, 1)) * 100));
+    const leadsPct = Math.min(100, Math.round((leadsCount / Math.max(starts || totalVisitors, 1)) * 100));
+
+    // Distribution by Top Match
+    const jobCounts: Record<string, number> = {};
+    leads.forEach(l => {
+      const match = l.topMatch || 'Lainnya';
+      jobCounts[match] = (jobCounts[match] || 0) + 1;
+    });
+
+    const sortedJobCounts = Object.entries(jobCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5);
+
+    // Readiness Tiers
+    const highTier = leads.filter(l => l.readinessScore >= 80).length;
+    const midTier = leads.filter(l => l.readinessScore >= 60 && l.readinessScore < 80).length;
+    const lowTier = leads.filter(l => l.readinessScore < 60).length;
+
+    return {
+      totalVisitors,
+      starts,
+      leadsCount,
+      startsPct,
+      leadsPct,
+      sortedJobCounts,
+      highTier,
+      midTier,
+      lowTier,
+    };
+  }, [stats, leads]);
+
   return (
-    <div style={S.page}>
-      {/* HEADER */}
-      <header style={S.header}>
-        <Link href="/" style={S.logo}>
-          <div style={S.logoIcon}>💼</div>
-          <div>
-            <h1 style={S.h1}>
-              Cari Side Job <span style={S.badge}>Admin</span>
-            </h1>
-            <p style={S.sub}>Kelola data leads, lowongan, dan produk rekomendasi</p>
+    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 font-sans antialiased selection:bg-blue-100 selection:text-blue-700">
+      {/* TOP HEADER */}
+      <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200/80 shadow-xs transition-all">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between gap-4">
+          {/* Brand Identity */}
+          <Link href="/" className="flex items-center gap-3 group focus:outline-none">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform">
+              <Briefcase className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="font-extrabold text-base tracking-tight text-slate-900 group-hover:text-blue-600 transition-colors">
+                  Cari Side Job
+                </span>
+                <span className="bg-blue-50 text-blue-700 border border-blue-200/60 text-[10px] font-extrabold px-2 py-0.5 rounded-full tracking-wide uppercase">
+                  Admin
+                </span>
+              </div>
+              <div className="flex items-center gap-1.5 text-[11px] text-slate-500 font-medium">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span>Anti-Spam Unique IP Active</span>
+              </div>
+            </div>
+          </Link>
+
+          {/* Action Toolbar */}
+          <div className="flex items-center gap-2 sm:gap-2.5">
+            <Link
+              href="/"
+              className="hidden sm:inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200/80 px-3 py-2 rounded-xl transition-colors"
+              title="Kunjungi website publik"
+            >
+              <ExternalLink className="w-3.5 h-3.5" />
+              <span>Lihat Website</span>
+            </Link>
+
+            <button
+              onClick={exportCsv}
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 px-3.5 py-2 rounded-xl shadow-xs shadow-blue-500/20 transition-colors"
+              title="Download rekapan leads dalam format CSV"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span className="hidden xs:inline">Export</span> CSV ({leads.length})
+            </button>
+
+            <button
+              onClick={resetAll}
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 px-3 py-2 rounded-xl transition-colors"
+              title="Reset data leads"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span className="hidden md:inline">Reset</span>
+            </button>
+
+            <button
+              onClick={async () => {
+                if (!confirm('Yakin ingin keluar dari panel admin?')) return;
+                try {
+                  await fetch('/api/admin/logout', { method: 'POST' });
+                } finally {
+                  window.location.href = '/login';
+                }
+              }}
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 hover:text-rose-600 bg-slate-50 hover:bg-rose-50 border border-slate-200 hover:border-rose-200 px-3 py-2 rounded-xl transition-colors"
+              title="Keluar dari Panel Admin"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Keluar</span>
+            </button>
           </div>
-        </Link>
-        <div style={S.hBtns}>
-          <Link href="/" style={S.btnOutline}>← Lihat Website</Link>
-          <button style={S.btnPrimary} onClick={exportCsv}>Export CSV ({leads.length})</button>
-          <button style={S.btnRed} onClick={resetAll}>Reset Data</button>
-          <button
-            style={{
-              ...S.btnOutline,
-              borderColor: '#FECACA',
-              color: '#DC2626',
-              background: '#FEF2F2',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
-            }}
-            onClick={async () => {
-              if (!confirm('Yakin ingin keluar dari panel admin?')) return;
-              try {
-                await fetch('/api/admin/logout', { method: 'POST' });
-              } finally {
-                window.location.href = '/login';
-              }
-            }}
-            title="Keluar dari Panel Admin"
-          >
-            🔒 Keluar
-          </button>
         </div>
       </header>
 
-      <div style={S.body}>
-        {/* TABS */}
-        <div style={S.tabRow}>
-          <TabBtn label={`Leads (${leads.length})`} active={activeTab === 'leads'} onClick={() => setActiveTab('leads')} />
-          <TabBtn label={`Lowongan Kerja (${jobs.length})`} active={activeTab === 'loker'} onClick={() => setActiveTab('loker')} />
-          <TabBtn label={`Produk (${products.length})`} active={activeTab === 'produk'} onClick={() => setActiveTab('produk')} />
+      {/* MAIN CONTAINER */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-20">
+        {/* SEGMENTED TAB SWITCHER */}
+        <div className="flex items-center gap-2 p-1 bg-slate-200/60 rounded-2xl w-full max-w-xl mx-auto mb-8 shadow-inner overflow-x-auto">
+          <button
+            onClick={() => setActiveTab('leads')}
+            className={`flex-1 min-w-[120px] inline-flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold transition-all ${
+              activeTab === 'leads'
+                ? 'bg-white text-blue-600 shadow-sm shadow-slate-300/50'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-white/40'
+            }`}
+          >
+            <Activity className="w-4 h-4" />
+            <span>Leads & Metrik</span>
+            <span
+              className={`text-[10px] px-1.5 py-0.5 rounded-full font-extrabold ${
+                activeTab === 'leads' ? 'bg-blue-100 text-blue-700' : 'bg-slate-300 text-slate-700'
+              }`}
+            >
+              {leads.length}
+            </span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('loker')}
+            className={`flex-1 min-w-[120px] inline-flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold transition-all ${
+              activeTab === 'loker'
+                ? 'bg-white text-blue-600 shadow-sm shadow-slate-300/50'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-white/40'
+            }`}
+          >
+            <Briefcase className="w-4 h-4" />
+            <span>Lowongan</span>
+            <span
+              className={`text-[10px] px-1.5 py-0.5 rounded-full font-extrabold ${
+                activeTab === 'loker' ? 'bg-blue-100 text-blue-700' : 'bg-slate-300 text-slate-700'
+              }`}
+            >
+              {jobs.length}
+            </span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('produk')}
+            className={`flex-1 min-w-[120px] inline-flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold transition-all ${
+              activeTab === 'produk'
+                ? 'bg-white text-blue-600 shadow-sm shadow-slate-300/50'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-white/40'
+            }`}
+          >
+            <ShoppingBag className="w-4 h-4" />
+            <span>Produk</span>
+            <span
+              className={`text-[10px] px-1.5 py-0.5 rounded-full font-extrabold ${
+                activeTab === 'produk' ? 'bg-blue-100 text-blue-700' : 'bg-slate-300 text-slate-700'
+              }`}
+            >
+              {products.length}
+            </span>
+          </button>
         </div>
 
-        {/* TAB: LEADS */}
+        {/* ════════════════════════════════════════════════════════════════
+            TAB 1: LEADS & ANALITIK
+        ════════════════════════════════════════════════════════════════ */}
         {activeTab === 'leads' && (
-          <div>
-            {/* Metric Cards */}
-            <div style={S.metGrid}>
-              <MetricCard title="Pengunjung Unik" value={stats.totalUniqueVisitors || stats.totalStarts || 0} sub="Unique IP website (All-time)" accent="blue" />
-              <MetricCard title="Visitor Hari Ini" value={stats.todayUniqueVisitors || 0} sub="Unique IP hari ini (Anti-spam)" accent="emerald" />
-              <MetricCard title="Total Kunjungan" value={stats.totalVisits || stats.totalUniqueVisitors || 0} sub="Sesi browsing terverifikasi" />
-              <MetricCard title="Mulai Asesmen" value={stats.totalStarts} sub="Pengunjung mulai kuis" accent="gold" />
-              <MetricCard title="Leads Masuk" value={stats.totalLeads} sub="Kontak tersimpan" accent="blue" />
-              <MetricCard title="Tingkat Konversi" value={stats.conversionRate} sub="Penyelesaian asesmen" accent="gold" />
-              <MetricCard title="Rata-rata Kesiapan" value={stats.avgReadiness} sub="Skor kesiapan peserta" accent="emerald" />
-              <MetricCard title="Rekomendasi Teratas" value={stats.popularJob} sub="Paling sering cocok" />
-            </div>
-
-            {/* TRAFIK & VISITOR MONITORING BANNER */}
-            <div
-              style={{
-                background: 'white',
-                border: '1px solid #E2E8F0',
-                borderRadius: 18,
-                padding: '16px 20px',
-                marginBottom: 20,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                gap: 16,
-                flexWrap: 'wrap',
-                boxShadow: '0 1px 4px rgba(0,0,0,0.03)',
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <div
-                  style={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: 12,
-                    background: '#EFF6FF',
-                    color: '#1D64EC',
-                    border: '1px solid #BFDBFE',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: 20,
-                    flexShrink: 0,
-                  }}
-                >
-                  🌐
-                </div>
-                <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                    <h3 style={{ fontSize: 14.5, fontWeight: 800, margin: 0, color: '#0F172A' }}>
-                      Monitoring Visitor & Click Link (Unique IP Protected)
-                    </h3>
-                    <span style={S.pill('#ECFDF5', '#059669', '#A7F3D0')}>
-                      ● Anti-Spam Refresh Aktif
-                    </span>
+          <div className="space-y-6">
+            {/* BENTO STAT CARDS (2x2 on Mobile, 4-col on Desktop) */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+              {/* Stat 1: Unique Visitors */}
+              <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-xs relative overflow-hidden group hover:border-blue-300 transition-colors">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                    Pengunjung Unik
+                  </span>
+                  <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+                    <Eye className="w-4 h-4" />
                   </div>
-                  <p style={{ fontSize: 12, color: '#64748B', margin: '3px 0 0' }}>
-                    Akurasi terjaga: Dihitung per IP Unik & sesi browsing 30 menit. Spam refresh atau klik berkali-kali tidak menambah angka visitor.
-                  </p>
+                </div>
+                <div className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                  {stats.totalUniqueVisitors || stats.totalStarts || 0}
+                </div>
+                <div className="mt-2 flex items-center gap-1.5 flex-wrap">
+                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-emerald-50 text-emerald-700 text-[11px] font-bold border border-emerald-200/60">
+                    +{stats.todayUniqueVisitors || 0} hari ini
+                  </span>
+                  <span className="text-[11px] text-slate-600 font-semibold">IP Unik</span>
                 </div>
               </div>
 
-              {recentVisitors.length > 0 && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: '#64748B', textTransform: 'uppercase' }}>
-                    Aktivitas Terbaru:
+              {/* Stat 2: Leads Captured */}
+              <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-xs relative overflow-hidden group hover:border-emerald-300 transition-colors">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                    Total Leads
                   </span>
-                  {recentVisitors.slice(0, 3).map((v) => (
-                    <span
-                      key={v.id}
-                      style={{
-                        background: '#F8FAFC',
-                        border: '1px solid #E2E8F0',
-                        padding: '3px 9px',
-                        borderRadius: 8,
-                        fontSize: 11,
-                        color: '#334155',
-                        fontWeight: 600,
-                      }}
-                      title={`Halaman: ${v.path} | Ref: ${v.referrer} | Waktu: ${fmtDate(v.createdAt)}`}
-                    >
-                      📡 {v.maskedIp} ({fmtDate(v.createdAt).split(' ')[1] || 'Baru'})
+                  <div className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                    <Users className="w-4 h-4" />
+                  </div>
+                </div>
+                <div className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                  {stats.totalLeads}
+                </div>
+                <div className="mt-2 flex items-center gap-1.5 flex-wrap">
+                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-blue-50 text-blue-700 text-[11px] font-bold border border-blue-200/60">
+                    Konversi {stats.conversionRate}
+                  </span>
+                  <span className="text-[11px] text-slate-600 font-semibold">{stats.totalStarts} asesmen</span>
+                </div>
+              </div>
+
+              {/* Stat 3: Avg Readiness */}
+              <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-xs relative overflow-hidden group hover:border-amber-300 transition-colors">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                    Rata Kesiapan
+                  </span>
+                  <div className="w-7 h-7 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
+                    <TrendingUp className="w-4 h-4" />
+                  </div>
+                </div>
+                <div className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                  {stats.avgReadiness}
+                </div>
+                <div className="mt-2 flex items-center gap-1.5 flex-wrap">
+                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-amber-50 text-amber-700 text-[11px] font-bold border border-amber-200/60">
+                    {analyticsData.highTier} Siap Kerja
+                  </span>
+                  <span className="text-[11px] text-slate-600 font-semibold">Skor $\ge 80\%$</span>
+                </div>
+              </div>
+
+              {/* Stat 4: Top Recommendation */}
+              <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-xs relative overflow-hidden group hover:border-violet-300 transition-colors">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                    Paling Diminati
+                  </span>
+                  <div className="w-7 h-7 rounded-lg bg-violet-50 text-violet-600 flex items-center justify-center">
+                    <Sparkles className="w-4 h-4" />
+                  </div>
+                </div>
+                <div className="text-lg sm:text-xl font-black text-slate-900 tracking-tight truncate" title={stats.popularJob}>
+                  {stats.popularJob || '-'}
+                </div>
+                <div className="mt-2 flex items-center gap-1.5 flex-wrap">
+                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-violet-50 text-violet-700 text-[11px] font-bold border border-violet-200/60">
+                    Top Match
+                  </span>
+                  <span className="text-[11px] text-slate-600 font-semibold">Paling sering cocok</span>
+                </div>
+              </div>
+            </div>
+
+            {/* INTERACTIVE ANALYTICS & VISUAL FUNNEL */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {/* Card 1: Visual Conversion Funnel */}
+              <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between gap-2 mb-4">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
+                        <Layers className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <h3 className="font-extrabold text-sm text-slate-900">Funnel Konversi Asesmen</h3>
+                        <p className="text-[11px] text-slate-500 font-medium">Alur konversi dari pengunjung hingga menjadi leads</p>
+                      </div>
+                    </div>
+                    <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      Live
                     </span>
-                  ))}
+                  </div>
+
+                  {/* Funnel Visual Steps */}
+                  <div className="space-y-3.5">
+                    {/* Step 1: Visitors */}
+                    <div>
+                      <div className="flex items-center justify-between text-xs font-bold text-slate-700 mb-1">
+                        <span className="flex items-center gap-1.5">
+                          <Globe className="w-3.5 h-3.5 text-blue-500" />
+                          <span>1. Pengunjung Unik Website</span>
+                        </span>
+                        <span className="text-slate-900">{analyticsData.totalVisitors} Org (100%)</span>
+                      </div>
+                      <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden">
+                        <div className="h-full bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full w-full"></div>
+                      </div>
+                    </div>
+
+                    {/* Step 2: Starts */}
+                    <div>
+                      <div className="flex items-center justify-between text-xs font-bold text-slate-700 mb-1">
+                        <span className="flex items-center gap-1.5">
+                          <Activity className="w-3.5 h-3.5 text-amber-500" />
+                          <span>2. Memulai Kuis Asesmen</span>
+                        </span>
+                        <span className="text-slate-900">
+                          {analyticsData.starts} Org ({analyticsData.startsPct}%)
+                        </span>
+                      </div>
+                      <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-gradient-to-r from-amber-500 to-amber-600 rounded-full transition-all duration-500"
+                          style={{ width: `${Math.max(analyticsData.startsPct, 4)}%` }}
+                        ></div>
+                      </div>
+                    </div>
+
+                    {/* Step 3: Completed Leads */}
+                    <div>
+                      <div className="flex items-center justify-between text-xs font-bold text-slate-700 mb-1">
+                        <span className="flex items-center gap-1.5">
+                          <Users className="w-3.5 h-3.5 text-emerald-500" />
+                          <span>3. Menyelesaikan & Kontak Masuk</span>
+                        </span>
+                        <span className="text-emerald-700 font-extrabold">
+                          {analyticsData.leadsCount} Leads ({analyticsData.leadsPct}%)
+                        </span>
+                      </div>
+                      <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full transition-all duration-500"
+                          style={{ width: `${Math.max(analyticsData.leadsPct, 4)}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
+                  <span className="flex items-center gap-1">
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>Perhitungan terlindung dari multiple refresh spam</span>
+                  </span>
+                  <span className="font-bold text-blue-600">Sesi 30 Menit</span>
+                </div>
+              </div>
+
+              {/* Card 2: Distribution by Match & Readiness Tiers */}
+              <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between gap-2 mb-4">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
+                        <Award className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <h3 className="font-extrabold text-sm text-slate-900">Distribusi Kesiapan & Bidang Teratas</h3>
+                        <p className="text-[11px] text-slate-500 font-medium">Karakteristik peserta yang mengisi kuis</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Readiness Pill Badges */}
+                  <div className="grid grid-cols-3 gap-2 mb-4 text-center">
+                    <div className="bg-emerald-50/70 border border-emerald-200/70 p-2.5 rounded-xl">
+                      <div className="text-[10px] font-bold text-emerald-800 uppercase">Siap Kerja ($\ge 80\%$)</div>
+                      <div className="text-base font-extrabold text-emerald-700">{analyticsData.highTier} Peserta</div>
+                    </div>
+                    <div className="bg-amber-50/70 border border-amber-200/70 p-2.5 rounded-xl">
+                      <div className="text-[10px] font-bold text-amber-800 uppercase">Potensial (60-79%)</div>
+                      <div className="text-base font-extrabold text-amber-700">{analyticsData.midTier} Peserta</div>
+                    </div>
+                    <div className="bg-slate-100 border border-slate-200 p-2.5 rounded-xl">
+                      <div className="text-[10px] font-bold text-slate-700 uppercase">Pemula (&lt; 60%)</div>
+                      <div className="text-base font-extrabold text-slate-800">{analyticsData.lowTier} Peserta</div>
+                    </div>
+                  </div>
+
+                  {/* Top Matching Jobs List */}
+                  <div className="space-y-2">
+                    <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                      Rekomendasi Terbanyak
+                    </div>
+                    {analyticsData.sortedJobCounts.length === 0 ? (
+                      <p className="text-xs text-slate-600 italic">Belum ada data leads untuk distribusi kategori.</p>
+                    ) : (
+                      analyticsData.sortedJobCounts.map(([jobName, count], idx) => {
+                        const pct = Math.round((count / Math.max(leads.length, 1)) * 100);
+                        return (
+                          <div key={jobName} className="space-y-1">
+                            <div className="flex items-center justify-between text-xs font-semibold text-slate-700">
+                              <span className="truncate max-w-[200px]">
+                                {idx + 1}. {jobName}
+                              </span>
+                              <span className="text-slate-900 font-bold">
+                                {count} ({pct}%)
+                              </span>
+                            </div>
+                            <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                              <div
+                                className="h-full bg-blue-500 rounded-full"
+                                style={{ width: `${Math.max(pct, 5)}%` }}
+                              ></div>
+                            </div>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                </div>
+
+                <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+                  <span className="text-[11px] text-slate-600 font-medium">Berdasarkan skor asesmen AI</span>
+                  <span className="text-[11px] font-bold text-slate-700">{leads.length} Total Data</span>
+                </div>
+              </div>
+            </div>
+
+            {/* LIVE RECENT VISITORS ACCORDION / TOGGLE */}
+            <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+              <button
+                type="button"
+                onClick={() => setShowVisitorLog(!showVisitorLog)}
+                className="w-full p-4 flex items-center justify-between text-left hover:bg-slate-50/70 transition-colors focus:outline-none"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center font-bold">
+                    <Globe className="w-4 h-4 text-blue-600" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-extrabold text-sm text-slate-900">
+                        Live Feed: Pengunjung Terbaru (IP-Masked)
+                      </h3>
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-blue-50 text-blue-700 border border-blue-200">
+                        {recentVisitors.length} Sesi Terakhir
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-500">
+                      IP otomatis disamarkan untuk privasi, dilindungi anti-spam refresh
+                    </p>
+                  </div>
+                </div>
+                <div className="text-slate-400">
+                  {showVisitorLog ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+                </div>
+              </button>
+
+              {showVisitorLog && (
+                <div className="border-t border-slate-100 p-4 bg-slate-50/50">
+                  {recentVisitors.length === 0 ? (
+                    <p className="text-xs text-slate-600 text-center py-4">Belum ada log pengunjung terekam.</p>
+                  ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                      {recentVisitors.map(v => (
+                        <div
+                          key={v.id}
+                          className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs text-xs space-y-1"
+                        >
+                          <div className="flex items-center justify-between font-bold text-slate-800">
+                            <span className="flex items-center gap-1.5 text-blue-600">
+                              <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                              {v.maskedIp}
+                            </span>
+                            <span className="text-[10px] text-slate-600 font-normal">{fmtDate(v.createdAt)}</span>
+                          </div>
+                          <div className="text-[11px] text-slate-600 truncate">
+                            <strong>Path:</strong> {v.path || '/'}
+                          </div>
+                          <div className="text-[10px] text-slate-600 truncate">
+                            <strong>Ref:</strong> {v.referrer || 'Direct'}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
 
-            {/* Table */}
-            <div style={S.panel}>
-              <div style={S.panelHdr}>
+            {/* LEADS LIST PANEL */}
+            <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+              {/* Filter & Search Header */}
+              <div className="p-4 sm:p-5 border-b border-slate-200/80 flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                  <h2 style={{ fontSize: 18, fontWeight: 800, margin: 0, marginBottom: 2 }}>Daftar Peserta</h2>
-                  <p style={{ fontSize: 12.5, color: '#64748B', margin: 0 }}>Data kontak dan hasil asesmen</p>
+                  <h2 className="font-extrabold text-base text-slate-900">Daftar Leads & Peserta</h2>
+                  <p className="text-xs text-slate-500">
+                    Menampilkan {filteredLeads.length} dari {leads.length} total peserta terdaftar
+                  </p>
                 </div>
-                <div style={{ position: 'relative' }}>
-                  <input
-                    type="text"
-                    style={{ ...S.input, width: 280, paddingLeft: 36 }}
-                    placeholder="Cari nama, WA, email, job..."
-                    value={searchQuery}
-                    onChange={e => { setSearchQuery(e.target.value); fetchLeads(e.target.value); }}
-                  />
+
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+                  {/* Readiness Tier Pills */}
+                  <div className="flex items-center bg-slate-100 p-1 rounded-xl gap-1 text-xs font-bold text-slate-600">
+                    <button
+                      onClick={() => setLeadTierFilter('ALL')}
+                      className={`px-2.5 py-1.5 rounded-lg transition-all ${
+                        leadTierFilter === 'ALL' ? 'bg-white text-slate-900 shadow-xs' : 'hover:text-slate-900'
+                      }`}
+                    >
+                      Semua
+                    </button>
+                    <button
+                      onClick={() => setLeadTierFilter('HIGH')}
+                      className={`px-2.5 py-1.5 rounded-lg transition-all ${
+                        leadTierFilter === 'HIGH' ? 'bg-white text-emerald-700 shadow-xs' : 'hover:text-slate-900'
+                      }`}
+                    >
+                      $\ge 80\%$
+                    </button>
+                    <button
+                      onClick={() => setLeadTierFilter('MID')}
+                      className={`px-2.5 py-1.5 rounded-lg transition-all ${
+                        leadTierFilter === 'MID' ? 'bg-white text-amber-700 shadow-xs' : 'hover:text-slate-900'
+                      }`}
+                    >
+                      60-79%
+                    </button>
+                    <button
+                      onClick={() => setLeadTierFilter('LOW')}
+                      className={`px-2.5 py-1.5 rounded-lg transition-all ${
+                        leadTierFilter === 'LOW' ? 'bg-white text-slate-900 shadow-xs' : 'hover:text-slate-900'
+                      }`}
+                    >
+                      &lt;60%
+                    </button>
+                  </div>
+
+                  {/* Search Input */}
+                  <div className="relative min-w-[240px]">
+                    <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="text"
+                      placeholder="Cari nama, WA, email, job..."
+                      value={searchQuery}
+                      onChange={e => {
+                        setSearchQuery(e.target.value);
+                        fetchLeads(e.target.value);
+                      }}
+                      className="w-full pl-9 pr-3 py-2 text-xs font-medium rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all bg-slate-50/50 focus:bg-white"
+                    />
+                  </div>
                 </div>
               </div>
 
-              <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+              {/* DESKTOP TABLE VIEW (Visible on tablet & desktop) */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full text-left text-xs border-collapse">
                   <thead>
-                    <tr>
-                      {['Waktu', 'Nama', 'WhatsApp', 'Email', 'Profesi', 'Rekomendasi', 'Kesiapan', ''].map(h => (
-                        <th key={h} style={S.th}>{h}</th>
-                      ))}
+                    <tr className="bg-slate-50/70 border-b border-slate-200/80 text-slate-500 font-extrabold uppercase tracking-wider text-[11px]">
+                      <th className="py-3 px-4">Waktu</th>
+                      <th className="py-3 px-4">Nama Lengkap</th>
+                      <th className="py-3 px-4">WhatsApp</th>
+                      <th className="py-3 px-4">Email</th>
+                      <th className="py-3 px-4">Profesi</th>
+                      <th className="py-3 px-4">Top Match</th>
+                      <th className="py-3 px-4 text-center">Kesiapan</th>
+                      <th className="py-3 px-4 text-right">Aksi</th>
                     </tr>
                   </thead>
-                  <tbody>
+                  <tbody className="divide-y divide-slate-100">
                     {isLoading ? (
-                      <tr><td colSpan={8} style={{ ...S.td, textAlign: 'center', padding: 48, color: '#64748B' }}>Memuat data...</td></tr>
-                    ) : leads.length === 0 ? (
-                      <tr><td colSpan={8} style={{ ...S.td, textAlign: 'center', padding: 48, color: '#64748B' }}>Belum ada data</td></tr>
-                    ) : leads.map(lead => (
-                      <tr key={lead.id} style={{ borderBottom: '1px solid #F1F5F9', cursor: 'default' }} onMouseEnter={e => (e.currentTarget.style.background = '#F8FAFC')} onMouseLeave={e => (e.currentTarget.style.background = '')}>
-                        <td style={{ ...S.td, color: '#64748B', fontSize: 12, whiteSpace: 'nowrap' }}>{fmtDate(lead.createdAt)}</td>
-                        <td style={{ ...S.td, fontWeight: 700 }}>{lead.name}</td>
-                        <td style={S.td}>
-                          {lead.wa ? (
-                            <a href={`https://wa.me/${fmtWa(lead.wa)}?text=${encodeURIComponent(`Halo ${lead.name}, terima kasih sudah coba asesmen Cari Side Job!`)}`} target="_blank" rel="noopener noreferrer" style={{ color: '#16A34A', fontWeight: 700, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4, fontSize: 13 }}>
-                              💬 {lead.wa}
-                            </a>
-                          ) : '-'}
-                        </td>
-                        <td style={{ ...S.td, fontSize: 12.5, color: '#334155' }}>{lead.email}</td>
-                        <td style={S.td}><span style={S.pill('#EFF6FF', '#1D64EC', '#BFDBFE')}>{lead.profesi}</span></td>
-                        <td style={S.td}><span style={{ ...S.pill('#FEF3C7', '#92400E', '#FDE68A'), maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', display: 'block' }}>{lead.topMatch}</span></td>
-                        <td style={S.td}><span style={S.pill('#DCFCE7', '#166534', '#A7F3D0')}>{lead.readinessScore}%</span></td>
-                        <td style={S.td}>
-                          <button style={{ ...S.btnOutline, padding: '6px 14px', fontSize: 12 }} onClick={() => setSelectedLead(lead)}>Detail</button>
+                      <tr>
+                        <td colSpan={8} className="py-12 text-center text-slate-400">
+                          Memuat data leads...
                         </td>
                       </tr>
-                    ))}
+                    ) : filteredLeads.length === 0 ? (
+                      <tr>
+                        <td colSpan={8} className="py-12 text-center text-slate-400">
+                          Tidak ada data leads yang cocok dengan kriteria pencarian.
+                        </td>
+                      </tr>
+                    ) : (
+                      filteredLeads.map(lead => (
+                        <tr key={lead.id} className="hover:bg-blue-50/30 transition-colors">
+                          <td className="py-3 px-4 text-slate-500 font-medium whitespace-nowrap">
+                            {fmtDate(lead.createdAt)}
+                          </td>
+                          <td className="py-3 px-4 font-bold text-slate-900">{lead.name}</td>
+                          <td className="py-3 px-4 whitespace-nowrap">
+                            {lead.wa ? (
+                              <a
+                                href={`https://wa.me/${fmtWa(lead.wa)}?text=${encodeURIComponent(
+                                  `Halo ${lead.name}, terima kasih sudah mencoba asesmen Cari Side Job!`
+                                )}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1.5 font-bold text-emerald-600 hover:text-emerald-700 hover:underline"
+                              >
+                                <Phone className="w-3.5 h-3.5" />
+                                <span>{lead.wa}</span>
+                              </a>
+                            ) : (
+                              <span className="text-slate-400">-</span>
+                            )}
+                          </td>
+                          <td className="py-3 px-4 text-slate-600 font-medium">{lead.email}</td>
+                          <td className="py-3 px-4">
+                            <span className="inline-block px-2 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200/60">
+                              {lead.profesi}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4">
+                            <span className="inline-block max-w-[180px] truncate px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-800 border border-amber-200/70" title={lead.topMatch}>
+                              {lead.topMatch}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4 text-center">
+                            <span
+                              className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-black ${
+                                lead.readinessScore >= 80
+                                  ? 'bg-emerald-100 text-emerald-800'
+                                  : lead.readinessScore >= 60
+                                  ? 'bg-amber-100 text-amber-800'
+                                  : 'bg-slate-100 text-slate-700'
+                              }`}
+                            >
+                              {lead.readinessScore}%
+                            </span>
+                          </td>
+                          <td className="py-3 px-4 text-right whitespace-nowrap">
+                            <div className="flex items-center justify-end gap-1.5">
+                              <button
+                                onClick={() => setSelectedLead(lead)}
+                                className="px-2.5 py-1 text-xs font-bold text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
+                              >
+                                Detail
+                              </button>
+                              <button
+                                onClick={() => deleteLead(lead.id)}
+                                className="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                                title="Hapus lead"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </table>
               </div>
-            </div>
-          </div>
-        )}
 
-        {/* TAB: LOKER */}
-        {activeTab === 'loker' && (
-          <div>
-            {/* METRICS */}
-            <div style={S.metGrid}>
-              <MetricCard title="Total Lowongan" value={jobs.length} sub="Semua loker terdaftar" accent="blue" />
-              <MetricCard title="Kategori Loker" value={new Set(jobs.map(j => getJobCategory(j))).size} sub="Variasi bidang side job" accent="gold" />
-              <MetricCard title="Gaji Transparan" value={jobs.filter(j => j.salary && !j.salary.toLowerCase().includes('kompetitif')).length} sub="Rentang nominal tertera" accent="emerald" />
-            </div>
-
-            {/* TOGGLE BANNER: FITUR POP-UP STATUS LOWONGAN PENUH */}
-            <div
-              style={{
-                background: isLokerFull ? '#FFFBEB' : 'white',
-                border: `1.5px solid ${isLokerFull ? '#F59E0B' : '#E2E8F0'}`,
-                borderRadius: 18,
-                padding: '16px 20px',
-                marginBottom: 20,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                gap: 16,
-                flexWrap: 'wrap',
-                boxShadow: isLokerFull ? '0 4px 14px rgba(245, 158, 11, 0.12)' : '0 1px 4px rgba(0,0,0,0.04)',
-                transition: 'all 0.2s',
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 14, minWidth: 280, flex: 1 }}>
-                <div
-                  style={{
-                    width: 44,
-                    height: 44,
-                    borderRadius: 14,
-                    background: isLokerFull ? '#FEF3C7' : '#F1F5F9',
-                    border: `1px solid ${isLokerFull ? '#FDE68A' : '#E2E8F0'}`,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: 22,
-                    flexShrink: 0,
-                  }}
-                >
-                  {isLokerFull ? '📢' : '💼'}
-                </div>
-                <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                    <h3 style={{ fontSize: 15, fontWeight: 800, margin: 0, color: '#0F172A' }}>
-                      Fitur Pop-Up: Lowongan Kerja Sedang Penuh
-                    </h3>
-                    <span
-                      style={S.pill(
-                        isLokerFull ? '#FEF2F2' : '#F0FDF4',
-                        isLokerFull ? '#DC2626' : '#16A34A',
-                        isLokerFull ? '#FECACA' : '#BBF7D0'
-                      )}
-                    >
-                      {isLokerFull ? '● MODE PENUH AKTIF (POP-UP ON)' : '○ MODE NORMAL (POP-UP OFF)'}
-                    </span>
-                  </div>
-                  <p style={{ fontSize: 12.5, color: '#64748B', margin: '4px 0 0', lineHeight: 1.4 }}>
-                    {isLokerFull ? (
-                      <span style={{ color: '#B45309', fontWeight: 600 }}>
-                        Pop-up aktif: &ldquo;Mohon Maaf, Saat Ini Lowongan Kerja Remote Sedang Penuh. Informasi Lowongan Terbaru Akan Segera Kami Update.&rdquo;
-                      </span>
-                    ) : (
-                      'Lowongan kerja tampil normal sesuai database. Aktifkan tombol jika lowongan kerja sedang penuh atau kosong.'
-                    )}
-                  </p>
-                </div>
-              </div>
-
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <button
-                  type="button"
-                  onClick={toggleLokerFull}
-                  disabled={isTogglingFull}
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 8,
-                    background: isLokerFull ? 'linear-gradient(135deg, #DC2626, #B91C1C)' : '#F1F5F9',
-                    color: isLokerFull ? 'white' : '#475569',
-                    border: `1.5px solid ${isLokerFull ? '#DC2626' : '#CBD5E1'}`,
-                    padding: '9px 18px',
-                    borderRadius: 9999,
-                    fontSize: 13,
-                    fontWeight: 800,
-                    cursor: isTogglingFull ? 'not-allowed' : 'pointer',
-                    fontFamily: 'inherit',
-                    transition: 'all 0.15s',
-                    boxShadow: isLokerFull ? '0 2px 8px rgba(220, 38, 38, 0.25)' : 'none',
-                  }}
-                >
-                  <span
-                    style={{
-                      width: 10,
-                      height: 10,
-                      borderRadius: '50%',
-                      background: isLokerFull ? '#FEF2F2' : '#94A3B8',
-                      display: 'inline-block',
-                    }}
-                  />
-                  <span>
-                    {isTogglingFull
-                      ? 'Menyimpan...'
-                      : isLokerFull
-                      ? 'Pop-up ON (Klik untuk Matikan)'
-                      : 'Pop-up OFF (Klik untuk Aktifkan)'}
-                  </span>
-                </button>
-              </div>
-            </div>
-
-            {/* PANEL */}
-            <div style={S.panel}>
-              <div style={S.panelHdr}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
-                  <div>
-                    <h2 style={{ fontSize: 18, fontWeight: 800, margin: 0, marginBottom: 2 }}>Kelola Lowongan Kerja Remote</h2>
-                    <p style={{ fontSize: 12.5, color: '#64748B', margin: 0 }}>Daftar lowongan kerja yang tayang di website untuk pencari side job</p>
-                  </div>
-                  <input
-                    style={{ ...S.input, width: 230, padding: '7px 12px', fontSize: 12 }}
-                    placeholder="Cari judul, perusahaan, skill..."
-                    value={jobSearch}
-                    onChange={e => setJobSearch(e.target.value)}
-                  />
-                  <select
-                    style={{ ...S.input, width: 180, padding: '7px 10px', fontSize: 12 }}
-                    value={jobTypeFilter}
-                    onChange={e => setJobTypeFilter(e.target.value)}
-                  >
-                    <option value="ALL">Semua Tipe Kerja</option>
-                    <option value="Full-time Remote">Full-time Remote</option>
-                    <option value="Part-time Remote">Part-time Remote</option>
-                    <option value="Freelance Project">Freelance Project</option>
-                    <option value="Contract Remote">Contract Remote</option>
-                  </select>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <button style={S.btnPrimary} onClick={openAddJobModal}>
-                    + Tambah Lowongan
-                  </button>
-                </div>
-              </div>
-
-              {/* LIST / EMPTY STATES */}
-              {jobs.length === 0 ? (
-                <div style={{ padding: '60px 20px', textAlign: 'center' }}>
-                  <div style={{ fontSize: 40, marginBottom: 12 }}>💼</div>
-                  <div style={{ fontSize: 16, fontWeight: 800, color: '#0F172A', marginBottom: 6 }}>Belum Ada Lowongan Kerja</div>
-                  <p style={{ fontSize: 13, color: '#64748B', maxWidth: 360, margin: '0 auto 18px', lineHeight: 1.5 }}>
-                    Belum ada data lowongan kerja di database. Klik tombol di bawah untuk menambahkan lowongan kerja pertama.
-                  </p>
-                  <button style={S.btnPrimary} onClick={openAddJobModal}>
-                    + Tambah Lowongan Pertama
-                  </button>
-                </div>
-              ) : (() => {
-                const filteredAdminJobs = jobs.filter(job => {
-                  const q = jobSearch.toLowerCase().trim();
-                  const matchesQ = !q ||
-                    job.title.toLowerCase().includes(q) ||
-                    job.company.toLowerCase().includes(q) ||
-                    (job.description || '').toLowerCase().includes(q) ||
-                    (job.tags || []).some(t => t.toLowerCase().includes(q));
-                  const matchesType = jobTypeFilter === 'ALL' || job.type === jobTypeFilter;
-                  return matchesQ && matchesType;
-                });
-
-                if (filteredAdminJobs.length === 0) {
-                  return (
-                    <div style={{ padding: '50px 20px', textAlign: 'center' }}>
-                      <div style={{ fontSize: 32, marginBottom: 10 }}>🔍</div>
-                      <div style={{ fontSize: 15, fontWeight: 800, color: '#0F172A', marginBottom: 4 }}>
-                        Tidak Ada Lowongan yang Sesuai
-                      </div>
-                      <p style={{ fontSize: 12.5, color: '#64748B', margin: '0 auto 16px' }}>
-                        Coba gunakan kata kunci lain atau ubah filter tipe kerja.
-                      </p>
-                      <button
-                        style={{ ...S.btnOutline, padding: '6px 14px', fontSize: 12 }}
-                        onClick={() => { setJobSearch(''); setJobTypeFilter('ALL'); }}
-                      >
-                        Reset Pencarian
-                      </button>
-                    </div>
-                  );
-                }
-
-                return (
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: 16, padding: '22px 24px' }}>
-                    {filteredAdminJobs.map((job) => {
-                      const avatarBg = getCompanyAvatarStyle(job.company);
-                      const monogram = getCompanyMonogram(job.company);
-
-                      return (
-                        <div
-                          key={job.id}
-                          style={{
-                            background: 'white',
-                            border: '1.5px solid #E2E8F0',
-                            borderRadius: 18,
-                            padding: '18px 20px',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            justifyContent: 'space-between',
-                            gap: 14,
-                            boxShadow: '0 2px 6px rgba(15,23,42,0.03)',
-                            transition: 'border-color 0.15s, box-shadow 0.15s',
-                          }}
-                        >
-                          <div>
-                            {/* Top info: Monogram + Company & Location + Category badge */}
-                            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10, marginBottom: 10 }}>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
-                                <div
-                                  style={{
-                                    width: 40,
-                                    height: 40,
-                                    borderRadius: 12,
-                                    background: avatarBg,
-                                    color: 'white',
-                                    fontWeight: 900,
-                                    fontSize: 13,
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    flexShrink: 0,
-                                    letterSpacing: '0.5px',
-                                    boxShadow: '0 2px 6px rgba(0,0,0,0.1)',
-                                  }}
-                                >
-                                  {monogram}
-                                </div>
-                                <div style={{ minWidth: 0 }}>
-                                  <div style={{ fontWeight: 800, fontSize: 13.5, color: '#0F172A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                    {job.company}
-                                  </div>
-                                  <div style={{ fontSize: 11.5, color: '#64748B', display: 'flex', alignItems: 'center', gap: 4, marginTop: 1 }}>
-                                    <span>📍 {job.location || 'WFH Remote'}</span>
-                                  </div>
-                                </div>
-                              </div>
-                              <span style={S.pill('#EFF6FF', '#1D64EC', '#BFDBFE')}>
-                                {job.type || 'Remote'}
-                              </span>
-                            </div>
-
-                            {/* Job Title */}
-                            <h3 style={{ margin: '4px 0 10px', fontSize: 15.5, fontWeight: 800, color: '#0F172A', lineHeight: 1.3 }}>
-                              {job.title}
-                            </h3>
-
-                            {/* Salary & Type badges */}
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 10 }}>
-                              <span style={{ background: '#ECFDF5', color: '#059669', border: '1px solid #A7F3D0', padding: '3px 9px', borderRadius: 8, fontSize: 11.5, fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-                                <span>💰</span>
-                                <span>{job.salary}</span>
-                              </span>
-                              <span style={{ background: '#F8FAFC', color: '#475569', border: '1px solid #E2E8F0', padding: '3px 9px', borderRadius: 8, fontSize: 11.5, fontWeight: 700 }}>
-                                💼 {job.type}
-                              </span>
-                            </div>
-
-                            {/* Description snippet */}
-                            {job.description && (
-                              <p style={{ margin: '0 0 10px', fontSize: 12, color: '#475569', lineHeight: 1.5, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', background: '#F8FAFC', padding: '8px 12px', borderRadius: 10, border: '1px solid #F1F5F9' }}>
-                                {job.description}
-                              </p>
-                            )}
-
-                            {/* Skill tags */}
-                            {job.tags && job.tags.length > 0 && (
-                              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                                {job.tags.slice(0, 4).map((tag, tIdx) => (
-                                  <span key={tIdx} style={{ fontSize: 10.5, color: '#64748B', background: '#F1F5F9', border: '1px solid #E2E8F0', padding: '2px 8px', borderRadius: 6, fontWeight: 600 }}>
-                                    #{tag}
-                                  </span>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Footer Actions */}
-                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, paddingTop: 12, borderTop: '1px solid #F1F5F9' }}>
-                            <span style={{ fontSize: 11, color: '#94A3B8', fontWeight: 600 }}>
-                              🕒 {job.posted || 'Hari ini'}
-                            </span>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                              {job.applyUrl && (
-                                <a
-                                  href={job.applyUrl}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  style={{ ...S.btnOutline, padding: '6px 12px', fontSize: 11.5, textDecoration: 'none' }}
-                                  title="Buka link pendaftaran"
-                                >
-                                  🔗 Link ↗
-                                </a>
-                              )}
-                              <button
-                                style={{ ...S.btnOutline, padding: '6px 12px', fontSize: 11.5 }}
-                                onClick={() => openEditJobModal(job)}
-                              >
-                                ✏️ Edit
-                              </button>
-                              <button
-                                style={{ ...S.btnRed, padding: '6px 12px', fontSize: 11.5 }}
-                                onClick={() => deleteJob(job.id, job.title)}
-                              >
-                                Hapus
-                              </button>
-                            </div>
+              {/* MOBILE CARDS VIEW (Ergonomic cards instead of broken horizontal table) */}
+              <div className="block md:hidden divide-y divide-slate-100">
+                {isLoading ? (
+                  <div className="py-12 text-center text-slate-400 text-xs">Memuat data leads...</div>
+                ) : filteredLeads.length === 0 ? (
+                  <div className="py-12 text-center text-slate-400 text-xs">Belum ada leads terdaftar.</div>
+                ) : (
+                  filteredLeads.map(lead => (
+                    <div key={lead.id} className="p-4 space-y-3 hover:bg-slate-50/50 transition-colors">
+                      {/* Top Row: Name + Date */}
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <div className="font-extrabold text-sm text-slate-900">{lead.name}</div>
+                          <div className="text-[11px] text-slate-400 flex items-center gap-1 mt-0.5">
+                            <Clock className="w-3 h-3" />
+                            <span>{fmtDate(lead.createdAt)}</span>
                           </div>
                         </div>
-                      );
-                    })}
-                  </div>
-                );
-              })()}
+                        <span
+                          className={`px-2.5 py-0.5 rounded-full text-xs font-black ${
+                            lead.readinessScore >= 80
+                              ? 'bg-emerald-100 text-emerald-800'
+                              : lead.readinessScore >= 60
+                              ? 'bg-amber-100 text-amber-800'
+                              : 'bg-slate-100 text-slate-700'
+                          }`}
+                        >
+                          {lead.readinessScore}% Kesiapan
+                        </span>
+                      </div>
+
+                      {/* Middle: Badges */}
+                      <div className="flex items-center gap-1.5 flex-wrap text-xs">
+                        <span className="px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 font-bold border border-blue-200/60 text-[11px]">
+                          {lead.profesi}
+                        </span>
+                        <span className="px-2 py-0.5 rounded-md bg-amber-50 text-amber-800 font-bold border border-amber-200/70 text-[11px]">
+                          🎯 {lead.topMatch}
+                        </span>
+                      </div>
+
+                      {/* Contact & Actions */}
+                      <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-100">
+                        {lead.wa ? (
+                          <a
+                            href={`https://wa.me/${fmtWa(lead.wa)}?text=${encodeURIComponent(
+                              `Halo ${lead.name}, terima kasih sudah mencoba asesmen Cari Side Job!`
+                            )}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/60 px-3 py-1.5 rounded-xl transition-colors"
+                          >
+                            <Phone className="w-3.5 h-3.5" />
+                            <span>Hubungi WA</span>
+                          </a>
+                        ) : (
+                          <span className="text-xs text-slate-400">Tidak ada WA</span>
+                        )}
+
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={() => setSelectedLead(lead)}
+                            className="px-3 py-1.5 text-xs font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-xl transition-colors"
+                          >
+                            Lihat Detail
+                          </button>
+                          <button
+                            onClick={() => deleteLead(lead.id)}
+                            className="p-1.5 text-slate-400 hover:text-rose-600 rounded-xl transition-colors"
+                            title="Hapus"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
             </div>
           </div>
         )}
 
-        {/* TAB: PRODUK */}
+        {/* ════════════════════════════════════════════════════════════════
+            TAB 2: LOWONGAN KERJA REMOTE
+        ════════════════════════════════════════════════════════════════ */}
+        {activeTab === 'loker' && (
+          <div className="space-y-6">
+            {/* TOGGLE BANNER: POP-UP LOWONGAN SEDANG PENUH */}
+            <div
+              className={`rounded-2xl p-4 sm:p-5 border transition-all ${
+                isLokerFull
+                  ? 'bg-amber-50/70 border-amber-300 shadow-sm shadow-amber-500/10'
+                  : 'bg-white border-slate-200/80 shadow-xs'
+              }`}
+            >
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-start gap-3.5">
+                  <div
+                    className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
+                      isLokerFull ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-600'
+                    }`}
+                  >
+                    <Flame className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h3 className="font-extrabold text-sm sm:text-base text-slate-900">
+                        Pop-Up Status Lowongan Penuh
+                      </h3>
+                      <span
+                        className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full ${
+                          isLokerFull
+                            ? 'bg-rose-100 text-rose-700 border border-rose-200'
+                            : 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                        }`}
+                      >
+                        {isLokerFull ? '● POP-UP ON (LOWONGAN PENUH)' : '○ POP-UP OFF (NORMAL)'}
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                      {isLokerFull ? (
+                        <span className="text-amber-800 font-semibold">
+                          Pop-up aktif di web: &ldquo;Mohon Maaf, Saat Ini Lowongan Kerja Remote Sedang Penuh. Informasi Lowongan Terbaru Akan Segera Kami Update.&rdquo;
+                        </span>
+                      ) : (
+                        'Lowongan kerja tampil normal dari database. Aktifkan jika kuota loker remote sedang kosong/penuh.'
+                      )}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-end shrink-0">
+                  <button
+                    type="button"
+                    onClick={toggleLokerFull}
+                    disabled={isTogglingFull}
+                    className={`inline-flex items-center gap-2.5 px-4 py-2 rounded-xl text-xs font-extrabold transition-all ${
+                      isLokerFull
+                        ? 'bg-rose-600 hover:bg-rose-700 text-white shadow-xs shadow-rose-500/20'
+                        : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200'
+                    }`}
+                  >
+                    <span
+                      className={`w-2.5 h-2.5 rounded-full ${
+                        isLokerFull ? 'bg-white animate-pulse' : 'bg-slate-400'
+                      }`}
+                    ></span>
+                    <span>
+                      {isTogglingFull
+                        ? 'Menyimpan...'
+                        : isLokerFull
+                        ? 'Matikan Pop-Up'
+                        : 'Aktifkan Pop-Up Penuh'}
+                    </span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* QUICK STATS & ACTIONS BAR */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
+              {/* Search & Type Filter */}
+              <div className="flex items-center gap-2.5 flex-1 flex-wrap">
+                <div className="relative flex-1 min-w-[200px]">
+                  <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    placeholder="Cari posisi, perusahaan, skill..."
+                    value={jobSearch}
+                    onChange={e => setJobSearch(e.target.value)}
+                    className="w-full pl-9 pr-3 py-2 text-xs font-medium rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all bg-slate-50/50 focus:bg-white"
+                  />
+                </div>
+
+                <select
+                  value={jobTypeFilter}
+                  onChange={e => setJobTypeFilter(e.target.value)}
+                  className="py-2 px-3 text-xs font-bold rounded-xl border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                >
+                  <option value="ALL">Semua Tipe Kerja</option>
+                  <option value="Full-time Remote">Full-time Remote</option>
+                  <option value="Part-time Remote">Part-time Remote</option>
+                  <option value="Freelance Project">Freelance Project</option>
+                  <option value="Contract Remote">Contract Remote</option>
+                </select>
+              </div>
+
+              {/* Add Job CTA */}
+              <button
+                onClick={openAddJobModal}
+                className="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-extrabold shadow-xs shadow-blue-500/20 transition-colors"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Tambah Lowongan Baru</span>
+              </button>
+            </div>
+
+            {/* JOBS BENTO GRID */}
+            {jobs.length === 0 ? (
+              <div className="bg-white rounded-2xl border border-slate-200/80 p-12 text-center space-y-3">
+                <div className="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto text-xl">
+                  💼
+                </div>
+                <h3 className="font-extrabold text-base text-slate-900">Belum Ada Lowongan Kerja</h3>
+                <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                  Tambahkan lowongan kerja pertama untuk ditampilkan kepada para pencari side job.
+                </p>
+                <button
+                  onClick={openAddJobModal}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white rounded-xl text-xs font-bold shadow-xs hover:bg-blue-700 transition-colors"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Tambah Lowongan Sekarang</span>
+                </button>
+              </div>
+            ) : (() => {
+              const filteredJobs = jobs.filter(job => {
+                const q = jobSearch.toLowerCase().trim();
+                const matchesQ =
+                  !q ||
+                  job.title.toLowerCase().includes(q) ||
+                  job.company.toLowerCase().includes(q) ||
+                  (job.description || '').toLowerCase().includes(q) ||
+                  (job.tags || []).some(t => t.toLowerCase().includes(q));
+                const matchesType = jobTypeFilter === 'ALL' || job.type === jobTypeFilter;
+                return matchesQ && matchesType;
+              });
+
+              if (filteredJobs.length === 0) {
+                return (
+                  <div className="bg-white rounded-2xl border border-slate-200/80 p-10 text-center space-y-2">
+                    <p className="text-sm font-bold text-slate-700">Tidak ada lowongan yang sesuai filter.</p>
+                    <button
+                      onClick={() => {
+                        setJobSearch('');
+                        setJobTypeFilter('ALL');
+                      }}
+                      className="text-xs text-blue-600 font-bold hover:underline"
+                    >
+                      Reset Pencarian
+                    </button>
+                  </div>
+                );
+              }
+
+              return (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {filteredJobs.map(job => {
+                    const avatarBg = getCompanyAvatarStyle(job.company);
+                    const monogram = getCompanyMonogram(job.company);
+
+                    return (
+                      <div
+                        key={job.id}
+                        className="bg-white rounded-2xl border border-slate-200/80 p-5 flex flex-col justify-between shadow-xs hover:border-blue-300 hover:shadow-md transition-all group"
+                      >
+                        <div className="space-y-3">
+                          {/* Header: Monogram + Company & Location + Type Badge */}
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex items-center gap-3 min-w-0">
+                              <div
+                                className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-black text-xs shrink-0 shadow-xs"
+                                style={{ background: avatarBg }}
+                              >
+                                {monogram}
+                              </div>
+                              <div className="min-w-0">
+                                <div className="font-extrabold text-xs text-slate-900 truncate">
+                                  {job.company}
+                                </div>
+                                <div className="text-[11px] text-slate-400 truncate">
+                                  {job.location || 'WFH Remote'}
+                                </div>
+                              </div>
+                            </div>
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-blue-50 text-blue-700 border border-blue-200/60 shrink-0">
+                              {job.type}
+                            </span>
+                          </div>
+
+                          {/* Title */}
+                          <h4 className="font-extrabold text-sm text-slate-900 line-clamp-2 leading-snug group-hover:text-blue-600 transition-colors">
+                            {job.title}
+                          </h4>
+
+                          {/* Salary Pill */}
+                          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200/70 text-xs font-black">
+                            <span>💰</span>
+                            <span>{job.salary}</span>
+                          </div>
+
+                          {/* Description snippet */}
+                          {job.description && (
+                            <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                              {job.description}
+                            </p>
+                          )}
+
+                          {/* Tags */}
+                          {job.tags && job.tags.length > 0 && (
+                            <div className="flex items-center gap-1 flex-wrap">
+                              {job.tags.slice(0, 3).map((tag, i) => (
+                                <span
+                                  key={i}
+                                  className="text-[10px] font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md"
+                                >
+                                  #{tag}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Footer Actions */}
+                        <div className="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+                          <span className="text-[11px] text-slate-400 font-medium">
+                            🕒 {job.posted || 'Hari ini'}
+                          </span>
+                          <div className="flex items-center gap-1">
+                            {job.applyUrl && (
+                              <a
+                                href={job.applyUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                title="Buka Link Pendaftaran"
+                              >
+                                <ExternalLink className="w-3.5 h-3.5" />
+                              </a>
+                            )}
+                            <button
+                              onClick={() => openEditJobModal(job)}
+                              className="px-2.5 py-1 text-xs font-bold text-slate-700 hover:text-blue-600 hover:bg-slate-100 rounded-lg transition-colors"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => deleteJob(job.id, job.title)}
+                              className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                              title="Hapus Lowongan"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })()}
+          </div>
+        )}
+
+        {/* ════════════════════════════════════════════════════════════════
+            TAB 3: KATALOG PRODUK REKOMENDASI
+        ════════════════════════════════════════════════════════════════ */}
         {activeTab === 'produk' && (
-          <div>
-            {/* Import Notification Banner */}
+          <div className="space-y-6">
+            {/* Notification Banner for Lynk.id imports */}
             {importNotification && (
-              <div style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: 14, padding: '12px 18px', marginBottom: 20, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <span style={{ color: '#1D64EC', fontSize: 16 }}>✓</span>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: '#1E40AF' }}>{importNotification}</div>
+              <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4 flex items-center justify-between gap-3 text-xs text-blue-800 font-medium">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-blue-600 shrink-0" />
+                  <span>{importNotification}</span>
                 </div>
                 <button
-                  style={{ background: '#DBEAFE', color: '#1D4ED8', border: 'none', borderRadius: 9999, padding: '4px 12px', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}
                   onClick={() => setImportNotification(null)}
+                  className="px-2.5 py-1 bg-blue-100 hover:bg-blue-200 rounded-lg text-blue-700 font-bold transition-colors"
                 >
                   Tutup
                 </button>
               </div>
             )}
 
-            {/* METRICS */}
-            <div style={S.metGrid}>
-              <MetricCard title="Total Produk" value={products.length} sub="Semua produk" accent="blue" />
-              <MetricCard title="Produk Aktif" value={products.filter(p => p.isPublished).length} sub="Tampil di website" accent="emerald" />
-              <MetricCard title="Kategori" value={new Set(products.map(p => p.category)).size} sub="Variasi kategori" accent="gold" />
-            </div>
-
-            {/* PRODUCT PANEL */}
-            <div style={S.panel}>
-              <div style={S.panelHdr}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
-                  <div>
-                    <h2 style={{ fontSize: 18, fontWeight: 800, margin: 0, marginBottom: 2 }}>Katalog Produk</h2>
-                    <p style={{ fontSize: 12.5, color: '#64748B', margin: 0 }}>Kelola produk panduan dan template rekomendasi</p>
-                  </div>
-                  <input
-                    style={{ ...S.input, width: 240, padding: '7px 12px', fontSize: 12 }}
-                    placeholder="Cari produk atau kategori..."
-                    value={productSearch}
-                    onChange={e => setProductSearch(e.target.value)}
-                  />
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <button style={S.btnPrimary} onClick={openAddProductModal}>
-                    + Tambah Produk
-                  </button>
-                </div>
+            {/* PRODUCT HEADER & ACTIONS */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
+              <div className="relative flex-1 min-w-[200px]">
+                <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  placeholder="Cari judul produk atau kategori..."
+                  value={productSearch}
+                  onChange={e => setProductSearch(e.target.value)}
+                  className="w-full pl-9 pr-3 py-2 text-xs font-medium rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all bg-slate-50/50 focus:bg-white"
+                />
               </div>
 
-              {/* PRODUCTS LIST */}
-              {products.length === 0 ? (
-                <div style={{ padding: '60px 20px', textAlign: 'center' }}>
-                  <div style={{ fontSize: 40, marginBottom: 12 }}>📦</div>
-                  <div style={{ fontSize: 16, fontWeight: 800, color: '#0F172A', marginBottom: 6 }}>Belum Ada Produk</div>
-                  <p style={{ fontSize: 13, color: '#64748B', maxWidth: 360, margin: '0 auto 18px', lineHeight: 1.5 }}>
-                    Tambahkan produk panduan atau materi digital untuk direkomendasikan kepada pengguna.
-                  </p>
-                  <button style={S.btnPrimary} onClick={openAddProductModal}>
-                    + Tambah Produk
-                  </button>
-                </div>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  {products
-                    .filter(p => p.title.toLowerCase().includes(productSearch.toLowerCase()) || p.category.toLowerCase().includes(productSearch.toLowerCase()))
-                    .map((prod) => (
-                      <div
-                        key={prod.id}
-                        style={{
-                          padding: '18px 24px',
-                          borderBottom: '1px solid #F1F5F9',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                          gap: 16,
-                          flexWrap: 'wrap',
-                          transition: 'background 0.15s',
-                        }}
-                      >
-                        {/* Left: Thumbnail & Details */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 16, flex: 1, minWidth: 280 }}>
-                          {/* Thumbnail Cover */}
-                          <div style={{ width: 60, height: 60, borderRadius: 12, overflow: 'hidden', background: '#F1F5F9', border: '1px solid #E2E8F0', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            {prod.imageUrl ? (
-                              <img src={prod.imageUrl} alt={prod.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                            ) : (
-                              <span style={{ fontSize: 22 }}>📘</span>
-                            )}
-                          </div>
+              <button
+                onClick={openAddProductModal}
+                className="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-extrabold shadow-xs shadow-blue-500/20 transition-colors"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Tambah Produk Baru</span>
+              </button>
+            </div>
 
-                          <div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4, flexWrap: 'wrap' }}>
-                              <span style={S.pill('#EFF6FF', '#1D64EC', '#BFDBFE')}>{prod.category}</span>
-                              {prod.badge && <span style={S.pill('#FEF3C7', '#D97706', '#FDE68A')}>{prod.badge}</span>}
-                              <button
-                                onClick={() => toggleProductPublish(prod)}
-                                style={{
-                                  ...S.pill(prod.isPublished ? '#ECFDF5' : '#F1F5F9', prod.isPublished ? '#059669' : '#64748B', prod.isPublished ? '#A7F3D0' : '#CBD5E1'),
-                                  cursor: 'pointer',
-                                  border: 'none',
-                                }}
-                              >
-                                {prod.isPublished ? '● Tayang' : '○ Draft'}
-                              </button>
-                            </div>
-                            <h4 style={{ margin: '0 0 4px', fontSize: 14.5, fontWeight: 800, color: '#0F172A', lineHeight: 1.3 }}>
-                              {prod.title}
-                            </h4>
-                            <div style={{ fontSize: 12, color: '#64748B', display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-                              <span>Target: <strong>{prod.sideJob || 'Semua Persona'}</strong></span>
-                              <span>•</span>
-                              <span style={{ color: '#1D64EC', fontSize: 11.5, wordBreak: 'break-all' }}>{prod.url}</span>
-                            </div>
-                          </div>
+            {/* PRODUCT LIST */}
+            {products.length === 0 ? (
+              <div className="bg-white rounded-2xl border border-slate-200/80 p-12 text-center space-y-3">
+                <div className="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto text-xl">
+                  📦
+                </div>
+                <h3 className="font-extrabold text-base text-slate-900">Belum Ada Produk</h3>
+                <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                  Tambahkan materi, template, atau panduan side job untuk direkomendasikan kepada peserta asesmen.
+                </p>
+                <button
+                  onClick={openAddProductModal}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white rounded-xl text-xs font-bold shadow-xs hover:bg-blue-700 transition-colors"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Tambah Produk Pertama</span>
+                </button>
+              </div>
+            ) : (
+              <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs divide-y divide-slate-100 overflow-hidden">
+                {products
+                  .filter(
+                    p =>
+                      p.title.toLowerCase().includes(productSearch.toLowerCase()) ||
+                      p.category.toLowerCase().includes(productSearch.toLowerCase())
+                  )
+                  .map(prod => (
+                    <div
+                      key={prod.id}
+                      className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-slate-50/50 transition-colors"
+                    >
+                      <div className="flex items-start gap-4 flex-1 min-w-0">
+                        {/* Cover Image */}
+                        <div className="w-14 h-14 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 shrink-0 flex items-center justify-center">
+                          {prod.imageUrl ? (
+                            <img
+                              src={prod.imageUrl}
+                              alt={prod.title}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <span className="text-xl">📘</span>
+                          )}
                         </div>
 
-                        {/* Right: Actions */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                          <a
-                            href={prod.url}
-                            target="_blank"
-                            rel="noreferrer"
-                            style={{ ...S.btnOutline, textDecoration: 'none', padding: '7px 14px', fontSize: 11.5 }}
-                          >
-                            🔗 Buka Link Produk ↗
-                          </a>
-                          <button
-                            style={{ ...S.btnOutline, padding: '7px 14px', fontSize: 11.5 }}
-                            onClick={() => openEditProductModal(prod)}
-                          >
-                            ✏️ Edit
-                          </button>
-                          <button
-                            style={{ ...S.btnRed, padding: '7px 14px', fontSize: 11.5 }}
-                            onClick={() => deleteProduct(prod.id, prod.title)}
-                          >
-                            Hapus
-                          </button>
+                        {/* Details */}
+                        <div className="space-y-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-blue-50 text-blue-700 border border-blue-200/60">
+                              {prod.category}
+                            </span>
+                            {prod.badge && (
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-50 text-amber-800 border border-amber-200/70">
+                                {prod.badge}
+                              </span>
+                            )}
+                            <button
+                              onClick={() => toggleProductPublish(prod)}
+                              className={`px-2 py-0.5 rounded-full text-[10px] font-bold border transition-colors ${
+                                prod.isPublished
+                                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
+                                  : 'bg-slate-100 text-slate-500 border-slate-200 hover:bg-slate-200'
+                              }`}
+                            >
+                              {prod.isPublished ? '● Tayang di Web' : '○ Draft'}
+                            </button>
+                          </div>
+
+                          <h4 className="font-extrabold text-sm text-slate-900 truncate">{prod.title}</h4>
+
+                          <div className="flex items-center gap-2 text-xs text-slate-500 flex-wrap">
+                            <span className="font-bold text-slate-900">{prod.price || 'Rp 0'}</span>
+                            <span>•</span>
+                            <span>
+                              Target: <strong>{prod.sideJob || 'Semua Profil'}</strong>
+                            </span>
+                          </div>
                         </div>
                       </div>
-                    ))}
-                </div>
-              )}
-            </div>
+
+                      {/* Actions */}
+                      <div className="flex items-center justify-end gap-2 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
+                        <a
+                          href={prod.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="p-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-colors"
+                          title="Buka Link Produk"
+                        >
+                          <ExternalLink className="w-4 h-4" />
+                        </a>
+                        <button
+                          onClick={() => openEditProductModal(prod)}
+                          className="px-3 py-1.5 text-xs font-bold text-slate-700 hover:text-blue-600 hover:bg-slate-100 rounded-xl transition-colors"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => deleteProduct(prod.id, prod.title)}
+                          className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors"
+                          title="Hapus Produk"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            )}
           </div>
         )}
-      </div>
+      </main>
 
-      {/* MODAL TAMBAH / EDIT LOWONGAN */}
+      {/* ════════════════════════════════════════════════════════════════
+          MODAL: TAMBAH / EDIT LOWONGAN KERJA
+      ════════════════════════════════════════════════════════════════ */}
       {isJobModalOpen && (
-        <div style={S.overlay} onClick={() => setIsJobModalOpen(false)}>
-          <div style={{ ...S.modal, maxWidth: 620 }} onClick={e => e.stopPropagation()}>
-            <button style={S.closeBtn} onClick={() => setIsJobModalOpen(false)}>✕</button>
-            <div style={S.modalPad}>
-              <h2 style={{ fontSize: 20, fontWeight: 800, margin: '0 0 4px', letterSpacing: '-0.02em' }}>
+        <div
+          className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto"
+          onClick={() => setIsJobModalOpen(false)}
+        >
+          <div
+            className="bg-white rounded-3xl w-full max-w-xl max-h-[90vh] overflow-y-auto shadow-2xl p-6 sm:p-8 space-y-6 relative"
+            onClick={e => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setIsJobModalOpen(false)}
+              className="absolute top-5 right-5 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            <div>
+              <h2 className="font-black text-xl text-slate-900 tracking-tight">
                 {editingJob ? 'Edit Lowongan Kerja' : 'Tambah Lowongan Kerja'}
               </h2>
-              <p style={{ fontSize: 12.5, color: '#64748B', margin: '0 0 18px' }}>
-                {editingJob ? 'Perbarui detail lowongan kerja remote ini.' : 'Masukkan rincian lowongan kerja remote baru.'}
+              <p className="text-xs text-slate-500 mt-1">
+                Loker ini akan langsung tayang di modal rekomendasi lowongan kerja publik.
               </p>
+            </div>
 
-              {/* LIVE CARD PREVIEW */}
-              <div style={{ background: '#F8FAFC', border: '1.5px dashed #CBD5E1', borderRadius: 16, padding: '14px 16px', marginBottom: 18 }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <span>👁️ Preview Tampilan Kandidat</span>
-                </div>
-                <div style={{ background: 'white', borderRadius: 14, border: '1px solid #E2E8F0', padding: 14, boxShadow: '0 2px 6px rgba(0,0,0,0.03)' }}>
-                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10, marginBottom: 8 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                      <div
-                        style={{
-                          width: 36,
-                          height: 36,
-                          borderRadius: 10,
-                          background: getCompanyAvatarStyle(jobForm.company || 'Perusahaan'),
-                          color: 'white',
-                          fontWeight: 900,
-                          fontSize: 12,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          flexShrink: 0,
-                        }}
-                      >
-                        {getCompanyMonogram(jobForm.company || 'Perusahaan')}
-                      </div>
-                      <div>
-                        <div style={{ fontWeight: 800, fontSize: 13, color: '#0F172A' }}>
-                          {jobForm.company || 'Nama Perusahaan'}
-                        </div>
-                        <div style={{ fontSize: 11, color: '#64748B' }}>
-                          📍 {jobForm.location || 'WFH Remote Indonesia'}
-                        </div>
-                      </div>
+            {/* Live Preview Card */}
+            <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-4 space-y-2">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                Preview Kandidat
+              </span>
+              <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div
+                    className="w-9 h-9 rounded-xl flex items-center justify-center text-white font-black text-xs shrink-0"
+                    style={{ background: getCompanyAvatarStyle(jobForm.company || 'Perusahaan') }}
+                  >
+                    {getCompanyMonogram(jobForm.company || 'Perusahaan')}
+                  </div>
+                  <div className="min-w-0">
+                    <div className="font-extrabold text-xs text-slate-900 truncate">
+                      {jobForm.title || 'Judul Lowongan'}
                     </div>
-                    <span style={S.pill('#EFF6FF', '#1D64EC', '#BFDBFE')}>
-                      {jobForm.type || 'Full-time Remote'}
-                    </span>
+                    <div className="text-[11px] text-slate-400 truncate">
+                      {jobForm.company || 'Nama Perusahaan'} • {jobForm.location}
+                    </div>
                   </div>
+                </div>
+                <span className="text-xs font-black text-emerald-600 shrink-0">
+                  {jobForm.salary || 'Kompetitif'}
+                </span>
+              </div>
+            </div>
 
-                  <div style={{ fontWeight: 800, fontSize: 14.5, color: '#0F172A', marginBottom: 6 }}>
-                    {jobForm.title || 'Judul Lowongan Kerja'}
-                  </div>
+            {/* Form Fields */}
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wide">
+                  Judul Lowongan *
+                </label>
+                <input
+                  type="text"
+                  placeholder="Contoh: Remote Data Entry & Spreadsheet Specialist"
+                  value={jobForm.title}
+                  onChange={e => setJobForm({ ...jobForm, title: e.target.value })}
+                  className="w-full px-3.5 py-2.5 text-xs font-medium rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                />
+              </div>
 
-                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
-                    <span style={{ background: '#ECFDF5', color: '#059669', border: '1px solid #A7F3D0', padding: '2px 8px', borderRadius: 6, fontSize: 11, fontWeight: 800 }}>
-                      💰 {jobForm.salary || 'Kompetitif'}
-                    </span>
-                    <span style={{ background: '#F8FAFC', color: '#475569', border: '1px solid #E2E8F0', padding: '2px 8px', borderRadius: 6, fontSize: 11, fontWeight: 700 }}>
-                      💼 {jobForm.type || 'Full-time Remote'}
-                    </span>
-                  </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wide">
+                    Nama Perusahaan *
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Contoh: PT Solusi Digital"
+                    value={jobForm.company}
+                    onChange={e => setJobForm({ ...jobForm, company: e.target.value })}
+                    className="w-full px-3.5 py-2.5 text-xs font-medium rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wide">
+                    Lokasi
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Contoh: WFH / Remote Indonesia"
+                    value={jobForm.location}
+                    onChange={e => setJobForm({ ...jobForm, location: e.target.value })}
+                    className="w-full px-3.5 py-2.5 text-xs font-medium rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                  />
                 </div>
               </div>
 
-              {/* FORM FIELDS */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label style={S.label}>Judul Lowongan *</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wide">
+                    Gaji / Fee
+                  </label>
                   <input
-                    style={S.input}
-                    placeholder="Contoh: Virtual Assistant & Operations Coordinator"
-                    value={jobForm.title}
-                    onChange={e => setJobForm({ ...jobForm, title: e.target.value })}
+                    type="text"
+                    placeholder="Contoh: Rp 4.500.000 - Rp 6.200.000 / bln"
+                    value={jobForm.salary}
+                    onChange={e => setJobForm({ ...jobForm, salary: e.target.value })}
+                    className="w-full px-3.5 py-2.5 text-xs font-medium rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
                   />
                 </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                  <div>
-                    <label style={S.label}>Nama Perusahaan / Brand *</label>
-                    <input
-                      style={S.input}
-                      placeholder="Contoh: Digital Solutions Asia"
-                      value={jobForm.company}
-                      onChange={e => setJobForm({ ...jobForm, company: e.target.value })}
-                    />
-                  </div>
-                  <div>
-                    <label style={S.label}>Lokasi</label>
-                    <input
-                      style={S.input}
-                      placeholder="Contoh: WFH / Remote Indonesia"
-                      value={jobForm.location}
-                      onChange={e => setJobForm({ ...jobForm, location: e.target.value })}
-                    />
-                  </div>
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                  <div>
-                    <label style={S.label}>Estimasi Gaji / Fee</label>
-                    <input
-                      style={S.input}
-                      placeholder="Contoh: Rp 4.500.000 - Rp 6.500.000 / bln"
-                      value={jobForm.salary}
-                      onChange={e => setJobForm({ ...jobForm, salary: e.target.value })}
-                    />
-                  </div>
-                  <div>
-                    <label style={S.label}>Tipe Kerja</label>
-                    <select
-                      style={S.input}
-                      value={jobForm.type}
-                      onChange={e => setJobForm({ ...jobForm, type: e.target.value })}
-                    >
-                      <option value="Full-time Remote">Full-time Remote</option>
-                      <option value="Part-time Remote">Part-time Remote</option>
-                      <option value="Freelance Project">Freelance Project</option>
-                      <option value="Contract Remote">Contract Remote</option>
-                    </select>
-                  </div>
-                </div>
-
                 <div>
-                  <label style={S.label}>Link Pendaftaran / Form / WA *</label>
-                  <input
-                    style={{ ...S.input, color: '#1D64EC', fontWeight: 600 }}
-                    placeholder="https://wa.me/... atau link form"
-                    value={jobForm.applyUrl}
-                    onChange={e => setJobForm({ ...jobForm, applyUrl: e.target.value })}
-                  />
-                </div>
-
-                <div>
-                  <label style={S.label}>Tags / Keahlian (Pisahkan dengan koma)</label>
-                  <input
-                    style={S.input}
-                    placeholder="Contoh: Canva, Notion, Trello, Customer Care"
-                    value={jobForm.tags}
-                    onChange={e => setJobForm({ ...jobForm, tags: e.target.value })}
-                  />
-                </div>
-
-                <div>
-                  <label style={S.label}>Deskripsi Singkat & Kualifikasi</label>
-                  <textarea
-                    style={S.textarea}
-                    rows={3}
-                    placeholder="Gambaran tanggung jawab dan kualifikasi yang dicari..."
-                    value={jobForm.description}
-                    onChange={e => setJobForm({ ...jobForm, description: e.target.value })}
-                  />
-                </div>
-
-                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 8 }}>
-                  <button style={S.btnOutline} onClick={() => setIsJobModalOpen(false)}>
-                    Batal
-                  </button>
-                  <button style={S.btnPrimary} disabled={isSaving} onClick={saveJob}>
-                    {isSaving ? 'Menyimpan...' : (editingJob ? 'Simpan Perubahan' : 'Tambah Lowongan')}
-                  </button>
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wide">
+                    Tipe Kerja
+                  </label>
+                  <select
+                    value={jobForm.type}
+                    onChange={e => setJobForm({ ...jobForm, type: e.target.value })}
+                    className="w-full px-3.5 py-2.5 text-xs font-bold rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white"
+                  >
+                    <option value="Full-time Remote">Full-time Remote</option>
+                    <option value="Part-time Remote">Part-time Remote</option>
+                    <option value="Freelance Project">Freelance Project</option>
+                    <option value="Contract Remote">Contract Remote</option>
+                  </select>
                 </div>
               </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wide">
+                  Link Lamaran / WA Pendaftaran *
+                </label>
+                <input
+                  type="text"
+                  placeholder="https://wa.me/... atau link form"
+                  value={jobForm.applyUrl}
+                  onChange={e => setJobForm({ ...jobForm, applyUrl: e.target.value })}
+                  className="w-full px-3.5 py-2.5 text-xs font-semibold text-blue-600 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wide">
+                  Keahlian / Tags (Pisahkan Koma)
+                </label>
+                <input
+                  type="text"
+                  placeholder="Contoh: Data Entry, Excel, Google Sheets"
+                  value={jobForm.tags}
+                  onChange={e => setJobForm({ ...jobForm, tags: e.target.value })}
+                  className="w-full px-3.5 py-2.5 text-xs font-medium rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wide">
+                  Deskripsi & Kualifikasi
+                </label>
+                <textarea
+                  rows={3}
+                  placeholder="Gambaran tanggung jawab dan syarat kandidat..."
+                  value={jobForm.description}
+                  onChange={e => setJobForm({ ...jobForm, description: e.target.value })}
+                  className="w-full px-3.5 py-2.5 text-xs font-medium rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => setIsJobModalOpen(false)}
+                className="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 transition-colors"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                disabled={isSaving}
+                onClick={saveJob}
+                className="px-5 py-2.5 rounded-xl text-xs font-extrabold text-white bg-blue-600 hover:bg-blue-700 shadow-sm shadow-blue-500/20 transition-colors"
+              >
+                {isSaving ? 'Menyimpan...' : editingJob ? 'Simpan Perubahan' : 'Tambah Lowongan'}
+              </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* MODAL TAMBAH / EDIT PRODUK */}
+      {/* ════════════════════════════════════════════════════════════════
+          MODAL: TAMBAH / EDIT PRODUK REKOMENDASI
+      ════════════════════════════════════════════════════════════════ */}
       {isProductModalOpen && (
-        <div style={S.overlay} onClick={() => setIsProductModalOpen(false)}>
-          <div style={S.modal} onClick={e => e.stopPropagation()}>
-            <button style={S.closeBtn} onClick={() => setIsProductModalOpen(false)}>✕</button>
-            <div style={S.modalPad}>
-              <h2 style={{ fontSize: 20, fontWeight: 800, margin: '0 0 4px', letterSpacing: '-0.02em' }}>
-                {editingProduct ? 'Edit Produk' : 'Tambah Produk'}
+        <div
+          className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto"
+          onClick={() => setIsProductModalOpen(false)}
+        >
+          <div
+            className="bg-white rounded-3xl w-full max-w-xl max-h-[90vh] overflow-y-auto shadow-2xl p-6 sm:p-8 space-y-6 relative"
+            onClick={e => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setIsProductModalOpen(false)}
+              className="absolute top-5 right-5 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            <div>
+              <h2 className="font-black text-xl text-slate-900 tracking-tight">
+                {editingProduct ? 'Edit Produk' : 'Tambah Produk Baru'}
               </h2>
-              <p style={{ fontSize: 12.5, color: '#64748B', margin: '0 0 20px' }}>
-                Lengkapi rincian produk panduan atau materi digital rekomendasi.
+              <p className="text-xs text-slate-500 mt-1">
+                Lengkapi rincian materi digital, template, atau panduan rekomendasi.
               </p>
+            </div>
 
-              {/* PREVIEW */}
-              {(productForm.title || productForm.imageUrl) && (
-                <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 14, padding: 12, marginBottom: 16, display: 'flex', gap: 12, alignItems: 'center' }}>
-                  <div style={{ width: 52, height: 52, borderRadius: 10, overflow: 'hidden', background: 'white', border: '1px solid #E2E8F0', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    {productForm.imageUrl ? (
-                      <img src={productForm.imageUrl} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                    ) : (
-                      <span style={{ fontSize: 20 }}>📘</span>
-                    )}
-                  </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ display: 'flex', gap: 6, marginBottom: 2 }}>
-                      <span style={S.pill('#EFF6FF', '#1D64EC', '#BFDBFE')}>{productForm.category}</span>
-                      {productForm.badge && <span style={S.pill('#FEF3C7', '#D97706', '#FDE68A')}>{productForm.badge}</span>}
-                    </div>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: '#0F172A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                      {productForm.title || 'Judul Produk'}
-                    </div>
-                  </div>
-                </div>
-              )}
+            {/* Form Fields */}
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wide">
+                  Link Produk (Lynk.id / Web) *
+                </label>
+                <input
+                  type="text"
+                  placeholder="https://lynk.id/..."
+                  value={productForm.url}
+                  onChange={e => setProductForm({ ...productForm, url: e.target.value })}
+                  className="w-full px-3.5 py-2.5 text-xs font-semibold text-blue-600 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                />
+              </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                {/* Lynk URL */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wide">
+                  Judul Produk *
+                </label>
+                <input
+                  type="text"
+                  placeholder="Contoh: Template Administrasi & Notulen Excel"
+                  value={productForm.title}
+                  onChange={e => setProductForm({ ...productForm, title: e.target.value })}
+                  className="w-full px-3.5 py-2.5 text-xs font-medium rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wide">
+                  Link Gambar Cover
+                </label>
+                <input
+                  type="text"
+                  placeholder="https://..."
+                  value={productForm.imageUrl}
+                  onChange={e => setProductForm({ ...productForm, imageUrl: e.target.value })}
+                  className="w-full px-3.5 py-2.5 text-xs font-medium rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label style={S.label}>Link Produk *</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wide">
+                    Kategori *
+                  </label>
+                  <select
+                    value={productForm.category}
+                    onChange={e =>
+                      setProductForm({
+                        ...productForm,
+                        category: e.target.value,
+                        type: e.target.value.toLowerCase().replace(/\s+/g, ''),
+                      })
+                    }
+                    className="w-full px-3.5 py-2.5 text-xs font-bold rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white"
+                  >
+                    <option value="Ebook">Ebook</option>
+                    <option value="Template">Template</option>
+                    <option value="Kursus">Kursus</option>
+                    <option value="Starter Pack">Starter Pack</option>
+                    <option value="Tools">Tools</option>
+                    <option value="Bundle">Bundle</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wide">
+                    Harga
+                  </label>
                   <input
-                    style={{ ...S.input, color: '#1D64EC', fontWeight: 600 }}
-                    placeholder="https://..."
-                    value={productForm.url}
-                    onChange={e => setProductForm({ ...productForm, url: e.target.value })}
+                    type="text"
+                    placeholder="Contoh: Rp 49.000"
+                    value={productForm.price}
+                    onChange={e => setProductForm({ ...productForm, price: e.target.value })}
+                    className="w-full px-3.5 py-2.5 text-xs font-medium rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
                   />
                 </div>
+              </div>
 
-                {/* Image Cover URL */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label style={S.label}>Link Gambar Cover</label>
-                  <input
-                    style={S.input}
-                    placeholder="https://..."
-                    value={productForm.imageUrl}
-                    onChange={e => setProductForm({ ...productForm, imageUrl: e.target.value })}
-                  />
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wide">
+                    Badge Khusus
+                  </label>
+                  <select
+                    value={productForm.badge}
+                    onChange={e => setProductForm({ ...productForm, badge: e.target.value })}
+                    className="w-full px-3.5 py-2.5 text-xs font-bold rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white"
+                  >
+                    {BADGE_OPTIONS.map(opt => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
                 </div>
-
-                {/* Judul Produk */}
                 <div>
-                  <label style={S.label}>Judul Produk *</label>
-                  <input
-                    style={S.input}
-                    placeholder="Contoh: Template Administrasi & Spreadsheet"
-                    value={productForm.title}
-                    onChange={e => setProductForm({ ...productForm, title: e.target.value })}
-                  />
-                </div>
-
-                {/* Kategori & Harga */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                  <div>
-                    <label style={S.label}>Kategori *</label>
-                    <select
-                      style={S.input}
-                      value={productForm.category}
-                      onChange={e => setProductForm({ ...productForm, category: e.target.value, type: e.target.value.toLowerCase().replace(/\s+/g, '') })}
-                    >
-                      <option value="Ebook">Ebook</option>
-                      <option value="Template">Template</option>
-                      <option value="Kursus">Kursus</option>
-                      <option value="Starter Pack">Starter Pack</option>
-                      <option value="Tools">Tools</option>
-                      <option value="Bundle">Bundle</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label style={S.label}>Harga</label>
-                    <input
-                      style={S.input}
-                      placeholder="Contoh: Rp 49.000"
-                      value={productForm.price}
-                      onChange={e => setProductForm({ ...productForm, price: e.target.value })}
-                    />
-                  </div>
-                </div>
-
-                {/* Badge & Target */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                  <div>
-                    <label style={S.label}>Badge (Opsional)</label>
-                    <select
-                      style={S.input}
-                      value={productForm.badge}
-                      onChange={e => setProductForm({ ...productForm, badge: e.target.value })}
-                    >
-                      {BADGE_OPTIONS.map(opt => (
-                        <option key={opt.value} value={opt.value}>
-                          {opt.label}
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wide">
+                    Target Profil
+                  </label>
+                  <select
+                    value={productForm.sideJob}
+                    onChange={e => setProductForm({ ...productForm, sideJob: e.target.value })}
+                    className="w-full px-3.5 py-2.5 text-xs font-bold rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white"
+                  >
+                    <option value="Umum / Semua Profil">🌐 Semua Profil (Umum)</option>
+                    <optgroup label="── Profil Spesifik ──">
+                      {Object.values(SIDE_JOBS_DB).map(job => (
+                        <option key={job.id} value={job.name}>
+                          {job.icon} {job.name}
                         </option>
                       ))}
-                      {productForm.badge && !BADGE_OPTIONS.some(o => o.value === productForm.badge) && (
-                        <option value={productForm.badge}>{productForm.badge}</option>
-                      )}
-                    </select>
-                  </div>
-                  <div>
-                    <label style={S.label}>Target Rekomendasi</label>
-                    <select
-                      style={S.input}
-                      value={productForm.sideJob}
-                      onChange={e => setProductForm({ ...productForm, sideJob: e.target.value })}
-                    >
-                      <option value="Umum / Semua Profil">🌐 Semua Profil (Umum)</option>
-                      <optgroup label="── Profil Spesifik ──">
-                        {Object.values(SIDE_JOBS_DB).map(job => (
-                          <option key={job.id} value={job.name}>{job.icon} {job.name}</option>
-                        ))}
-                      </optgroup>
-                    </select>
-                  </div>
-                </div>
-
-                {/* Deskripsi */}
-                <div>
-                  <label style={S.label}>Deskripsi Singkat (Opsional)</label>
-                  <textarea
-                    style={S.textarea}
-                    rows={3}
-                    placeholder="Ringkasan singkat isi atau manfaat produk..."
-                    value={productForm.desc}
-                    onChange={e => setProductForm({ ...productForm, desc: e.target.value })}
-                  />
-                </div>
-
-                {/* Publish Toggle */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '4px 0' }}>
-                  <input
-                    type="checkbox"
-                    id="isPublishedCheck"
-                    checked={productForm.isPublished}
-                    onChange={e => setProductForm({ ...productForm, isPublished: e.target.checked })}
-                    style={{ width: 18, height: 18, cursor: 'pointer' }}
-                  />
-                  <label htmlFor="isPublishedCheck" style={{ fontSize: 13, fontWeight: 600, color: '#0F172A', cursor: 'pointer' }}>
-                    Tampilkan di website
-                  </label>
-                </div>
-
-                {/* Actions */}
-                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 10 }}>
-                  <button style={S.btnOutline} onClick={() => setIsProductModalOpen(false)}>
-                    Batal
-                  </button>
-                  <button style={S.btnPrimary} disabled={isSaving} onClick={saveProduct}>
-                    {isSaving ? 'Menyimpan...' : (editingProduct ? 'Simpan Perubahan' : 'Simpan Produk')}
-                  </button>
+                    </optgroup>
+                  </select>
                 </div>
               </div>
+
+              <div className="flex items-center gap-2 pt-1">
+                <input
+                  type="checkbox"
+                  id="isPublishedCheck"
+                  checked={productForm.isPublished}
+                  onChange={e => setProductForm({ ...productForm, isPublished: e.target.checked })}
+                  className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 cursor-pointer"
+                />
+                <label
+                  htmlFor="isPublishedCheck"
+                  className="text-xs font-bold text-slate-800 cursor-pointer"
+                >
+                  Tampilkan di website (Publish)
+                </label>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => setIsProductModalOpen(false)}
+                className="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 transition-colors"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                disabled={isSaving}
+                onClick={saveProduct}
+                className="px-5 py-2.5 rounded-xl text-xs font-extrabold text-white bg-blue-600 hover:bg-blue-700 shadow-sm shadow-blue-500/20 transition-colors"
+              >
+                {isSaving ? 'Menyimpan...' : editingProduct ? 'Simpan Perubahan' : 'Tambah Produk'}
+              </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* LEAD DETAIL MODAL */}
+      {/* ════════════════════════════════════════════════════════════════
+          MODAL: DETAIL DATA PESERTA (LEAD)
+      ════════════════════════════════════════════════════════════════ */}
       {selectedLead && (
-        <div style={S.overlay} onClick={() => setSelectedLead(null)}>
-          <div style={S.modal} onClick={e => e.stopPropagation()}>
-            <button style={S.closeBtn} onClick={() => setSelectedLead(null)}>✕</button>
-            <div style={S.modalPad}>
-              <h2 style={{ fontSize: 20, fontWeight: 800, margin: '0 0 4px', letterSpacing: '-0.02em' }}>Detail Peserta</h2>
-              <p style={{ fontSize: 12.5, color: '#64748B', margin: '0 0 20px' }}>Informasi kontak dan ringkasan hasil asesmen</p>
+        <div
+          className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto"
+          onClick={() => setSelectedLead(null)}
+        >
+          <div
+            className="bg-white rounded-3xl w-full max-w-lg shadow-2xl p-6 sm:p-8 space-y-6 relative max-h-[90vh] overflow-y-auto"
+            onClick={e => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setSelectedLead(null)}
+              className="absolute top-5 right-5 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
 
-              {/* Info grid */}
-              <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', padding: 16, borderRadius: 16, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 20 }}>
-                {[
-                  { label: 'Nama Lengkap', value: selectedLead.name, bold: true },
-                  { label: 'WhatsApp', value: selectedLead.wa, color: '#16A34A', bold: true },
-                  { label: 'Email', value: selectedLead.email },
-                  { label: 'Profesi', value: selectedLead.profesi },
-                ].map(item => (
-                  <div key={item.label}>
-                    <div style={{ fontSize: 10.5, fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: 4 }}>{item.label}</div>
-                    <div style={{ fontSize: 14.5, fontWeight: item.bold ? 800 : 600, color: item.color || '#0F172A' }}>{item.value || '-'}</div>
-                  </div>
-                ))}
+            <div>
+              <div className="flex items-center gap-2">
+                <h2 className="font-black text-xl text-slate-900 tracking-tight">Detail Peserta</h2>
+                <span
+                  className={`px-2.5 py-0.5 rounded-full text-xs font-black ${
+                    selectedLead.readinessScore >= 80
+                      ? 'bg-emerald-100 text-emerald-800'
+                      : selectedLead.readinessScore >= 60
+                      ? 'bg-amber-100 text-amber-800'
+                      : 'bg-slate-100 text-slate-700'
+                  }`}
+                >
+                  {selectedLead.readinessScore}% Kesiapan
+                </span>
+              </div>
+              <p className="text-xs text-slate-400 mt-1">
+                Terdaftar pada {fmtDate(selectedLead.createdAt)}
+              </p>
+            </div>
+
+            {/* Profile Grid */}
+            <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-4 grid grid-cols-2 gap-3 text-xs">
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">
+                  Nama Lengkap
+                </span>
+                <span className="font-extrabold text-slate-900 text-sm">{selectedLead.name}</span>
               </div>
 
-              {/* Scores */}
-              <div style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: 14, padding: 16, marginBottom: 16 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
-                  <div style={{ textAlign: 'center', flex: 1 }}>
-                    <div style={{ fontSize: 11, fontWeight: 700, color: '#64748B', marginBottom: 4 }}>TOP MATCH</div>
-                    <div style={{ fontSize: 13, fontWeight: 800, color: '#1D64EC', lineHeight: 1.3 }}>{selectedLead.topMatch}</div>
-                  </div>
-                  <div style={{ textAlign: 'center', flex: 1 }}>
-                    <div style={{ fontSize: 11, fontWeight: 700, color: '#64748B', marginBottom: 4 }}>SKOR KESIAPAN</div>
-                    <div style={{ fontSize: 28, fontWeight: 900, color: '#10B981', lineHeight: 1 }}>{selectedLead.readinessScore}%</div>
-                  </div>
-                </div>
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">
+                  Profesi Asal
+                </span>
+                <span className="font-bold text-slate-700">{selectedLead.profesi}</span>
               </div>
 
-              {/* Gaps */}
-              {selectedLead.gaps?.length > 0 && (
-                <div style={{ background: '#FFFBEB', border: '1px solid #FDE68A', padding: 14, borderRadius: 14, marginBottom: 16 }}>
-                  <div style={{ fontSize: 12, fontWeight: 800, color: '#92400E', marginBottom: 8 }}>Area Pengembangan:</div>
-                  <ul style={{ margin: 0, paddingLeft: 18 }}>
-                    {selectedLead.gaps.map((g, i) => (
-                      <li key={i} style={{ fontSize: 12.5, color: '#78350F', marginBottom: 4, lineHeight: 1.4 }}>{g}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">
+                  WhatsApp
+                </span>
+                {selectedLead.wa ? (
+                  <a
+                    href={`https://wa.me/${fmtWa(selectedLead.wa)}?text=${encodeURIComponent(
+                      `Halo ${selectedLead.name}, salam dari tim Cari Side Job!`
+                    )}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-black text-emerald-600 hover:underline inline-flex items-center gap-1"
+                  >
+                    <Phone className="w-3.5 h-3.5" />
+                    <span>{selectedLead.wa}</span>
+                  </a>
+                ) : (
+                  <span className="text-slate-400">-</span>
+                )}
+              </div>
 
-              {/* Skills */}
-              <div style={{ marginBottom: 14 }}>
-                <div style={{ fontSize: 11.5, fontWeight: 700, color: '#64748B', marginBottom: 8 }}>Keahlian:</div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">
+                  Email
+                </span>
+                <span className="font-semibold text-slate-700 truncate block">
+                  {selectedLead.email}
+                </span>
+              </div>
+            </div>
+
+            {/* Top Match Card */}
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/60 rounded-2xl p-4 flex items-center justify-between">
+              <div>
+                <span className="text-[10px] font-extrabold uppercase tracking-wider text-blue-700 block">
+                  Rekomendasi Side Job Teratas
+                </span>
+                <span className="font-black text-base text-blue-900 mt-0.5 block">
+                  {selectedLead.topMatch}
+                </span>
+              </div>
+              <div className="text-right">
+                <span className="text-[10px] font-extrabold uppercase tracking-wider text-blue-700 block">
+                  Skor Match
+                </span>
+                <span className="font-black text-xl text-blue-700">{selectedLead.topMatchScore}%</span>
+              </div>
+            </div>
+
+            {/* Gaps */}
+            {selectedLead.gaps && selectedLead.gaps.length > 0 && (
+              <div className="bg-amber-50/70 border border-amber-200/70 rounded-2xl p-4 text-xs space-y-2">
+                <span className="font-extrabold text-amber-900 block">Area Peningkatan & Gaps:</span>
+                <ul className="list-disc list-inside space-y-1 text-amber-900">
+                  {selectedLead.gaps.map((gap, i) => (
+                    <li key={i}>{gap}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Skills & Tools */}
+            <div className="space-y-3 text-xs">
+              <div>
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1.5">
+                  Keahlian Terpilih:
+                </span>
+                <div className="flex items-center gap-1.5 flex-wrap">
                   {selectedLead.skills?.map((s, i) => (
-                    <span key={i} style={S.pill('#F1F5F9', '#334155')}>{toTitleCase(s)}</span>
-                  )) || <span style={{ color: '#94A3B8', fontSize: 12 }}>-</span>}
+                    <span
+                      key={i}
+                      className="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 font-bold"
+                    >
+                      {toTitleCase(s)}
+                    </span>
+                  )) || <span className="text-slate-400">-</span>}
                 </div>
               </div>
 
-              {/* Tools */}
-              <div style={{ marginBottom: 24 }}>
-                <div style={{ fontSize: 11.5, fontWeight: 700, color: '#64748B', marginBottom: 8 }}>Tools:</div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+              <div>
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1.5">
+                  Tools yang Dikuasai:
+                </span>
+                <div className="flex items-center gap-1.5 flex-wrap">
                   {selectedLead.tools?.map((t, i) => (
-                    <span key={i} style={S.pill('#EFF6FF', '#1D64EC', '#BFDBFE')}>{t}</span>
-                  )) || <span style={{ color: '#94A3B8', fontSize: 12 }}>-</span>}
+                    <span
+                      key={i}
+                      className="px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700 font-bold border border-blue-200/60"
+                    >
+                      {t}
+                    </span>
+                  )) || <span className="text-slate-400">-</span>}
                 </div>
               </div>
+            </div>
 
-              {/* Actions */}
-              <div style={{ display: 'flex', gap: 10 }}>
-                <button style={{ ...S.btnOutline, flex: 1, justifyContent: 'center' }} onClick={() => setSelectedLead(null)}>Tutup</button>
-                <button style={{ ...S.btnRed }} onClick={() => deleteLead(selectedLead.id)}>Hapus Data</button>
-              </div>
+            {/* Actions */}
+            <div className="flex items-center justify-between gap-3 pt-4 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => deleteLead(selectedLead.id)}
+                className="px-3.5 py-2 text-xs font-bold text-rose-600 hover:bg-rose-50 rounded-xl transition-colors inline-flex items-center gap-1.5"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>Hapus Lead</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setSelectedLead(null)}
+                className="px-5 py-2 text-xs font-extrabold text-white bg-slate-900 hover:bg-slate-800 rounded-xl shadow-xs transition-colors"
+              >
+                Tutup
+              </button>
             </div>
           </div>
         </div>

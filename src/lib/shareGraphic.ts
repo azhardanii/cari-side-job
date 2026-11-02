@@ -6,7 +6,7 @@
 // - Personalized greeting: Hi [Name]! Kamu Adalah [PERSONA] + Tagline
 // - "PELUANG SIDE JOB & KERJA REMOTE YANG COCOK UNTUK KAMU"
 // - 3 Floating 3D Asymmetric Glass Spheres with Job Artworks & Match %
-// - Clean verified footer with carisidejob.id watermark
+// - Clean verified footer with carisidejob.com watermark
 // ============================================================================
 
 export interface ShareGraphicParams {
@@ -852,7 +852,7 @@ export async function renderStoryGraphicCanvas(params: ShareGraphicParams): Prom
   ctx.fillStyle = '#0A0E2E';
   ctx.fillText('Cari Side Job Yang Cocok Buat Kamu di', 540, 1750);
   ctx.font = '900 33px Outfit, Plus Jakarta Sans, sans-serif';
-  ctx.fillText('carisidejob.id', 540, 1795);
+  ctx.fillText('carisidejob.com', 540, 1795);
 
   return canvas;
 }

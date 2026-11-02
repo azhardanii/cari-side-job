@@ -414,7 +414,7 @@ export default function HomePage() {
       `Hai! Aku baru saja tes pemetaan potensi diri di Cari Side Job 🚀\n\n` +
       `Karakterku: "${calculatedResult.persona.name}"\n` +
       `Side Job Paling Cocok: ${topJob.name} (${topJob.matchPercent}% Cocok)!\n\n` +
-      `Yuk cari tahu side job yang paling pas dengan skill kamu di sini:\nhttps://carisidejob.id`
+      `Yuk cari tahu side job yang paling pas dengan skill kamu di sini:\nhttps://carisidejob.com`
     );
     const waUrl = `https://api.whatsapp.com/send?text=${text}`;
     window.location.href = waUrl;
@@ -463,7 +463,7 @@ export default function HomePage() {
         try {
           await navigator.share({
             title: 'Hasil Tes Potensi Cari Side Job',
-            text: `Karakterku: "${calculatedResult.persona.name}" - Side Job Paling Cocok: ${calculatedResult.topMatches[0].name} (${calculatedResult.topMatches[0].matchPercent}% Cocok)! Cek punyamu di https://carisidejob.id`,
+            text: `Karakterku: "${calculatedResult.persona.name}" - Side Job Paling Cocok: ${calculatedResult.topMatches[0].name} (${calculatedResult.topMatches[0].matchPercent}% Cocok)! Cek punyamu di https://carisidejob.com`,
             files: [file],
           });
           return;

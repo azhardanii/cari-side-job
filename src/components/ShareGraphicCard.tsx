@@ -70,7 +70,7 @@ export function ShareGraphicCard({ params, onShareWhatsApp }: ShareGraphicCardPr
         try {
           await navigator.share({
             title: 'Hasil Tes Potensi Cari Side Job',
-            text: `Aku adalah "${params.personaName}"! Side Job paling cocok buatku: ${params.topMatches[0]?.name} (${params.topMatches[0]?.matchPercent}% Cocok). Cek side job kamu di https://carisidejob.id`,
+            text: `Aku adalah "${params.personaName}"! Side Job paling cocok buatku: ${params.topMatches[0]?.name} (${params.topMatches[0]?.matchPercent}% Cocok). Cek side job kamu di https://carisidejob.com`,
             files: [file],
           });
           return;
@@ -245,7 +245,7 @@ export function ShareGraphicCard({ params, onShareWhatsApp }: ShareGraphicCardPr
             Cari Side Job Yang Cocok Buat Kamu di
           </div>
           <div className="text-[8.5px] font-[900] text-[#0A0E2E]">
-            carisidejob.id
+            carisidejob.com
           </div>
         </div>
 

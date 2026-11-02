@@ -35,6 +35,10 @@ import {
   Smartphone,
   Flame,
   Award,
+  GripVertical,
+  ArrowUp,
+  ArrowDown,
+  ArrowUpToLine,
 } from 'lucide-react';
 import {
   JOB_CATEGORIES,
@@ -179,6 +183,12 @@ export default function AdminPage() {
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<ProductItem | null>(null);
   const [importNotification, setImportNotification] = useState<string | null>(null);
+
+  // Product Arrange & Reordering State
+  const [draggedProductIndex, setDraggedProductIndex] = useState<number | null>(null);
+  const [dragOverProductIndex, setDragOverProductIndex] = useState<number | null>(null);
+  const [isReorderingProducts, setIsReorderingProducts] = useState(false);
+  const [reorderSuccessMsg, setReorderSuccessMsg] = useState<string | null>(null);
   const [productForm, setProductForm] = useState<ProductFormData>({
     title: '',
     category: 'Ebook',
@@ -256,7 +266,7 @@ export default function AdminPage() {
 
   const fetchProducts = async () => {
     try {
-      const res = await fetch('/api/products?admin=true');
+      const res = await fetch(`/api/products?admin=true&t=${Date.now()}`, { cache: 'no-store' });
       if (res.status === 401) {
         window.location.href = '/login';
         return;
@@ -268,6 +278,75 @@ export default function AdminPage() {
     } catch (e) {
       console.error('Error fetching products:', e);
     }
+  };
+
+  const saveReorderedProducts = async (reorderedList: ProductItem[]) => {
+    setIsReorderingProducts(true);
+    try {
+      const orderedIds = reorderedList.map(p => p.id);
+      const res = await fetch('/api/products', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderedIds }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setReorderSuccessMsg('Urutan produk berhasil disimpan & langsung tayang di website!');
+        setTimeout(() => setReorderSuccessMsg(null), 3500);
+      } else {
+        alert('Gagal menyimpan urutan: ' + (data.error || 'Terjadi kesalahan'));
+      }
+    } catch (err: any) {
+      console.error('Error saving product order:', err);
+    } finally {
+      setIsReorderingProducts(false);
+    }
+  };
+
+  const moveProduct = (fromIndex: number, toIndex: number) => {
+    if (toIndex < 0 || toIndex >= products.length || fromIndex === toIndex) return;
+    const reordered = [...products];
+    const [moved] = reordered.splice(fromIndex, 1);
+    reordered.splice(toIndex, 0, moved);
+    setProducts(reordered);
+    saveReorderedProducts(reordered);
+  };
+
+  const moveProductToTop = (fromIndex: number) => {
+    if (fromIndex === 0) return;
+    moveProduct(fromIndex, 0);
+  };
+
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    setDraggedProductIndex(index);
+    e.dataTransfer.effectAllowed = 'move';
+    try {
+      e.dataTransfer.setData('text/plain', String(index));
+    } catch {
+      // fallback
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    if (dragOverProductIndex !== index) {
+      setDragOverProductIndex(index);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent, targetIndex: number) => {
+    e.preventDefault();
+    if (draggedProductIndex !== null && draggedProductIndex !== targetIndex) {
+      moveProduct(draggedProductIndex, targetIndex);
+    }
+    setDraggedProductIndex(null);
+    setDragOverProductIndex(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedProductIndex(null);
+    setDragOverProductIndex(null);
   };
 
   const fetchAnalytics = async () => {
@@ -1666,6 +1745,39 @@ export default function AdminPage() {
               </button>
             </div>
 
+            {/* REORDER INSTRUCTION & LIVE STATUS BANNER */}
+            <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+              <div className="flex items-start gap-3">
+                <div className="w-9 h-9 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center shrink-0 mt-0.5">
+                  <GripVertical className="w-4 h-4" />
+                </div>
+                <div>
+                  <div className="font-extrabold text-slate-900 text-xs flex items-center gap-2 flex-wrap">
+                    <span>Pengaturan Urutan Tampil (Arrange / Drag & Drop)</span>
+                    {reorderSuccessMsg && (
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                        ✓ {reorderSuccessMsg}
+                      </span>
+                    )}
+                    {isReorderingProducts && (
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-blue-100 text-blue-800 animate-pulse">
+                        Menyimpan urutan...
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-slate-500 text-[11px] mt-0.5 leading-relaxed">
+                    Urutan di bawah ini sama persis dengan yang tampil di halaman rekomendasi pengguna. Geser (Drag & drop) atau tekan tombol 🔼 / 🔽 untuk mengatur mana produk yang tampil paling atas.
+                  </p>
+                </div>
+              </div>
+
+              {productSearch && (
+                <div className="shrink-0 px-2.5 py-1 rounded-lg bg-amber-50 text-amber-800 border border-amber-200 text-[11px] font-semibold">
+                  ⚠️ Hapus pencarian untuk drag & drop
+                </div>
+              )}
+            </div>
+
             {/* PRODUCT LIST */}
             {products.length === 0 ? (
               <div className="bg-white rounded-2xl border border-slate-200/80 p-12 text-center space-y-3">
@@ -1692,87 +1804,167 @@ export default function AdminPage() {
                       p.title.toLowerCase().includes(productSearch.toLowerCase()) ||
                       p.category.toLowerCase().includes(productSearch.toLowerCase())
                   )
-                  .map(prod => (
-                    <div
-                      key={prod.id}
-                      className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-slate-50/50 transition-colors"
-                    >
-                      <div className="flex items-start gap-4 flex-1 min-w-0">
-                        {/* Cover Image */}
-                        <div className="w-14 h-14 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 shrink-0 flex items-center justify-center">
-                          {prod.imageUrl ? (
-                            <img
-                              src={prod.imageUrl}
-                              alt={prod.title}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <span className="text-xl">📘</span>
-                          )}
+                  .map((prod, displayIdx) => {
+                    const actualIdx = products.findIndex(p => p.id === prod.id);
+                    const isFirst = actualIdx === 0;
+                    const isLast = actualIdx === products.length - 1;
+                    const isDraggingThis = draggedProductIndex === actualIdx;
+                    const isDragOverThis = dragOverProductIndex === actualIdx;
+
+                    return (
+                      <div
+                        key={prod.id}
+                        draggable={!productSearch}
+                        onDragStart={e => handleDragStart(e, actualIdx)}
+                        onDragOver={e => handleDragOver(e, actualIdx)}
+                        onDrop={e => handleDrop(e, actualIdx)}
+                        onDragEnd={handleDragEnd}
+                        className={`p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all duration-150 ${
+                          isDragOverThis
+                            ? 'bg-blue-50/60 border-2 border-dashed border-blue-400'
+                            : isDraggingThis
+                            ? 'opacity-40 bg-slate-100 scale-[0.99]'
+                            : 'hover:bg-slate-50/60'
+                        }`}
+                      >
+                        <div className="flex items-start gap-3.5 flex-1 min-w-0">
+                          {/* Drag Handle & Position Badge */}
+                          <div className="flex flex-col items-center gap-1 shrink-0 pt-1">
+                            <div
+                              className={`p-1 rounded-lg transition-colors ${
+                                productSearch
+                                  ? 'text-slate-300 cursor-not-allowed'
+                                  : 'text-slate-400 hover:text-blue-600 hover:bg-slate-100 cursor-grab active:cursor-grabbing'
+                              }`}
+                              title={productSearch ? 'Kosongkan kolom pencarian untuk drag & drop' : 'Tahan & geser untuk atur urutan'}
+                            >
+                              <GripVertical className="w-4 h-4" />
+                            </div>
+
+                            <span
+                              className={`px-2 py-0.5 rounded-full text-[10px] font-black tracking-tight ${
+                                actualIdx === 0
+                                  ? 'bg-amber-100 text-amber-800 border border-amber-300 shadow-xs'
+                                  : 'bg-slate-100 text-slate-600 border border-slate-200'
+                              }`}
+                              title={`Posisi ke-${actualIdx + 1} di website`}
+                            >
+                              {actualIdx === 0 ? '⭐ #1' : `#${actualIdx + 1}`}
+                            </span>
+                          </div>
+
+                          {/* Cover Image */}
+                          <div className="w-14 h-14 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 shrink-0 flex items-center justify-center">
+                            {prod.imageUrl ? (
+                              <img
+                                src={prod.imageUrl}
+                                alt={prod.title}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <span className="text-xl">📘</span>
+                            )}
+                          </div>
+
+                          {/* Details */}
+                          <div className="space-y-1 min-w-0 flex-1">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-blue-50 text-blue-700 border border-blue-200/60">
+                                {prod.category}
+                              </span>
+                              {prod.badge && (
+                                <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-50 text-amber-800 border border-amber-200/70">
+                                  {prod.badge}
+                                </span>
+                              )}
+                              <button
+                                onClick={() => toggleProductPublish(prod)}
+                                className={`px-2 py-0.5 rounded-full text-[10px] font-bold border transition-colors ${
+                                  prod.isPublished
+                                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
+                                    : 'bg-slate-100 text-slate-500 border-slate-200 hover:bg-slate-200'
+                                }`}
+                              >
+                                {prod.isPublished ? '● Tayang di Web' : '○ Draft'}
+                              </button>
+                            </div>
+
+                            <h4 className="font-extrabold text-sm text-slate-900 truncate" title={prod.title}>
+                              {prod.title}
+                            </h4>
+
+                            <div className="flex items-center gap-2 text-xs text-slate-500 flex-wrap">
+                              <span className="font-bold text-slate-900">{prod.price || 'Rp 0'}</span>
+                              <span>•</span>
+                              <span>
+                                Target: <strong>{prod.sideJob || 'Semua Profil'}</strong>
+                              </span>
+                            </div>
+                          </div>
                         </div>
 
-                        {/* Details */}
-                        <div className="space-y-1 min-w-0">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-blue-50 text-blue-700 border border-blue-200/60">
-                              {prod.category}
-                            </span>
-                            {prod.badge && (
-                              <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-50 text-amber-800 border border-amber-200/70">
-                                {prod.badge}
-                              </span>
-                            )}
+                        {/* Order Controls & Actions */}
+                        <div className="flex items-center justify-between sm:justify-end gap-2 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
+                          {/* Reorder Buttons (Move Up, Down, Top) */}
+                          <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl">
                             <button
-                              onClick={() => toggleProductPublish(prod)}
-                              className={`px-2 py-0.5 rounded-full text-[10px] font-bold border transition-colors ${
-                                prod.isPublished
-                                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
-                                  : 'bg-slate-100 text-slate-500 border-slate-200 hover:bg-slate-200'
-                              }`}
+                              type="button"
+                              onClick={() => moveProductToTop(actualIdx)}
+                              disabled={isFirst || Boolean(productSearch)}
+                              className="p-1.5 rounded-lg text-slate-600 hover:text-blue-700 hover:bg-white disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-slate-600 transition-colors"
+                              title="Pindahkan ke Posisi Paling Atas (#1)"
                             >
-                              {prod.isPublished ? '● Tayang di Web' : '○ Draft'}
+                              <ArrowUpToLine className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => moveProduct(actualIdx, actualIdx - 1)}
+                              disabled={isFirst || Boolean(productSearch)}
+                              className="p-1.5 rounded-lg text-slate-600 hover:text-blue-700 hover:bg-white disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-slate-600 transition-colors"
+                              title="Pindahkan 1 Posisi ke Atas"
+                            >
+                              <ArrowUp className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => moveProduct(actualIdx, actualIdx + 1)}
+                              disabled={isLast || Boolean(productSearch)}
+                              className="p-1.5 rounded-lg text-slate-600 hover:text-blue-700 hover:bg-white disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-slate-600 transition-colors"
+                              title="Pindahkan 1 Posisi ke Bawah"
+                            >
+                              <ArrowDown className="w-3.5 h-3.5" />
                             </button>
                           </div>
 
-                          <h4 className="font-extrabold text-sm text-slate-900 truncate">{prod.title}</h4>
-
-                          <div className="flex items-center gap-2 text-xs text-slate-500 flex-wrap">
-                            <span className="font-bold text-slate-900">{prod.price || 'Rp 0'}</span>
-                            <span>•</span>
-                            <span>
-                              Target: <strong>{prod.sideJob || 'Semua Profil'}</strong>
-                            </span>
+                          {/* Product Actions */}
+                          <div className="flex items-center gap-1">
+                            <a
+                              href={prod.url}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="p-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-colors"
+                              title="Buka Link Produk"
+                            >
+                              <ExternalLink className="w-4 h-4" />
+                            </a>
+                            <button
+                              onClick={() => openEditProductModal(prod)}
+                              className="px-3 py-1.5 text-xs font-bold text-slate-700 hover:text-blue-600 hover:bg-slate-100 rounded-xl transition-colors"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => deleteProduct(prod.id, prod.title)}
+                              className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors"
+                              title="Hapus Produk"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
                           </div>
                         </div>
                       </div>
-
-                      {/* Actions */}
-                      <div className="flex items-center justify-end gap-2 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
-                        <a
-                          href={prod.url}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="p-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-colors"
-                          title="Buka Link Produk"
-                        >
-                          <ExternalLink className="w-4 h-4" />
-                        </a>
-                        <button
-                          onClick={() => openEditProductModal(prod)}
-                          className="px-3 py-1.5 text-xs font-bold text-slate-700 hover:text-blue-600 hover:bg-slate-100 rounded-xl transition-colors"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => deleteProduct(prod.id, prod.title)}
-                          className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors"
-                          title="Hapus Produk"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
               </div>
             )}
           </div>

@@ -52,6 +52,10 @@ declare module 'lucide-react' {
   export const MessageSquare: Icon;
   export const Bell: Icon;
   export const FileCheck: Icon;
+  export const GripVertical: Icon;
+  export const ArrowUp: Icon;
+  export const ArrowDown: Icon;
+  export const ArrowUpToLine: Icon;
 
   const icons: { [key: string]: Icon };
   export default icons;

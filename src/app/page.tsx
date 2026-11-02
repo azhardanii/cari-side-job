@@ -156,7 +156,7 @@ export default function HomePage() {
       .catch((err) => console.warn('Gagal memuat lowongan remote:', err));
 
     // Fetch live products from database
-    fetch('/api/products')
+    fetch(`/api/products?t=${Date.now()}`, { cache: 'no-store' })
       .then((res) => res.json())
       .then((data) => {
         if (data.success && Array.isArray(data.products)) {

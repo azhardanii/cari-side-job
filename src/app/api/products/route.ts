@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { verifyAdminSession, ADMIN_COOKIE_NAME } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 function cleanLynkUrl(rawUrl: string): string {
   let url = (rawUrl || '').trim();
@@ -208,6 +209,51 @@ export async function DELETE(req: NextRequest) {
     console.error('Error deleting product:', error);
     return NextResponse.json(
       { error: error?.message || 'Gagal menghapus produk' },
+      { status: 500 }
+    );
+  }
+}
+
+// PATCH reorder products (Admin only)
+export async function PATCH(req: NextRequest) {
+  try {
+    const token = req.cookies.get(ADMIN_COOKIE_NAME)?.value;
+    const isAuthed = await verifyAdminSession(token);
+    if (!isAuthed) {
+      return NextResponse.json(
+        { error: 'Akses ditolak. Sesi admin diperlukan.' },
+        { status: 401 }
+      );
+    }
+
+    const body = await req.json();
+    const { orderedIds } = body;
+
+    if (!Array.isArray(orderedIds) || orderedIds.length === 0) {
+      return NextResponse.json(
+        { error: 'Data orderedIds harus berupa array ID produk yang valid.' },
+        { status: 400 }
+      );
+    }
+
+    // Update each product's order index in a transaction
+    await prisma.$transaction(
+      orderedIds.map((id: string, index: number) =>
+        prisma.product.update({
+          where: { id },
+          data: { order: index },
+        })
+      )
+    );
+
+    return NextResponse.json({
+      success: true,
+      message: 'Urutan produk berhasil disimpan.',
+    });
+  } catch (error: any) {
+    console.error('Error reordering products:', error);
+    return NextResponse.json(
+      { error: error?.message || 'Gagal mengubah urutan produk' },
       { status: 500 }
     );
   }
